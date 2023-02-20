@@ -10,6 +10,14 @@ import javax.ws.rs.core.MediaType;
 @Path("/hello")
 public class GreetingResource {
 
+    // TODO
+    // https://firebase.google.com/docs/admin/setup#java
+    // https://github.com/holgerbrandl/themoviedbapi/
+
+    // TODO: maybe native binary doesn't support, then just remove files...
+    // Desktop desktop = Desktop.getDesktop();
+    // desktop.moveToTrash(new File());
+
     @GET
     @Produces(MediaType.TEXT_PLAIN)
     public String hello() {
