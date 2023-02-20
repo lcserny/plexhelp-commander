@@ -10,6 +10,8 @@ import javax.ws.rs.core.MediaType;
 @Path("/hello")
 public class GreetingResource {
 
+    // https://quarkus.io/guides/resteasy-reactive
+
     // TODO
     // https://firebase.google.com/docs/admin/setup#java
     // https://github.com/holgerbrandl/themoviedbapi/
@@ -30,6 +32,13 @@ public class GreetingResource {
     public String helloJson() {
         Jsonb build = JsonbBuilder.create();
         return build.toJson(new SomeData("Some name"));
+    }
+
+    @GET
+    @Path("/jsonAuto")
+    @Produces(MediaType.APPLICATION_JSON)
+    public SomeData helloJsonAuto() {
+        return new SomeData("Some name");
     }
 
     public static class SomeData {
