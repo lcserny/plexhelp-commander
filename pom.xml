@@ -17,6 +17,7 @@
         <quarkus.platform.version>2.16.3.Final</quarkus.platform.version>
         <firebase.version>9.1.1</firebase.version>
         <tmdb.version>1.12</tmdb.version>
+        <jimfs.version>1.2</jimfs.version>
         <skipITs>true</skipITs>
         <surefire-plugin.version>3.0.0-M7</surefire-plugin.version>
     </properties>
@@ -66,11 +67,12 @@
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-smallrye-openapi</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.google.firebase</groupId>
-            <artifactId>firebase-admin</artifactId>
-            <version>${firebase.version}</version>
-        </dependency>
+<!--       TODO: find replacement -->
+<!--        <dependency>-->
+<!--            <groupId>com.google.firebase</groupId>-->
+<!--            <artifactId>firebase-admin</artifactId>-->
+<!--            <version>${firebase.version}</version>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>com.github.holgerbrandl</groupId>
             <artifactId>themoviedbapi</artifactId>
@@ -95,6 +97,12 @@
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>mongodb</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.jimfs</groupId>
+            <artifactId>jimfs</artifactId>
+            <version>${jimfs.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
