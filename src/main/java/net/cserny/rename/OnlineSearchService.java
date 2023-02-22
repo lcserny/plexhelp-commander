@@ -1,6 +1,6 @@
-package net.cserny.search;
+package net.cserny.rename;
 
-import net.cserny.search.OnlineResult.OnlineResultType;
+import net.cserny.rename.OnlineResult.OnlineResultType;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;

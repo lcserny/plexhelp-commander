@@ -1,4 +1,4 @@
-package net.cserny.search;
+package net.cserny.rename;
 
 import io.quarkus.mongodb.panache.PanacheMongoRepository;
 
