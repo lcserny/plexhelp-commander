@@ -1,4 +1,4 @@
-package net.cserny.cache;
+package net.cserny.search;
 
 import io.quarkus.mongodb.panache.PanacheMongoRepository;
 

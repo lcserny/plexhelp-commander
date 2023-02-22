@@ -1,4 +1,6 @@
-package net.cserny.cache;
+package net.cserny.search;
+
+import net.cserny.search.OnlineResult.OnlineResultType;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;

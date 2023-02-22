@@ -1,4 +1,4 @@
-package net.cserny.cache;
+package net.cserny.search;
 
 import io.quarkus.mongodb.panache.common.MongoEntity;
 import org.bson.types.ObjectId;
@@ -18,4 +18,9 @@ public class OnlineResult {
     public String description;
     public List<String> cast;
     public OnlineResultType type;
+
+    public enum OnlineResultType {
+        MOVIE,
+        TV
+    }
 }

@@ -1,4 +1,4 @@
-package net.cserny.cache;
+package net.cserny.download;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;

@@ -1,6 +1,8 @@
-package net.cserny.cache;
+package net.cserny.download;
 
 import io.quarkus.test.junit.QuarkusTest;
+import net.cserny.MongoDockerExtension;
+import net.cserny.download.DownloadedMediaService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
