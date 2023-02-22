@@ -9,6 +9,8 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 import javax.inject.Inject;
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -37,7 +39,13 @@ public class DownloadHistoryServiceTest {
         media.fileSize = size;
         media.dateDownloaded = date;
 
-        repository.persist(media);
+        DownloadedMedia media2 = new DownloadedMedia();
+        media2.fileName = name;
+        media2.fileSize = size;
+        media2.dateDownloaded = date.plusDays(3);
+
+        repository.persist(Arrays.asList(media, media2));
+
         List<DownloadedMedia> list = service.retrieveAllFromDate(date.toLocalDate());
 
         assertNotNull(list);
