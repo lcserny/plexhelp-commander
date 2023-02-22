@@ -3,6 +3,7 @@ package net.cserny.download;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import net.cserny.MongoTestSetup;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -27,7 +28,7 @@ public class DownloadHistoryEndpointTest {
     public void testCanRetrieveDownloadHistory() {
         String name = "name";
         long size = 1L;
-        int year = 2000;
+        int year = 2012;
         int month = 10;
         int day = 1;
         int hour = 9;
