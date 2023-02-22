@@ -1,14 +1,13 @@
 package net.cserny.download;
 
+import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
-import net.cserny.MongoDockerExtension;
+import net.cserny.MongoTestSetup;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import javax.inject.Inject;
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -17,10 +16,8 @@ import static org.hamcrest.CoreMatchers.is;
 
 @QuarkusTest
 @Testcontainers
+@QuarkusTestResource(MongoTestSetup.class)
 public class DownloadHistoryEndpointTest {
-
-    @RegisterExtension
-    static final MongoDockerExtension deploy = new MongoDockerExtension();
 
     @Inject
     DownloadedMediaRepository repository;

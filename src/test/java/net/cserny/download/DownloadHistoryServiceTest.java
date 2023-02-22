@@ -1,18 +1,14 @@
 package net.cserny.download;
 
+import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
-import net.cserny.MongoDockerExtension;
-import org.junit.jupiter.api.Assertions;
+import net.cserny.MongoTestSetup;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import javax.inject.Inject;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -20,10 +16,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @QuarkusTest
 @Testcontainers
+@QuarkusTestResource(MongoTestSetup.class)
 public class DownloadHistoryServiceTest {
-
-    @RegisterExtension
-    static final MongoDockerExtension deploy = new MongoDockerExtension();
 
     @Inject
     DownloadHistoryService service;
@@ -34,9 +28,9 @@ public class DownloadHistoryServiceTest {
     @Test
     @DisplayName("Check that service retrieves correct media")
     void retrieveCorrectMedia() {
-        String name = "name";
+        String name = "hello";
         long size = 1L;
-        LocalDateTime date = LocalDateTime.of(2000, 10, 1, 9, 33);
+        LocalDateTime date = LocalDateTime.of(2010, 10, 1, 9, 33);
 
         DownloadedMedia media = new DownloadedMedia();
         media.fileName = name;
