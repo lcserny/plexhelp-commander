@@ -1,8 +1,7 @@
-package net.cserny.download;
+package net.cserny.search;
 
 import io.quarkus.test.junit.QuarkusTest;
 import net.cserny.MongoDockerExtension;
-import net.cserny.download.DownloadedMediaService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -12,13 +11,13 @@ import javax.inject.Inject;
 
 @QuarkusTest
 @Testcontainers
-public class DownloadedMediaServiceTest {
+public class OnlineSearchServiceTest {
 
     @RegisterExtension
     static final MongoDockerExtension deploy = new MongoDockerExtension();
 
     @Inject
-    DownloadedMediaService service;
+    OnlineSearchService service;
 
     @Test
     @DisplayName("Check that the mongo container starts")

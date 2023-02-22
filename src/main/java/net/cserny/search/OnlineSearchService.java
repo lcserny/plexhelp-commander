@@ -7,7 +7,7 @@ import javax.inject.Inject;
 import java.util.List;
 
 @Dependent
-public class OnlineResultService {
+public class OnlineSearchService {
 
     @Inject
     OnlineResultRepository repository;
