@@ -13,7 +13,7 @@ public class GreetingResource {
     // https://quarkus.io/guides/resteasy-reactive
 
     // TODO
-    // https://firebase.google.com/docs/admin/setup#java
+    // https://www.mongodb.com/docs/atlas/app-services/data-api/
     // https://github.com/holgerbrandl/themoviedbapi/
 
     // TODO: maybe native binary doesn't support, then just remove files...
