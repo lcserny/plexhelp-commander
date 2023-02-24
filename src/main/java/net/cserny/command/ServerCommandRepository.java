@@ -3,12 +3,13 @@ package net.cserny.command;
 import io.quarkus.mongodb.panache.PanacheMongoRepository;
 
 import javax.enterprise.context.ApplicationScoped;
+import java.util.Optional;
 
 @ApplicationScoped
 public class ServerCommandRepository implements PanacheMongoRepository<ServerCommand> {
 
-    public ServerCommand getByServerName(String serverName) {
-        return find("serverName", serverName).firstResult();
+    public Optional<ServerCommand> getByServerName(String serverName) {
+        return Optional.ofNullable(find("serverName", serverName).firstResult());
     }
 
     public void setLastPingDate(String serverName, long timestamp) {

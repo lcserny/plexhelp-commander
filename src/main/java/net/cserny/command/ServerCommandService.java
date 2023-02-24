@@ -26,25 +26,26 @@ public class ServerCommandService {
 
     @PostConstruct
     public void initServerCommand() {
-        ServerCommand server = repository.getByServerName(config.name());
-        server.actionsPending = new ArrayList<>();
-        server.actionsAvailable = commands.stream().map(Command::name).toList();
-        repository.updateServerCommand(server);
+        repository.getByServerName(config.name()).ifPresent(server -> {
+            server.actionsPending = new ArrayList<>();
+            server.actionsAvailable = commands.stream().map(Command::name).toList();
+            repository.updateServerCommand(server);
+        });
     }
 
     @Scheduled(every = "{server.command.listen.interval}")
     public void startListeningForActions() {
         repository.setLastPingDate(config.name(), System.currentTimeMillis());
-
-        ServerCommand server = repository.getByServerName(config.name());
-        if (!server.actionsPending.isEmpty()) {
-            String firstActionPending = server.actionsPending.remove(0);
-            repository.updateServerCommand(server);
-            for (Command command : commands) {
-                if (command.name().equals(firstActionPending)) {
-                    command.execute();
+        repository.getByServerName(config.name()).ifPresent(server -> {
+            if (!server.actionsPending.isEmpty()) {
+                String firstActionPending = server.actionsPending.remove(0);
+                repository.updateServerCommand(server);
+                for (Command command : commands) {
+                    if (command.name().equals(firstActionPending)) {
+                        command.execute();
+                    }
                 }
             }
-        }
+        });
     }
 }
