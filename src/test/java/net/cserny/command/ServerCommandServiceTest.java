@@ -20,6 +20,9 @@ public class ServerCommandServiceTest {
     @Test
     @DisplayName("Starts ok")
     public void startOk() {
+        // add in test mongo instance, the print command
+        // run the startListeningForActions from service
 
+        System.out.println(service.commands);
     }
 }

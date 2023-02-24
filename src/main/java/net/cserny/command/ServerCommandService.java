@@ -1,10 +1,12 @@
 package net.cserny.command;
 
+import io.quarkus.arc.All;
 import io.quarkus.scheduler.Scheduled;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
+import java.util.List;
 
 @Dependent
 public class ServerCommandService {
@@ -15,7 +17,9 @@ public class ServerCommandService {
     @Inject
     ServerCommandConfig config;
 
-    // TODO: inject list of Commands (interface), Shutdown is one but also have one for testing like PrintCommand
+    @Inject
+    @All
+    List<Command> commands;
 
     @PostConstruct
     public void cleanPendingActions() {
