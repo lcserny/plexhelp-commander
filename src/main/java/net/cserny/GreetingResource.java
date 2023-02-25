@@ -12,6 +12,8 @@ public class GreetingResource {
 
     // https://quarkus.io/guides/resteasy-reactive
 
+    // TODO: log more stuff
+
     // TODO
     // https://www.mongodb.com/docs/atlas/app-services/data-api/
     // https://github.com/holgerbrandl/themoviedbapi/

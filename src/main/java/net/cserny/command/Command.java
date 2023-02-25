@@ -1,8 +1,10 @@
 package net.cserny.command;
 
+import net.cserny.command.shutdown.CommandResponse;
+
 public interface Command {
 
-    void execute();
+    CommandResponse execute();
 
     String name();
 }

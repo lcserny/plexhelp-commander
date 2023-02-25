@@ -3,16 +3,21 @@ package net.cserny.command;
 import io.quarkus.arc.All;
 import io.quarkus.mongodb.panache.PanacheQuery;
 import io.quarkus.scheduler.Scheduled;
+import org.jboss.logging.Logger;
 
 import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Dependent
+@ApplicationScoped
 public class ServerCommandService {
+
+    private static final Logger LOGGER = Logger.getLogger(ServerCommandService.class);
 
     @Inject
     ServerCommandRepository repository;
@@ -26,22 +31,31 @@ public class ServerCommandService {
 
     @PostConstruct
     public void initServerCommand() {
-        repository.getByServerName(config.name()).ifPresent(server -> {
+        LOGGER.info("Initializing " + config.name());
+        Optional<ServerCommand> serverCommand = repository.getByServerName(config.name());
+        if (serverCommand.isPresent()) {
+            ServerCommand server = serverCommand.get();
             server.actionsPending = new ArrayList<>();
             server.actionsAvailable = commands.stream().map(Command::name).toList();
             repository.updateServerCommand(server);
-        });
+        } else {
+            ServerCommand server = new ServerCommand();
+            server.serverName = config.name();
+            repository.saveServer(server);
+        }
     }
 
     @Scheduled(every = "{server.command.listen.interval}")
     public void startListeningForActions() {
         repository.setLastPingDate(config.name(), System.currentTimeMillis());
         repository.getByServerName(config.name()).ifPresent(server -> {
-            if (!server.actionsPending.isEmpty()) {
+            LOGGER.info("Checking for pending actions for server " + config.name());
+            if (server.actionsPending != null && !server.actionsPending.isEmpty()) {
                 String firstActionPending = server.actionsPending.remove(0);
                 repository.updateServerCommand(server);
                 for (Command command : commands) {
                     if (command.name().equals(firstActionPending)) {
+                        LOGGER.info("Executing action " + command.name() + " for server " + config.name());
                         command.execute();
                     }
                 }

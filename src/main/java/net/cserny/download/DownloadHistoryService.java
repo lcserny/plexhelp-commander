@@ -2,6 +2,7 @@ package net.cserny.download;
 
 import io.quarkus.logging.Log;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import java.time.LocalDate;
@@ -10,7 +11,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-@Dependent
+@ApplicationScoped
 public class DownloadHistoryService {
 
     @Inject

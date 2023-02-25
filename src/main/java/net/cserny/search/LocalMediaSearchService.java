@@ -1,10 +1,11 @@
 package net.cserny.search;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Dependent;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 
-@Dependent
+@ApplicationScoped
 public class LocalMediaSearchService {
 
     private final FileSystem fileSystem;

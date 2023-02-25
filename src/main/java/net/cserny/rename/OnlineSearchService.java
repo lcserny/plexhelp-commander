@@ -2,11 +2,12 @@ package net.cserny.rename;
 
 import net.cserny.rename.OnlineResult.OnlineResultType;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import java.util.List;
 
-@Dependent
+@ApplicationScoped
 public class OnlineSearchService {
 
     @Inject

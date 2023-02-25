@@ -8,6 +8,10 @@ import java.util.Optional;
 @ApplicationScoped
 public class ServerCommandRepository implements PanacheMongoRepository<ServerCommand> {
 
+    public void saveServer(ServerCommand serverCommand) {
+        persist(serverCommand);
+    }
+
     public Optional<ServerCommand> getByServerName(String serverName) {
         return Optional.ofNullable(find("serverName", serverName).firstResult());
     }
