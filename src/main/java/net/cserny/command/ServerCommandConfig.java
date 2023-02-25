@@ -10,6 +10,6 @@ public interface ServerCommandConfig {
 
     String name();
 
-    @WithName("listen.interval")
-    String listenInterval();
+    @WithName("listen.cron")
+    String listenCron();
 }
