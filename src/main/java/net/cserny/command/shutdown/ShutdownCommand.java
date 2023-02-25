@@ -26,7 +26,7 @@ public class ShutdownCommand implements Command {
 
     private void shutdownUnix(Runtime runtime) {
         try {
-            runtime.exec("shutdown");
+            runtime.exec("shutdown now");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
