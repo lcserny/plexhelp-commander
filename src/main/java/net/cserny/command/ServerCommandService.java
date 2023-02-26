@@ -53,7 +53,6 @@ public class ServerCommandService {
         repository.setLastPingDate(config.name(), System.currentTimeMillis());
 
         repository.getByServerName(config.name()).ifPresent(server -> {
-            LOGGER.info("Checking for pending actions for server " + config.name());
             if (server.actionsPending != null && !server.actionsPending.isEmpty()) {
                 String firstActionPending = server.actionsPending.remove(0);
                 repository.updateServerCommand(server);
