@@ -1,5 +1,6 @@
 package net.cserny.filesystem;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -7,13 +8,16 @@ import java.nio.file.FileSystems;
 @ApplicationScoped
 public class LocalFileService {
 
-    private final FileSystem fileSystem;
+    private FileSystem fileSystem;
 
-    public LocalFileService() {
+    @PostConstruct
+    public void init() {
         this.fileSystem = FileSystems.getDefault();
     }
 
-    public LocalFileService(FileSystem fileSystem) {
+    public void setFileSystem(FileSystem fileSystem) {
         this.fileSystem = fileSystem;
     }
+
+    // TODO: delete a path, move a Path, walk a Path
 }

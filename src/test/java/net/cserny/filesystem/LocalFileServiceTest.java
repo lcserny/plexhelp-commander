@@ -7,14 +7,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import javax.inject.Inject;
+
 @QuarkusTest
 public class LocalFileServiceTest {
 
+    @Inject
     LocalFileService service;
 
     @BeforeEach
     public void init() {
-        service = new LocalFileService(Jimfs.newFileSystem(Configuration.unix()));
+        service.setFileSystem(Jimfs.newFileSystem(Configuration.unix()));
     }
 
     @Test
