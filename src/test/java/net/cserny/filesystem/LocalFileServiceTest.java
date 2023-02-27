@@ -14,6 +14,7 @@ import java.nio.file.NotDirectoryException;
 import java.nio.file.Path;
 import java.util.List;
 
+import static net.cserny.filesystem.FileCreator.createFile;
 import static org.junit.jupiter.api.Assertions.*;
 
 @QuarkusTest
@@ -30,7 +31,7 @@ public class LocalFileServiceTest {
     @Test
     @DisplayName("Service can delete a path")
     public void deleteWorks() throws IOException {
-        LocalPath localPath = createFile("/hello/my.txt");
+        LocalPath localPath = createFile(service, "/hello/my.txt");
 
         assertTrue(Files.exists(localPath.path()));
 
@@ -42,7 +43,7 @@ public class LocalFileServiceTest {
     @Test
     @DisplayName("Service can move a path")
     public void moveWorks() throws IOException {
-        LocalPath localPath = createFile("/hmmm/test.txt");
+        LocalPath localPath = createFile(service, "/hmmm/test.txt");
         LocalPath destPath = service.produceLocalPath("/someOther/path/text.txt");
 
         assertTrue(Files.exists(localPath.path()));
@@ -63,10 +64,10 @@ public class LocalFileServiceTest {
         String path3 = "/mypath/sub1/file3.txt";
         String path4 = "/mypath/file4.txt";
 
-        createFile(path1);
-        createFile(path2);
-        createFile(path3);
-        createFile(path4);
+        createFile(service, path1);
+        createFile(service, path2);
+        createFile(service, path3);
+        createFile(service, path4);
 
         List<Path> filesFound = service.walk(rootPath, 1);
 
@@ -85,10 +86,10 @@ public class LocalFileServiceTest {
         String path3 = "/mypath/main/movies/mypath/movie3/file3.mkv";
         String path4 = "/mypath/main/movies/movie2.mp4";
 
-        createFile(path1);
-        createFile(path2);
-        createFile(path3);
-        createFile(path4);
+        createFile(service, path1);
+        createFile(service, path2);
+        createFile(service, path3);
+        createFile(service, path4);
 
         List<Path> firstFiles = service.walk(rootPath, 1);
         assertEquals(2, firstFiles.size());
@@ -113,7 +114,7 @@ public class LocalFileServiceTest {
     @DisplayName("Service can walk a path at least depth 1")
     public void walkDepthCannotBeZero() throws IOException {
         LocalPath rootPath = service.produceLocalPath("/mypath");
-        createFile("/mypath/doesntMatter.txt");
+        createFile(service, "/mypath/doesntMatter.txt");
         assertThrows(IllegalArgumentException.class, () -> {
             service.walk(rootPath, 0);
         });
@@ -126,14 +127,5 @@ public class LocalFileServiceTest {
         assertThrows(NotDirectoryException.class, () -> {
             service.walk(rootPath, 1);
         });
-    }
-
-    private LocalPath createFile(String somePath) throws IOException {
-        LocalPath localPath = service.produceLocalPath(somePath);
-        if (localPath.path().getParent() != null) {
-            Files.createDirectories(localPath.path().getParent());
-        }
-        Files.createFile(localPath.path());
-        return localPath;
     }
 }
