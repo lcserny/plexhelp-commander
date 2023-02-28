@@ -12,7 +12,6 @@ public class DownloadHistoryService {
     DownloadedMediaRepository repository;
 
     public List<DownloadedMedia> retrieveAllFromDate(LocalDate date) {
-        return repository.list("date_downloaded >= ?1 and date_downloaded < ?2",
-                date.atStartOfDay(), date.plusDays(1).atStartOfDay());
+        return repository.retrieveAllFromDate(date);
     }
 }
