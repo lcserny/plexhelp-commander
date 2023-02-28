@@ -23,6 +23,11 @@ public class LocalFileServiceTest {
     @Inject
     LocalFileService service;
 
+    @BeforeEach
+    public void setup() {
+        service.fileSystem = Jimfs.newFileSystem(Configuration.unix());
+    }
+
     @Test
     @DisplayName("Service can delete a path")
     public void deleteWorks() throws IOException {

@@ -1,5 +1,6 @@
 package net.cserny.filesystem;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -12,8 +13,7 @@ import java.util.stream.Stream;
 @Singleton
 public class LocalFileService {
 
-    @Inject
-    FileSystem fileSystem;
+    public FileSystem fileSystem = FileSystems.getDefault();
 
     public LocalPath produceLocalPath(String root, String... segments) {
         return new LocalPath(fileSystem.getPath(root, segments));

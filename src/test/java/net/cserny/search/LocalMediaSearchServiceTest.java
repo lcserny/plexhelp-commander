@@ -10,10 +10,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
-import javax.ws.rs.Produces;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.List;
 
 import static net.cserny.filesystem.FileCreator.createFile;
@@ -34,6 +32,11 @@ public class LocalMediaSearchServiceTest {
     @Inject
     SearchConfig searchConfig;
 
+    @BeforeEach
+    public void setup() {
+        fileService.fileSystem = Jimfs.newFileSystem(Configuration.unix());
+    }
+
     @Test
     @DisplayName("Check search finds correct media")
     public void checkSearchFindsCorrectMedia() throws IOException {
@@ -47,10 +50,10 @@ public class LocalMediaSearchServiceTest {
         String video4 = downloadPath + "/video4.mp4";
         createFile(this.fileService, video4, 1);
 
-        List<Path> media = service.findMedia();
+        List<MediaFile> media = service.findMedia();
 
         assertEquals(2, media.size());
-        assertEquals(video1, media.get(0).toAbsolutePath().toString());
-        assertEquals(video3, media.get(1).toAbsolutePath().toString());
+        assertEquals(video1, media.get(0).path());
+        assertEquals(video3, media.get(1).path());
     }
 }

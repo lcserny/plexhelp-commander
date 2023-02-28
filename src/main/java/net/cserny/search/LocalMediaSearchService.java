@@ -5,7 +5,6 @@ import net.cserny.filesystem.LocalFileService;
 import net.cserny.filesystem.LocalPath;
 import org.jboss.logging.Logger;
 
-import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.io.IOException;
@@ -28,7 +27,7 @@ public class LocalMediaSearchService {
     @Inject
     SearchConfig searchConfig;
 
-    public List<Path> findMedia() {
+    public List<MediaFile> findMedia() {
         LocalPath walkPath = fileService.produceLocalPath(filesystemConfig.downloadsPath());
         try {
             List<Path> files = fileService.walk(walkPath, searchConfig.maxDepth());
@@ -36,6 +35,7 @@ public class LocalMediaSearchService {
                     .filter(this::excludeConfiguredPaths)
                     .filter(this::excludeNonVideosByContentType)
                     .filter(this::excludeNonVideosBySize)
+                    .map(path -> new MediaFile(path.toString()))
                     .toList();
         } catch (IOException e) {
             LOGGER.warn("Could not walk path " + walkPath.path(), e);
