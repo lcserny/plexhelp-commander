@@ -2,11 +2,10 @@ package net.cserny.command.shutdown;
 
 import net.cserny.command.Command;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.Dependent;
+import javax.inject.Singleton;
 import java.io.IOException;
 
-@ApplicationScoped
+@Singleton
 public class ShutdownCommand implements Command {
 
     public static final String NAME = "shutdown";

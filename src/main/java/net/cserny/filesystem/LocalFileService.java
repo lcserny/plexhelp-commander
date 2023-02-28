@@ -1,31 +1,19 @@
 package net.cserny.filesystem;
 
-import org.jboss.logging.Logger;
-
-import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@ApplicationScoped
+@Singleton
 public class LocalFileService {
 
-    private static final Logger LOGGER = Logger.getLogger(LocalFileService.class);
-
-    private FileSystem fileSystem;
-
-    @PostConstruct
-    public void init() {
-        this.fileSystem = FileSystems.getDefault();
-    }
-
-    public void setFileSystem(FileSystem fileSystem) {
-        LOGGER.info("Overriding fileSystem with " + fileSystem.getClass().getSimpleName());
-        this.fileSystem = fileSystem;
-    }
+    @Inject
+    FileSystem fileSystem;
 
     public LocalPath produceLocalPath(String root, String... segments) {
         return new LocalPath(fileSystem.getPath(root, segments));

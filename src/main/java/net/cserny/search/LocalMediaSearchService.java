@@ -7,13 +7,14 @@ import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 
-@ApplicationScoped
+@Singleton
 public class LocalMediaSearchService {
 
     private static final Logger LOGGER = Logger.getLogger(LocalMediaSearchService.class);
@@ -26,10 +27,6 @@ public class LocalMediaSearchService {
 
     @Inject
     SearchConfig searchConfig;
-
-    public void setFileService(LocalFileService fileService) {
-        this.fileService = fileService;
-    }
 
     public List<Path> findMedia() {
         LocalPath walkPath = fileService.produceLocalPath(filesystemConfig.downloadsPath());

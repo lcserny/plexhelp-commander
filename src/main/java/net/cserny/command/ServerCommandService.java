@@ -1,21 +1,17 @@
 package net.cserny.command;
 
 import io.quarkus.arc.All;
-import io.quarkus.mongodb.panache.PanacheQuery;
 import io.quarkus.scheduler.Scheduled;
-import net.cserny.command.shutdown.CommandResponse;
 import org.jboss.logging.Logger;
 
 import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
-@ApplicationScoped
+@Singleton
 public class ServerCommandService {
 
     private static final Logger LOGGER = Logger.getLogger(ServerCommandService.class);

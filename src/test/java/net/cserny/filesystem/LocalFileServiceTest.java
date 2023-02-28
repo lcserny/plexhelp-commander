@@ -23,11 +23,6 @@ public class LocalFileServiceTest {
     @Inject
     LocalFileService service;
 
-    @BeforeEach
-    public void init() {
-        service.setFileSystem(Jimfs.newFileSystem(Configuration.unix()));
-    }
-
     @Test
     @DisplayName("Service can delete a path")
     public void deleteWorks() throws IOException {
@@ -80,11 +75,11 @@ public class LocalFileServiceTest {
     @Test
     @DisplayName("Service can walk a path of max depth passed from path passed")
     public void walkDepthIsCorrect() throws IOException {
-        LocalPath rootPath = service.produceLocalPath("/mypath/main/movies");
-        String path1 = "/mypath/main/movies/movie1.mp4";
-        String path2 = "/mypath/main/movies/movie2/file1.mp4";
-        String path3 = "/mypath/main/movies/mypath/movie3/file3.mkv";
-        String path4 = "/mypath/main/movies/movie2.mp4";
+        LocalPath rootPath = service.produceLocalPath("/aaa/main/movies");
+        String path1 = "/aaa/main/movies/movie1.mp4";
+        String path2 = "/aaa/main/movies/movie2/file1.mp4";
+        String path3 = "/aaa/main/movies/mypath/movie3/file3.mkv";
+        String path4 = "/aaa/main/movies/movie2.mp4";
 
         createFile(service, path1);
         createFile(service, path2);
@@ -113,8 +108,8 @@ public class LocalFileServiceTest {
     @Test
     @DisplayName("Service can walk a path at least depth 1")
     public void walkDepthCannotBeZero() throws IOException {
-        LocalPath rootPath = service.produceLocalPath("/mypath");
-        createFile(service, "/mypath/doesntMatter.txt");
+        LocalPath rootPath = service.produceLocalPath("/bbb");
+        createFile(service, "/bbb/doesntMatter.txt");
         assertThrows(IllegalArgumentException.class, () -> {
             service.walk(rootPath, 0);
         });
@@ -123,7 +118,7 @@ public class LocalFileServiceTest {
     @Test
     @DisplayName("Service can walk a directory only")
     public void walkPathMustBeDirectory() throws IOException {
-        LocalPath rootPath = service.produceLocalPath("/mypath");
+        LocalPath rootPath = service.produceLocalPath("/ccc");
         assertThrows(NotDirectoryException.class, () -> {
             service.walk(rootPath, 1);
         });

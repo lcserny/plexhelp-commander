@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @QuarkusTest
 public class LocalMediaSearchServiceTest {
 
+    @Inject
     LocalFileService fileService;
 
     @Inject
@@ -32,13 +33,6 @@ public class LocalMediaSearchServiceTest {
 
     @Inject
     SearchConfig searchConfig;
-
-    @BeforeEach
-    public void init() {
-        this.fileService = new LocalFileService();
-        this.fileService.setFileSystem(Jimfs.newFileSystem(Configuration.unix()));
-        service.setFileService(this.fileService);
-    }
 
     @Test
     @DisplayName("Check search finds correct media")
