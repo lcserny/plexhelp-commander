@@ -35,7 +35,7 @@ public class LocalMediaSearchService {
                     .filter(this::excludeConfiguredPaths)
                     .filter(this::excludeNonVideosByContentType)
                     .filter(this::excludeNonVideosBySize)
-                    .map(path -> new MediaFile(path.toString()))
+                    .map(path -> new MediaFile(path.toString(), path.getFileName().toString()))
                     .toList();
         } catch (IOException e) {
             LOGGER.warn("Could not walk path " + walkPath.path(), e);

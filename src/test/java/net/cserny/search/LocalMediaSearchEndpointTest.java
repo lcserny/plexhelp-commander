@@ -47,7 +47,7 @@ public class LocalMediaSearchEndpointTest {
         createFile(this.fileService, video4, 1);
 
         given()
-                .when().get("/api/v1/search")
+                .when().get("/api/v1/search/media")
                 .then()
                 .statusCode(200)
                 .body("$.size()", is(2))

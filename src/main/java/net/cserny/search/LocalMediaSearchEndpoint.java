@@ -13,6 +13,7 @@ public class LocalMediaSearchEndpoint {
     @Inject
     LocalMediaSearchService service;
 
+    @Path("/media")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public List<MediaFile> searchMedia() {
