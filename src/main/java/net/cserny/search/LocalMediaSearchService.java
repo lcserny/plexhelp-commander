@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Singleton
 public class LocalMediaSearchService {
@@ -29,13 +30,15 @@ public class LocalMediaSearchService {
 
     public List<MediaFile> findMedia() {
         LocalPath walkPath = fileService.produceLocalPath(filesystemConfig.downloadsPath());
+        AtomicInteger counter = new AtomicInteger();
         try {
             List<Path> files = fileService.walk(walkPath, searchConfig.maxDepth());
             return files.stream()
                     .filter(this::excludeConfiguredPaths)
                     .filter(this::excludeNonVideosByContentType)
                     .filter(this::excludeNonVideosBySize)
-                    .map(path -> new MediaFile(path.toString(), path.getFileName().toString()))
+                    .peek(path -> counter.incrementAndGet())
+                    .map(path -> new MediaFile(counter.get(), path.toString(), path.getFileName().toString()))
                     .toList();
         } catch (IOException e) {
             LOGGER.warn("Could not walk path " + walkPath.path(), e);

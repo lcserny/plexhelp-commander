@@ -50,8 +50,8 @@ public class LocalMediaSearchEndpointTest {
                 .when().get("/api/v1/search/media")
                 .then()
                 .statusCode(200)
-                .body("$.size()", is(2))
-                .body("[0].path", is(video1))
-                .body("[1].path", is(video3));
+                .body("mediaFiles.size()", is(2))
+                .body("mediaFiles[0].path", is(video1))
+                .body("mediaFiles[1].path", is(video3));
     }
 }

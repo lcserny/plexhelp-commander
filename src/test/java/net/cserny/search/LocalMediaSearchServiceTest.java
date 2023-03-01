@@ -54,6 +54,8 @@ public class LocalMediaSearchServiceTest {
 
         assertEquals(2, media.size());
         assertEquals(video1, media.get(0).path());
+        assertEquals(1, media.get(0).id());
         assertEquals(video3, media.get(1).path());
+        assertEquals(2, media.get(1).id());
     }
 }
