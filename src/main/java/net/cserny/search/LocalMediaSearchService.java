@@ -7,12 +7,14 @@ import org.jboss.logging.Logger;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.List;
+import java.nio.file.Paths;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Pattern;
 
 @Singleton
 public class LocalMediaSearchService {
@@ -30,20 +32,51 @@ public class LocalMediaSearchService {
 
     public List<MediaFile> findMedia() {
         LocalPath walkPath = fileService.produceLocalPath(filesystemConfig.downloadsPath());
-        AtomicInteger counter = new AtomicInteger();
         try {
             List<Path> files = fileService.walk(walkPath, searchConfig.maxDepth());
-            return files.stream()
+
+            List<Path> allVideos = files.stream()
                     .filter(this::excludeConfiguredPaths)
                     .filter(this::excludeNonVideosByContentType)
                     .filter(this::excludeNonVideosBySize)
-                    .peek(path -> counter.incrementAndGet())
-                    .map(path -> new MediaFile(counter.get(), path.toString(), path.getFileName().toString()))
+                    .sorted()
                     .toList();
+
+            return generateMediaFiles(allVideos);
         } catch (IOException e) {
             LOGGER.warn("Could not walk path " + walkPath.path(), e);
             return Collections.emptyList();
         }
+    }
+
+    // TODO
+    // group videos by parent path, generate name, create MediaFiles
+    // if downloads path = parent path, leave name null
+    private List<MediaFile> generateMediaFiles(List<Path> allVideos) {
+        List<MediaFile> mediaFiles = new ArrayList<>();
+
+        String downloadsPath = filesystemConfig.downloadsPath();
+        for (Path videoPath : allVideos) {
+            String path = downloadsPath;
+
+            String name = videoPath.toString();
+            name = name.substring(downloadsPath.length());
+            name = name.substring(0, name.indexOf(videoPath.getFileName().toString()));
+            if (!name.matches(Pattern.quote(File.separator) + "*")) {
+                name = name.substring(0,
+                        name.indexOf(File.separator, name.indexOf(File.separator) + 1));
+                name = name.replaceAll(Pattern.quote(File.separator), "");
+                path = Paths.get(downloadsPath, name).toString();
+            } else {
+                name = null;
+            }
+
+            String remainingVideoPath = videoPath.toString().substring(path.length());
+
+            // TODO: you have name, path and videoFile, now group these
+        }
+
+        return mediaFiles;
     }
 
     private boolean excludeConfiguredPaths(Path path) {

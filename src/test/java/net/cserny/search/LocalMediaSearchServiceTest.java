@@ -37,6 +37,42 @@ public class LocalMediaSearchServiceTest {
         fileService.fileSystem = Jimfs.newFileSystem(Configuration.unix());
     }
 
+    // TODO: add tests for these scenarios
+    /*
+    [
+      {
+        "path": "/downloads/some movie folder",
+        "name": "some movie folder", // this is showed in UI, used by rename
+        "videos": [ // also shown in UI under, but you can't change these individually
+          "/video1.mp4"
+        ]
+      },
+      {
+        "path": "/downloads/some tv folder",
+        "name": "some tv folder",
+        "videos": [ // used by move, just join <path> to them (separator already appended)
+          "/video1.mp4",
+          "/video2.mp4",
+          "/video3.mp4",
+        ]
+      },
+      {
+        "path": "/downloads/some nested folder", // easier to delete
+        "name": "some nested folder", // notice the nested structure
+        "videos": [
+          "/another folder/video1.mp4",
+          "/another folder/video2.mp4"
+        ]
+      },
+      {
+        "path": "/downloads", // notice no parent folder
+        "name": "", // notice name is empty, rename service should generate from file
+        "videos": [
+          "/video5.mp4",
+        ]
+      },
+    ]
+     */
     @Test
     @DisplayName("Check search finds correct media")
     public void checkSearchFindsCorrectMedia() throws IOException {
@@ -54,8 +90,6 @@ public class LocalMediaSearchServiceTest {
 
         assertEquals(2, media.size());
         assertEquals(video1, media.get(0).path());
-        assertEquals(1, media.get(0).id());
         assertEquals(video3, media.get(1).path());
-        assertEquals(2, media.get(1).id());
     }
 }
