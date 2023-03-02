@@ -33,7 +33,6 @@ public class LocalMediaSearchEndpointTest {
         fileService.fileSystem = Jimfs.newFileSystem(Configuration.unix());
     }
 
-    // TODO fix test
     @Test
     @DisplayName("Check search finds correct media")
     public void checkSearchFindsCorrectMedia() throws IOException {
@@ -46,13 +45,24 @@ public class LocalMediaSearchEndpointTest {
         createFile(this.fileService, video3, 6);
         String video4 = downloadPath + "/video4.mp4";
         createFile(this.fileService, video4, 1);
+        String video5 = downloadPath + "/some tvShow/video3.mp4";
+        createFile(this.fileService, video5, 6);
+        String video6 = downloadPath + "/some tvShow/video1.mp4";
+        createFile(this.fileService, video6, 6);
+        String video7 = downloadPath + "/some tvShow/video5.mp4";
+        createFile(this.fileService, video7, 6);
 
         given()
                 .when().get("/api/v1/search/media")
                 .then()
                 .statusCode(200)
-                .body("mediaFiles.size()", is(2))
-                .body("mediaFiles[0].path", is(video1))
-                .body("mediaFiles[1].path", is(video3));
+                .body("$.size()", is(3))
+                .body("[0].path", is(downloadPath))
+                .body("[0].name", is("video1"))
+                .body("[2].path", is(downloadPath + "/some tvShow"))
+                .body("[2].name", is("some tvShow"))
+                .body("[2].videos[0]", is("video1.mp4"))
+                .body("[2].videos[1]", is("video3.mp4"))
+                .body("[2].videos[2]", is("video5.mp4"));
     }
 }

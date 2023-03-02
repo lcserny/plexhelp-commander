@@ -37,7 +37,6 @@ public class LocalMediaSearchServiceTest {
         fileService.fileSystem = Jimfs.newFileSystem(Configuration.unix());
     }
 
-    // TODO: add tests for these scenarios
     /*
     [
       {
@@ -85,11 +84,22 @@ public class LocalMediaSearchServiceTest {
         createFile(this.fileService, video3, 6);
         String video4 = downloadPath + "/video4.mp4";
         createFile(this.fileService, video4, 1);
+        String video5 = downloadPath + "/some tvShow/video3.mp4";
+        createFile(this.fileService, video5, 6);
+        String video6 = downloadPath + "/some tvShow/video1.mp4";
+        createFile(this.fileService, video6, 6);
+        String video7 = downloadPath + "/some tvShow/video5.mp4";
+        createFile(this.fileService, video7, 6);
 
         List<MediaFileGroup> media = service.findMedia();
 
-        assertEquals(2, media.size());
-        assertEquals(video1, media.get(0).path());
-        assertEquals(video3, media.get(1).path());
+        assertEquals(3, media.size());
+        assertEquals(downloadPath, media.get(0).path());
+        assertEquals("video1", media.get(0).name());
+        assertEquals(downloadPath + "/some tvShow", media.get(2).path());
+        assertEquals("some tvShow", media.get(2).name());
+        assertEquals("video1.mp4", media.get(2).videos().get(0));
+        assertEquals("video3.mp4", media.get(2).videos().get(1));
+        assertEquals("video5.mp4", media.get(2).videos().get(2));
     }
 }
