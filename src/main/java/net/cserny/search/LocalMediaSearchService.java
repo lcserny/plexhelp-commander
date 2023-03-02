@@ -3,6 +3,7 @@ package net.cserny.search;
 import net.cserny.filesystem.FilesystemConfig;
 import net.cserny.filesystem.LocalFileService;
 import net.cserny.filesystem.LocalPath;
+import org.apache.commons.lang3.tuple.Pair;
 import org.jboss.logging.Logger;
 
 import javax.inject.Inject;
@@ -39,23 +40,20 @@ public class LocalMediaSearchService {
                     .sorted()
                     .toList();
 
-            return generateMediaFiles(allVideos);
+            return generateMediaFileGroups(allVideos);
         } catch (IOException e) {
             LOGGER.warn("Could not walk path " + walkPath.path(), e);
             return Collections.emptyList();
         }
     }
 
-    // TODO
-    // group videos by parent path, generate name, create MediaFiles
-    // if downloads path = parent path, leave name null
-    private List<MediaFileGroup> generateMediaFiles(List<Path> allVideos) {
+    private List<MediaFileGroup> generateMediaFileGroups(List<Path> allVideos) {
         List<MediaFileGroup> mediaFileGroups = new ArrayList<>();
 
         Path downloadsPath = Paths.get(filesystemConfig.downloadsPath());
         int downloadsPathSegments = downloadsPath.getNameCount();
 
-        Map<String, List<Path>> mapGroup = new HashMap<>();
+        Map<Pair<String, String>, List<String>> tmpMap = new HashMap<>();
 
         for (Path videoPath : allVideos) {
             int videoPathSegments = videoPath.getNameCount();
@@ -71,17 +69,20 @@ public class LocalMediaSearchService {
                 name = Paths.get(nameString.substring(0, nameString.lastIndexOf(".")));
             }
 
-            // TODO: you have name, path and video, now group these
-            // generate map key using a pattern like: path###name
-                // OR: use Pair class with equals and hashCode which groups path and name as key used
-            // get the list by that key from map, it empty create a new list
-            // in the list add video
+            Pair<String, String> key = Pair.of(path.toString(), name.toString());
+            List<String> videos = tmpMap.get(key);
+            if (videos == null) {
+                videos = new ArrayList<>();
+            }
+            videos.add(video.toString());
+            tmpMap.put(key, videos);
+        }
 
-            // when done with this loop, loop over map
-                // split key back into path and name using same pattern as above
-                    // OR just get from Pair
-                // create MediaGroup with path, name and videos list
-                // add it to the list returned
+        for (Map.Entry<Pair<String, String>, List<String>> entry : tmpMap.entrySet()) {
+            Pair<String, String> key = entry.getKey();
+            List<String> value = entry.getValue();
+            MediaFileGroup mediaFileGroup = new MediaFileGroup(key.getLeft(), key.getRight(), value);
+            mediaFileGroups.add(mediaFileGroup);
         }
 
         return mediaFileGroups;
