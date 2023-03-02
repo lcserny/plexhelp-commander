@@ -55,6 +55,8 @@ public class LocalMediaSearchService {
         Path downloadsPath = Paths.get(filesystemConfig.downloadsPath());
         int downloadsPathSegments = downloadsPath.getNameCount();
 
+        Map<String, List<Path>> mapGroup = new HashMap<>();
+
         for (Path videoPath : allVideos) {
             int videoPathSegments = videoPath.getNameCount();
 
@@ -70,6 +72,16 @@ public class LocalMediaSearchService {
             }
 
             // TODO: you have name, path and video, now group these
+            // generate map key using a pattern like: path###name
+                // OR: use Pair class with equals and hashCode which groups path and name as key used
+            // get the list by that key from map, it empty create a new list
+            // in the list add video
+
+            // when done with this loop, loop over map
+                // split key back into path and name using same pattern as above
+                    // OR just get from Pair
+                // create MediaGroup with path, name and videos list
+                // add it to the list returned
         }
 
         return mediaFileGroups;
