@@ -33,6 +33,7 @@ public class LocalMediaSearchEndpointTest {
         fileService.fileSystem = Jimfs.newFileSystem(Configuration.unix());
     }
 
+    // TODO fix test
     @Test
     @DisplayName("Check search finds correct media")
     public void checkSearchFindsCorrectMedia() throws IOException {

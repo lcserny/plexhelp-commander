@@ -16,7 +16,7 @@ public class LocalMediaSearchEndpoint {
     @Path("/media")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public MediaSearchResponse searchMedia() {
-        return new MediaSearchResponse(service.findMedia());
+    public List<MediaFileGroup> searchMedia() {
+        return service.findMedia();
     }
 }

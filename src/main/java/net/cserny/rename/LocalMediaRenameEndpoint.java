@@ -1,6 +1,6 @@
 package net.cserny.rename;
 
-import net.cserny.search.MediaFile;
+import net.cserny.search.MediaFileGroup;
 
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -14,7 +14,7 @@ public class LocalMediaRenameEndpoint {
     @Path("/media")
     @POST
     @Produces(MediaType.APPLICATION_JSON)
-    public List<MediaFile> produceRenames(MediaRenameRequest request) {
+    public List<MediaFileGroup> produceRenames(MediaRenameRequest request) {
         // TODO
         return null;
     }

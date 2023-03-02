@@ -7,14 +7,11 @@ import org.jboss.logging.Logger;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.regex.Pattern;
 
 @Singleton
 public class LocalMediaSearchService {
@@ -30,7 +27,7 @@ public class LocalMediaSearchService {
     @Inject
     SearchConfig searchConfig;
 
-    public List<MediaFile> findMedia() {
+    public List<MediaFileGroup> findMedia() {
         LocalPath walkPath = fileService.produceLocalPath(filesystemConfig.downloadsPath());
         try {
             List<Path> files = fileService.walk(walkPath, searchConfig.maxDepth());
@@ -52,31 +49,30 @@ public class LocalMediaSearchService {
     // TODO
     // group videos by parent path, generate name, create MediaFiles
     // if downloads path = parent path, leave name null
-    private List<MediaFile> generateMediaFiles(List<Path> allVideos) {
-        List<MediaFile> mediaFiles = new ArrayList<>();
+    private List<MediaFileGroup> generateMediaFiles(List<Path> allVideos) {
+        List<MediaFileGroup> mediaFileGroups = new ArrayList<>();
 
-        String downloadsPath = filesystemConfig.downloadsPath();
+        Path downloadsPath = Paths.get(filesystemConfig.downloadsPath());
+        int downloadsPathSegments = downloadsPath.getNameCount();
+
         for (Path videoPath : allVideos) {
-            String path = downloadsPath;
+            int videoPathSegments = videoPath.getNameCount();
 
-            String name = videoPath.toString();
-            name = name.substring(downloadsPath.length());
-            name = name.substring(0, name.indexOf(videoPath.getFileName().toString()));
-            if (!name.matches(Pattern.quote(File.separator) + "*")) {
-                name = name.substring(0,
-                        name.indexOf(File.separator, name.indexOf(File.separator) + 1));
-                name = name.replaceAll(Pattern.quote(File.separator), "");
-                path = Paths.get(downloadsPath, name).toString();
+            Path name = videoPath.subpath(downloadsPathSegments, downloadsPathSegments + 1);
+            Path path = downloadsPath;
+            Path video = name;
+            if (videoPathSegments > downloadsPathSegments + 1) {
+                path = downloadsPath.resolve(name);
+                video = videoPath.subpath(downloadsPathSegments + 1, videoPathSegments);
             } else {
-                name = null;
+                String nameString = name.toString();
+                name = Paths.get(nameString.substring(0, nameString.lastIndexOf(".")));
             }
 
-            String remainingVideoPath = videoPath.toString().substring(path.length());
-
-            // TODO: you have name, path and videoFile, now group these
+            // TODO: you have name, path and video, now group these
         }
 
-        return mediaFiles;
+        return mediaFileGroups;
     }
 
     private boolean excludeConfiguredPaths(Path path) {

@@ -17,53 +17,47 @@ public class PathManipulationTest {
 
     @Test
     public void substring1() {
-        String downloadsPath = "/downloads";
-        String path = downloadsPath;
-
+        Path downloadsPath = Paths.get("/downloads");
+        int downloadsPathSegments = downloadsPath.getNameCount();
         Path videoPath = Paths.get("/downloads/some nested folder/another one/video5.mp4");
+        int videoPathSegments = videoPath.getNameCount();
 
-        String name = videoPath.toString();
-        name = name.substring(downloadsPath.length());
-        name = name.substring(0, name.indexOf(videoPath.getFileName().toString()));
-        if (!name.matches(Pattern.quote(File.separator) + "*")) {
-            name = name.substring(0,
-                    name.indexOf(File.separator, name.indexOf(File.separator) + 1));
-            name = name.replaceAll(Pattern.quote(File.separator), "");
-            path = Paths.get(downloadsPath, name).toString();
+        Path name = videoPath.subpath(downloadsPathSegments, downloadsPathSegments + 1);
+        Path pth = downloadsPath;
+        Path remainingFile = name;
+        if (videoPathSegments > downloadsPathSegments + 1) {
+            pth = downloadsPath.resolve(name);
+            remainingFile = videoPath.subpath(downloadsPathSegments + 1, videoPathSegments);
         } else {
-            name = null;
+            String nameString = name.toString();
+            name = Paths.get(nameString.substring(0, nameString.lastIndexOf(".")));
         }
 
-        String remainingVideoPath = videoPath.toString().substring(path.length());
-
-        assertEquals("/downloads/some nested folder", path);
-        assertEquals("some nested folder", name);
-        assertEquals("/another one/video5.mp4", remainingVideoPath);
+        assertEquals("/downloads/some nested folder", pth.toString());
+        assertEquals("some nested folder", name.toString());
+        assertEquals("another one/video5.mp4", remainingFile.toString());
     }
 
     @Test
     public void substring2() {
-        String downloadsPath = "/downloads";
-        String path = downloadsPath;
-
+        Path downloadsPath = Paths.get("/downloads");
+        int downloadsPathSegments = downloadsPath.getNameCount();
         Path videoPath = Paths.get("/downloads/video5.mp4");
+        int videoPathSegments = videoPath.getNameCount();
 
-        String name = videoPath.toString();
-        name = name.substring(downloadsPath.length());
-        name = name.substring(0, name.indexOf(videoPath.getFileName().toString()));
-        if (!name.matches(Pattern.quote(File.separator) + "*")) {
-            name = name.substring(0,
-                    name.indexOf(File.separator, name.indexOf(File.separator) + 1));
-            name = name.replaceAll(Pattern.quote(File.separator), "");
-            path = Paths.get(downloadsPath, name).toString();
+        Path name = videoPath.subpath(downloadsPathSegments, downloadsPathSegments + 1);
+        Path pth = downloadsPath;
+        Path remainingFile = name;
+        if (videoPathSegments > downloadsPathSegments + 1) {
+            pth = downloadsPath.resolve(name);
+            remainingFile = videoPath.subpath(downloadsPathSegments + 1, videoPathSegments);
         } else {
-            name = null;
+            String nameString = name.toString();
+            name = Paths.get(nameString.substring(0, nameString.lastIndexOf(".")));
         }
 
-        String remainingVideoPath = videoPath.toString().substring(path.length());
-
-        assertEquals("/downloads", path);
-        assertNull(name);
-        assertEquals("/video5.mp4", remainingVideoPath);
+        assertEquals("/downloads", pth.toString());
+        assertEquals("video5", name.toString());
+        assertEquals("video5.mp4", remainingFile.toString());
     }
 }

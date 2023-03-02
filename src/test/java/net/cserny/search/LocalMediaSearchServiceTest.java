@@ -44,31 +44,31 @@ public class LocalMediaSearchServiceTest {
         "path": "/downloads/some movie folder",
         "name": "some movie folder", // this is showed in UI, used by rename
         "videos": [ // also shown in UI under, but you can't change these individually
-          "/video1.mp4"
+          "video1.mp4"
         ]
       },
       {
         "path": "/downloads/some tv folder",
         "name": "some tv folder",
-        "videos": [ // used by move, just join <path> to them (separator already appended)
-          "/video1.mp4",
-          "/video2.mp4",
-          "/video3.mp4",
+        "videos": [ // used by move, just resolve <path> to them
+          "video1.mp4",
+          "video2.mp4",
+          "video3.mp4",
         ]
       },
       {
         "path": "/downloads/some nested folder", // easier to delete
         "name": "some nested folder", // notice the nested structure
         "videos": [
-          "/another folder/video1.mp4",
-          "/another folder/video2.mp4"
+          "another folder/video1.mp4",
+          "another folder/video2.mp4"
         ]
       },
       {
         "path": "/downloads", // notice no parent folder
-        "name": "", // notice name is empty, rename service should generate from file
+        "name": "video5", // notice its generated from file name without extension
         "videos": [
-          "/video5.mp4",
+          "video5.mp4",
         ]
       },
     ]
@@ -86,7 +86,7 @@ public class LocalMediaSearchServiceTest {
         String video4 = downloadPath + "/video4.mp4";
         createFile(this.fileService, video4, 1);
 
-        List<MediaFile> media = service.findMedia();
+        List<MediaFileGroup> media = service.findMedia();
 
         assertEquals(2, media.size());
         assertEquals(video1, media.get(0).path());
