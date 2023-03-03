@@ -19,6 +19,7 @@
         <jimfs.version>1.2</jimfs.version>
         <skipITs>true</skipITs>
         <surefire-plugin.version>3.0.0-M7</surefire-plugin.version>
+        <macker-plugin.version>1.0.2</macker-plugin.version>
     </properties>
 
     <dependencyManagement>
@@ -106,6 +107,22 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>de.andrena.tools.macker</groupId>
+                <artifactId>macker-maven-plugin</artifactId>
+                <version>${macker-plugin.version}</version>
+                <configuration>
+                    <rule>macker-rules.xml</rule>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>macker</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>${quarkus.platform.group-id}</groupId>
                 <artifactId>quarkus-maven-plugin</artifactId>
