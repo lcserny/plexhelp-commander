@@ -12,10 +12,10 @@ import javax.inject.Inject;
 @QuarkusTest
 @Testcontainers
 @QuarkusTestResource(MongoTestSetup.class)
-public class OnlineSearchServiceTest {
+public class OnlineSearcherTest {
 
     @Inject
-    OnlineSearchService service;
+    OnlineSearcher searcher;
 
     @Test
     @DisplayName("Check that the mongo container starts")

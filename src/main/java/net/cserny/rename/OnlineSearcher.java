@@ -7,7 +7,7 @@ import javax.inject.Singleton;
 import java.util.List;
 
 @Singleton
-public class OnlineSearchService {
+public class OnlineSearcher {
 
     @Inject
     OnlineResultRepository repository;
