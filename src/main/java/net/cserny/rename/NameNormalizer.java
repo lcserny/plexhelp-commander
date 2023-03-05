@@ -62,10 +62,10 @@ public class NameNormalizer {
         return new NameYear(name, year);
     }
 
-    public String formatNameYear(NameYear nameYear) {
-        return nameYear.name() + (nameYear.year() != null ? " (" + nameYear.year() + ")" : "");
-    }
-
     public record NameYear(String name, Integer year) {
+
+        public String formatted() {
+            return name() + (year() != null ? " (" + year() + ")" : "");
+        }
     }
 }

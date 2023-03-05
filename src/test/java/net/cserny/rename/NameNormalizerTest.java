@@ -17,8 +17,7 @@ class NameNormalizerTest {
 
     private void checkNormalizedFormatted(String name, String expected) {
         NameYear nameYear = normalizer.normalize(name);
-        String formatted = normalizer.formatNameYear(nameYear);
-        assertEquals(expected, formatted);
+        assertEquals(expected, nameYear.formatted());
     }
 
     @Test

@@ -36,7 +36,7 @@ public class MediaRenameService {
     private List<MediaDescription> generateDescFrom(List<NameYear> nameYears) {
         return nameYears.stream()
                 .map(nameYear -> new MediaDescription(
-                        null, normalizer.formatNameYear(nameYear), null, new ArrayList<>()))
+                        null, nameYear.formatted(), null, new ArrayList<>()))
                 .collect(Collectors.toList());
     }
 }
