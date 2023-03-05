@@ -12,11 +12,8 @@ import java.util.stream.Collectors;
 @Singleton
 public class MediaRenameService {
 
-    // TODO: probably move to online searcher
-    private final Pattern releaseDateRegex = Pattern.compile("\s+\\(\\d{4}(-\\d{2}-\\d{2})?\\)$");
-
     @Inject
-    OnlineSearcher searcher;
+    OnlineSearcher onlineSearcher;
 
     @Inject
     NameNormalizer normalizer;
@@ -26,17 +23,20 @@ public class MediaRenameService {
 
     public RenamedMediaOptions produceNames(String name, MediaFileType type) {
         NameYear nameYear = normalizer.normalize(name);
-        // TODO: find on disk by name only
+        List<String> foundList = diskSearcher.search(nameYear, type);
+        if (!foundList.isEmpty()) {
+            return new RenamedMediaOptions(MediaRenameOrigin.DISK, generateDescFrom(foundList));
+        }
         // TODO: find in cache
         // TODO: find in TMDB (cache results)
         // TODO: return nameYear like <name> (<year>)
-        return new RenamedMediaOptions(MediaRenameOrigin.NAME, generateDescFrom(List.of(nameYear)));
+        return new RenamedMediaOptions(MediaRenameOrigin.NAME, generateDescFrom(List.of(nameYear.formatted())));
     }
 
-    private List<MediaDescription> generateDescFrom(List<NameYear> nameYears) {
-        return nameYears.stream()
-                .map(nameYear -> new MediaDescription(
-                        null, nameYear.formatted(), null, new ArrayList<>()))
+    private List<MediaDescription> generateDescFrom(List<String> titles) {
+        return titles.stream()
+                .map(title -> new MediaDescription(
+                        null, title, null, new ArrayList<>()))
                 .collect(Collectors.toList());
     }
 }

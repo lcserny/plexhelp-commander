@@ -12,4 +12,10 @@ public interface RenameConfig {
 
     @WithName("trim.regex")
     List<String> trimRegexList();
+
+    @WithName("similarity.percent")
+    int similarityPercent();
+
+    @WithName("max.depth")
+    int maxDepth();
 }

@@ -17,10 +17,5 @@ public class OnlineResult {
     public LocalDate date;
     public String description;
     public List<String> cast;
-    public OnlineResultType type;
-
-    public enum OnlineResultType {
-        MOVIE,
-        TV
-    }
+    public MediaFileType type;
 }

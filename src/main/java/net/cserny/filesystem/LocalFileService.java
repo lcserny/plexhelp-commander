@@ -7,6 +7,7 @@ import javax.inject.Singleton;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -31,6 +32,10 @@ public class LocalFileService {
     }
 
     public List<Path> walk(LocalPath path, int maxDepthFromPath) throws IOException {
+        return walk(path, maxDepthFromPath, WalkOptions.ONLY_FILES);
+    }
+
+    public List<Path> walk(LocalPath path, int maxDepthFromPath, WalkOptions options) throws IOException {
         if (!Files.isDirectory(path.path())) {
             throw new NotDirectoryException(path.path().toString());
         }
@@ -39,12 +44,22 @@ public class LocalFileService {
             throw new IllegalArgumentException("Max depth passed cannot be lower than 1");
         }
 
+        Predicate<Path> optionsPredicate = switch (options) {
+            case ONLY_DIRECTORIES -> Files::isRegularFile;
+            case ONLY_FILES -> Files::isDirectory;
+        };
+
         List<Path> files;
         try (Stream<Path> walkStream = Files.walk(path.path(), maxDepthFromPath, FileVisitOption.FOLLOW_LINKS)) {
-            files = walkStream.filter(Files::isRegularFile)
+            files = walkStream.filter(optionsPredicate)
                     .collect(Collectors.toList());
         }
 
         return files;
+    }
+
+    public enum WalkOptions {
+        ONLY_DIRECTORIES,
+        ONLY_FILES;
     }
 }
