@@ -45,8 +45,8 @@ public class LocalFileService {
         }
 
         Predicate<Path> optionsPredicate = switch (options) {
-            case ONLY_DIRECTORIES -> Files::isRegularFile;
-            case ONLY_FILES -> Files::isDirectory;
+            case ONLY_DIRECTORIES -> Files::isDirectory;
+            case ONLY_FILES -> Files::isRegularFile;
         };
 
         List<Path> files;
