@@ -13,6 +13,7 @@ import javax.inject.Singleton;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -46,10 +47,11 @@ public class DiskSearcher implements Searcher {
             List<Path> paths = localFileService.walk(mediaPath, renameConfig.maxDepth(), ONLY_DIRECTORIES);
 
             return paths.stream()
+                    .filter(path -> !mediaPath.path().equals(path))
                     .map(this::convertAndtrimReleaseDate)
                     .map(folder -> parseDistance(folder, nameYear.name()))
                     .filter(pair -> excludeNotSimilarPaths(pair, nameYear.name()))
-                    .sorted((pair1, pair2) -> pair2.getLeft().compareTo(pair1.getLeft()))
+                    .sorted(Comparator.comparing(Pair::getLeft))
                     .map(Pair::getRight)
                     .collect(Collectors.toList());
         } catch (IOException e) {
@@ -65,8 +67,8 @@ public class DiskSearcher implements Searcher {
 
     private boolean excludeNotSimilarPaths(Pair<Integer, String> similarPath, String name) {
         int bigger = Math.max(similarPath.getRight().length(), name.length());
-        int simPercent = (bigger - similarPath.getLeft()) / bigger * 100;
-        return simPercent > renameConfig.similarityPercent();
+        int simPercent = (int)((float)(bigger - similarPath.getLeft()) / (float)bigger * 100);
+        return simPercent >= renameConfig.similarityPercent();
     }
 
     private Pair<Integer, String> parseDistance(String folder, String name) {
