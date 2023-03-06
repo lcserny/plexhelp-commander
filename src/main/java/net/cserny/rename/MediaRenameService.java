@@ -6,14 +6,13 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Singleton
 public class MediaRenameService {
 
     @Inject
-    OnlineSearcher onlineSearcher;
+    CacheSearcher onlineSearcher;
 
     @Inject
     NameNormalizer normalizer;

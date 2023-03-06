@@ -5,12 +5,10 @@ import javax.inject.Singleton;
 import java.util.List;
 
 @Singleton
-public class OnlineSearcher implements Searcher {
+public class CacheSearcher implements Searcher {
 
     @Inject
-    OnlineResultRepository repository;
-
-    // TODO: inject and use TMDB
+    OnlineCacheRepository repository;
 
     @Override
     public List<String> search(NameNormalizer.NameYear nameYear, MediaFileType type) {

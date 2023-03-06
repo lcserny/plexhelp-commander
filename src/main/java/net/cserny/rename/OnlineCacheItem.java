@@ -7,7 +7,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @MongoEntity(collection = "online_cache")
-public class OnlineResult {
+public class OnlineCacheItem {
 
     public ObjectId id;
     public String searchName;

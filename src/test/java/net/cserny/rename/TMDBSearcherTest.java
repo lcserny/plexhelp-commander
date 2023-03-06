@@ -9,13 +9,17 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 import javax.inject.Inject;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 @QuarkusTest
 @Testcontainers
 @QuarkusTestResource(MongoTestSetup.class)
-public class OnlineSearcherTest {
+class TMDBSearcherTest {
 
     @Inject
-    OnlineSearcher searcher;
+    TMDBSearcher searcher;
+
+    // TODO: mock TMDB calls
 
     @Test
     @DisplayName("Check that the mongo container starts")
