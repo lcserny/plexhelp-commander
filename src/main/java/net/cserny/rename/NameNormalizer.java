@@ -7,6 +7,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -62,10 +63,57 @@ public class NameNormalizer {
         return new NameYear(name, year);
     }
 
-    public record NameYear(String name, Integer year) {
+//    public record NameYear(String name, Integer year) {
+//
+//        public String formatted() {
+//            return name() + (year != null ? " (" + year + ")" : "");
+//        }
+//    }
+
+    /**
+     * Can't be a record cause year is nullable
+     */
+    public static class NameYear {
+
+        private final String name;
+        private final Integer year;
+
+        public NameYear(String name, Integer year) {
+            this.name = name;
+            this.year = year;
+        }
+
+        public String name() {
+            return name;
+        }
+
+        public Integer year() {
+            return year;
+        }
 
         public String formatted() {
-            return name() + (year() != null ? " (" + year() + ")" : "");
+            return name() + (year != null ? " (" + year + ")" : "");
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            NameYear nameYear = (NameYear) o;
+            return Objects.equals(name, nameYear.name) && Objects.equals(year, nameYear.year);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(name, year);
+        }
+
+        @Override
+        public String toString() {
+            return "NameYear{" +
+                    "name='" + name + '\'' +
+                    ", year=" + year +
+                    '}';
         }
     }
 }
