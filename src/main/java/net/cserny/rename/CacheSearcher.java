@@ -1,9 +1,11 @@
 package net.cserny.rename;
 
+import javax.annotation.Priority;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.List;
 
+@Priority(1)
 @Singleton
 public class CacheSearcher implements Searcher {
 
@@ -11,7 +13,7 @@ public class CacheSearcher implements Searcher {
     OnlineCacheRepository repository;
 
     @Override
-    public List<String> search(NameNormalizer.NameYear nameYear, MediaFileType type) {
+    public RenamedMediaOptions search(NameNormalizer.NameYear nameYear, MediaFileType type) {
         return null;
     }
 }

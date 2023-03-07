@@ -31,10 +31,10 @@ public class DiskSearcherTest extends AbstractInMemoryFileService {
 
         NameYear movie = new NameYear("My Coding Novie", 1918);
 
-        List<String> results = searcher.search(movie, MediaFileType.MOVIE);
+        List<MediaDescription> results = searcher.search(movie, MediaFileType.MOVIE).mediaDescriptions();
 
         assertEquals(2, results.size());
-        assertEquals("My Coding Movee", results.get(0));
-        assertEquals("My Codig Movee", results.get(1));
+        assertEquals("My Coding Movee", results.get(0).title());
+        assertEquals("My Codig Movee", results.get(1).title());
     }
 }
