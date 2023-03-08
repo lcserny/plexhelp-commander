@@ -18,7 +18,7 @@ public class OnlineCacheRepository implements PanacheMongoRepository<OnlineCache
     }
 
     private List<OnlineCacheItem> retrieveAllByNameAndType(NameYear nameYear, MediaFileType type) {
-        return list("searchName = ?1 and mediaType = ?3",
+        return list("searchName = ?1 and mediaType = ?2",
                 nameYear.name(), type);
     }
 }

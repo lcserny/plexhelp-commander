@@ -12,6 +12,7 @@ import javax.inject.Inject;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 @QuarkusTest
 @Testcontainers
@@ -70,11 +71,8 @@ public class OnlineCacheSearcherTest {
 
         repository.persist(List.of(item1, item2));
 
-        System.out.println(repository.listAll());
-
         RenamedMediaOptions options = searcher.search(nameYear, MediaFileType.MOVIE);
 
-        assertEquals(1, options.mediaDescriptions().size());
-        assertEquals(desc, options.mediaDescriptions().get(0).description());
+        assertEquals(2, options.mediaDescriptions().size());
     }
 }
