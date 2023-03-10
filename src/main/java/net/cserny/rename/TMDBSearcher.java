@@ -32,8 +32,6 @@ public class TMDBSearcher implements Searcher {
 
     private TmdbApi tmdbApi;
 
-    private static final String POSTER_BASE = "http://image.tmdb.org/t/p/w92";
-
     private final Pattern specialCharsRegex = Pattern.compile("[^a-zA-Z0-9-\s]");
 
     @PostConstruct
@@ -115,7 +113,7 @@ public class TMDBSearcher implements Searcher {
     }
 
     private String producePosterUrl(String posterPath) {
-        return TextUtils.isBlank(posterPath) ? null : POSTER_BASE + posterPath;
+        return TextUtils.isBlank(posterPath) ? null : tmdbConfig.posterBase() + posterPath;
     }
 
     private String nullIfBlank(String text) {

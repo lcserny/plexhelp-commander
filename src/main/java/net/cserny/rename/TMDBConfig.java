@@ -13,4 +13,7 @@ public interface TMDBConfig {
 
     @WithName("result.limit")
     int resultLimit();
+
+    @WithName("poster.base")
+    String posterBase();
 }
