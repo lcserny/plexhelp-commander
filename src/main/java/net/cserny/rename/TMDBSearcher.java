@@ -30,22 +30,25 @@ public class TMDBSearcher implements Searcher {
     @Inject
     TMDBConfig tmdbConfig;
 
-    private TmdbApi tmdbApi;
+    private TmdbSearch tmdbSearch;
+    private TmdbMovies tmdbMovies;
+    private TmdbTV tmdbTV;
 
     private final Pattern specialCharsRegex = Pattern.compile("[^a-zA-Z0-9-\s]");
 
     @PostConstruct
     public void init() {
-        tmdbApi = new TmdbApi(tmdbConfig.apiKey());
+        TmdbApi tmdbApi = new TmdbApi(tmdbConfig.apiKey());
+        tmdbSearch = tmdbApi.getSearch();
+        tmdbMovies = tmdbApi.getMovies();
+        tmdbTV = tmdbApi.getTvSeries();
     }
 
     @Override
     public RenamedMediaOptions search(NameYear nameYear, MediaFileType type) {
-        TmdbSearch tmdbSearch = tmdbApi.getSearch();
-
         List<MediaDescription> mediaFound = switch (type) {
-            case MOVIE -> searchMovie(tmdbSearch, nameYear);
-            case TV -> searchTvShow(tmdbSearch, nameYear);
+            case MOVIE -> searchMovie(nameYear);
+            case TV -> searchTvShow(nameYear);
         };
 
         repository.saveAllOnlineCacheItem(nameYear, mediaFound, type);
@@ -53,9 +56,7 @@ public class TMDBSearcher implements Searcher {
         return new RenamedMediaOptions(MediaRenameOrigin.TMDB, mediaFound);
     }
 
-    private List<MediaDescription> searchTvShow(TmdbSearch tmdbSearch, NameYear nameYear) {
-        TmdbTV tmdbTV = tmdbApi.getTvSeries();
-
+    private List<MediaDescription> searchTvShow(NameYear nameYear) {
         TvResultsPage page = tmdbSearch.searchTv(nameYear.name(), null, 0);
         List<TvSeries> results = page.getResults();
         if (results == null || results.isEmpty()) {
@@ -78,9 +79,7 @@ public class TMDBSearcher implements Searcher {
         return descriptions;
     }
 
-    private List<MediaDescription> searchMovie(TmdbSearch tmdbSearch, NameYear nameYear) {
-        TmdbMovies tmdbMovies = tmdbApi.getMovies();
-
+    private List<MediaDescription> searchMovie(NameYear nameYear) {
         MovieResultsPage page = tmdbSearch.searchMovie(nameYear.name(), nameYear.year(), null, false, 0);
         List<MovieDb> results = page.getResults();
         if (results == null || results.isEmpty()) {
