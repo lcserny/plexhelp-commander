@@ -71,7 +71,7 @@ public class TMDBSearcher implements Searcher {
             String posterUrl = producePosterUrl(tvSeries.getPosterPath());
             String title = processTitle(tvSeries.getName());
             LocalDate date = produceDate(tvSeries.getFirstAirDate());
-            String description = tvSeries.getOverview();
+            String description = nullIfBlank(tvSeries.getOverview());
             List<String> cast = produceCast(tmdbTV.getCredits(tvSeries.getId(), null));
 
             descriptions.add(new MediaDescription( posterUrl, title, date, description, cast ));
@@ -96,7 +96,7 @@ public class TMDBSearcher implements Searcher {
             String posterUrl = producePosterUrl(movieDb.getPosterPath());
             String title = processTitle(movieDb.getTitle());
             LocalDate date = produceDate(movieDb.getReleaseDate());
-            String description = movieDb.getOverview();
+            String description = nullIfBlank(movieDb.getOverview());
             List<String> cast = produceCast(tmdbMovies.getCredits(movieDb.getId()));
 
             descriptions.add(new MediaDescription( posterUrl, title, date, description, cast ));
@@ -116,6 +116,10 @@ public class TMDBSearcher implements Searcher {
 
     private String producePosterUrl(String posterPath) {
         return TextUtils.isBlank(posterPath) ? null : POSTER_BASE + posterPath;
+    }
+
+    private String nullIfBlank(String text) {
+        return TextUtils.isBlank(text) ? null : text;
     }
 
     private List<String> produceCast(Credits credits) {
