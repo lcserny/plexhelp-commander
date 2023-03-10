@@ -1,6 +1,9 @@
 package net.cserny.rename;
 
-import info.movito.themoviedbapi.*;
+import info.movito.themoviedbapi.TmdbMovies;
+import info.movito.themoviedbapi.TmdbSearch;
+import info.movito.themoviedbapi.TmdbTV;
+import info.movito.themoviedbapi.TvResultsPage;
 import info.movito.themoviedbapi.model.Credits;
 import info.movito.themoviedbapi.model.MovieDb;
 import info.movito.themoviedbapi.model.core.MovieResultsPage;
@@ -9,7 +12,6 @@ import info.movito.themoviedbapi.model.tv.TvSeries;
 import net.cserny.rename.NameNormalizer.NameYear;
 import org.apache.http.util.TextUtils;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Priority;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -30,19 +32,16 @@ public class TMDBSearcher implements Searcher {
     @Inject
     TMDBConfig tmdbConfig;
 
-    private TmdbSearch tmdbSearch;
-    private TmdbMovies tmdbMovies;
-    private TmdbTV tmdbTV;
+    @Inject
+    TmdbSearch tmdbSearch;
+
+    @Inject
+    TmdbMovies tmdbMovies;
+
+    @Inject
+    TmdbTV tmdbTV;
 
     private final Pattern specialCharsRegex = Pattern.compile("[^a-zA-Z0-9-\s]");
-
-    @PostConstruct
-    public void init() {
-        TmdbApi tmdbApi = new TmdbApi(tmdbConfig.apiKey());
-        tmdbSearch = tmdbApi.getSearch();
-        tmdbMovies = tmdbApi.getMovies();
-        tmdbTV = tmdbApi.getTvSeries();
-    }
 
     @Override
     public RenamedMediaOptions search(NameYear nameYear, MediaFileType type) {
