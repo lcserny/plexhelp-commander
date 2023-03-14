@@ -1,5 +1,7 @@
 package net.cserny.filesystem;
 
+import org.apache.commons.io.FileUtils;
+
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -22,6 +24,10 @@ public class LocalFileService {
 
     public void delete(LocalPath path) throws IOException {
         Files.delete(path.path());
+    }
+
+    public void deleteDirectory(LocalPath folder) throws IOException {
+        FileUtils.deleteDirectory(folder.path().toFile());
     }
 
     public void move(LocalPath source, LocalPath dest) throws IOException {

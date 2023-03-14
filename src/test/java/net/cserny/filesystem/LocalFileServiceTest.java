@@ -29,6 +29,19 @@ public class LocalFileServiceTest extends AbstractInMemoryFileService {
     }
 
     @Test
+    @DisplayName("Service can delete a directory")
+    public void deleteDirectoryWorks() throws IOException {
+        createFile("/hello/my.txt");
+        LocalPath directory = fileService.produceLocalPath("/hello");
+
+        assertTrue(Files.exists(directory.path()));
+
+        fileService.deleteDirectory(directory);
+
+        assertFalse(Files.exists(directory.path()));
+    }
+
+    @Test
     @DisplayName("Service can move a path")
     public void moveWorks() throws IOException {
         LocalPath localPath = createFile("/hmmm/test.txt");
