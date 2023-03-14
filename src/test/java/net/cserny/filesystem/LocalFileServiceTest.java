@@ -2,6 +2,7 @@ package net.cserny.filesystem;
 
 import io.quarkus.test.junit.QuarkusTest;
 import net.cserny.AbstractInMemoryFileService;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -29,6 +30,7 @@ public class LocalFileServiceTest extends AbstractInMemoryFileService {
     }
 
     @Test
+    @Disabled("InMemory filesystem does not support this feature")
     @DisplayName("Service can delete a directory")
     public void deleteDirectoryWorks() throws IOException {
         createFile("/hello/my.txt");
