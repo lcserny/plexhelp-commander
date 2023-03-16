@@ -55,12 +55,12 @@ public class MediaMoveService {
             } catch (IOException e) {
                 LOGGER.warn("Could not move media", e);
                 errors.add(new MediaMoveError(srcPath.path().toString(), e.getMessage()));
-                continue;
             }
         }
 
-        // TODO: move subs
-        SubsMoveOperation subsMoveOperation = new SubsMoveOperation();
+        LocalPath subsSrc = fileService.produceLocalPath(fileGroup.path());
+        LocalPath subsDest = fileService.produceLocalPath(destRoot, fileGroup.name());
+        SubsMoveOperation subsMoveOperation = new SubsMoveOperation(subsSrc, subsDest, type);
         subtitleMover.moveSubs(subsMoveOperation);
 
         if (errors.isEmpty()) {

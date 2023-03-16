@@ -12,4 +12,7 @@ public interface MoveConfig {
 
     @WithName("restricted.remove.paths")
     List<String> restrictedRemovePaths();
+
+    @WithName("subs.ext")
+    List<String> subsExtensions();
 }
