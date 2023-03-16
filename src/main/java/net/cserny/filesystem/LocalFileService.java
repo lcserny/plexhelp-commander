@@ -1,13 +1,9 @@
 package net.cserny.filesystem;
 
-import org.apache.commons.io.FileUtils;
-
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.io.IOException;
 import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -27,7 +23,19 @@ public class LocalFileService {
     }
 
     public void deleteDirectory(LocalPath folder) throws IOException {
-        FileUtils.deleteDirectory(folder.path().toFile());
+        Files.walkFileTree(folder.path(), new SimpleFileVisitor<>() {
+            @Override
+            public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                Files.delete(dir);
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                Files.delete(file);
+                return FileVisitResult.CONTINUE;
+            }
+        });
     }
 
     public void move(LocalPath source, LocalPath dest) throws IOException {

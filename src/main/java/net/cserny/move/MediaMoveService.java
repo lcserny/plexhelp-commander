@@ -26,6 +26,9 @@ public class MediaMoveService {
     LocalFileService fileService;
 
     @Inject
+    SubtitleMover subtitleMover;
+
+    @Inject
     FilesystemConfig filesystemConfig;
 
     @Inject
@@ -54,9 +57,11 @@ public class MediaMoveService {
                 errors.add(new MediaMoveError(srcPath.path().toString(), e.getMessage()));
                 continue;
             }
-
-            // TODO: move subs
         }
+
+        // TODO: move subs
+        SubsMoveOperation subsMoveOperation = new SubsMoveOperation();
+        subtitleMover.moveSubs(subsMoveOperation);
 
         if (errors.isEmpty()) {
             try {

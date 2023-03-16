@@ -30,7 +30,6 @@ public class LocalFileServiceTest extends AbstractInMemoryFileService {
     }
 
     @Test
-    @Disabled("InMemory filesystem does not support this feature")
     @DisplayName("Service can delete a directory")
     public void deleteDirectoryWorks() throws IOException {
         createFile("/hello/my.txt");
