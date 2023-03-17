@@ -15,4 +15,7 @@ public interface MoveConfig {
 
     @WithName("subs.ext")
     List<String> subsExtensions();
+
+    @WithName("subs.max.depth")
+    int subsMaxDepth();
 }

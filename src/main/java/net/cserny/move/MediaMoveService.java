@@ -61,7 +61,7 @@ public class MediaMoveService {
         LocalPath subsSrc = fileService.produceLocalPath(fileGroup.path());
         LocalPath subsDest = fileService.produceLocalPath(destRoot, fileGroup.name());
         SubsMoveOperation subsMoveOperation = new SubsMoveOperation(subsSrc, subsDest, type);
-        subtitleMover.moveSubs(subsMoveOperation);
+        errors.addAll(subtitleMover.moveSubs(subsMoveOperation));
 
         if (errors.isEmpty()) {
             try {
