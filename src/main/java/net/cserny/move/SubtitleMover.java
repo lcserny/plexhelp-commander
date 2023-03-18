@@ -18,8 +18,9 @@ import java.util.regex.Pattern;
 @Singleton
 public class SubtitleMover {
 
+    public static final String SUBS_SUBFOLDER = "Subs";
+
     private static final Logger LOGGER = Logger.getLogger(SubtitleMover.class);
-    private static final String SUBS_SUBFOLDER = "Subs";
 
     private final Pattern episodeSegmentRegex = Pattern.compile(".*[eE](\\d{1,2}).*");
 
@@ -33,7 +34,7 @@ public class SubtitleMover {
     MoveConfig moveConfig;
 
     public List<MediaMoveError> moveSubs(SubsMoveOperation operation) {
-        if (operation.subsSrc().toString().equals(filesystemConfig.downloadsPath())) {
+        if (operation.subsSrc().path().toString().equals(filesystemConfig.downloadsPath())) {
             LOGGER.info("Path to move subs is root Downloads path, skipping operation...");
             return Collections.emptyList();
         }
@@ -79,7 +80,7 @@ public class SubtitleMover {
             }
 
             LocalPath subSrc = fileService.produceLocalPath(sub.toString());
-            LocalPath subDest = fileService.produceLocalPath(operation.subsDest().toString(), SUBS_SUBFOLDER, subName);
+            LocalPath subDest = fileService.produceLocalPath(operation.subsDest().path().toString(), SUBS_SUBFOLDER, subName);
 
             try {
                 fileService.move(subSrc, subDest);

@@ -7,11 +7,10 @@ import net.cserny.rename.MediaFileType;
 import net.cserny.search.MediaFileGroup;
 import org.jboss.logging.Logger;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.io.IOException;
-import java.nio.file.AccessDeniedException;
-import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +20,8 @@ public class MediaMoveService {
 
     private static final Logger LOGGER = Logger.getLogger(MediaMoveService.class);
     private static final String MOVIE_EXISTS = "Movie already exists";
+
+    private List<String> importantFolders = new ArrayList<>();
 
     @Inject
     LocalFileService fileService;
@@ -33,6 +34,14 @@ public class MediaMoveService {
 
     @Inject
     MoveConfig moveConfig;
+
+    @PostConstruct
+    public void init() {
+        this.importantFolders = List.of(
+                filesystemConfig.downloadsPath(),
+                filesystemConfig.moviesPath(),
+                filesystemConfig.tvShowsPath());
+    }
 
     public List<MediaMoveError> moveMedia(MediaFileGroup fileGroup, MediaFileType type) {
         List<MediaMoveError> errors = new ArrayList<>();
@@ -76,6 +85,12 @@ public class MediaMoveService {
     }
 
     private void cleanSourceMediaDir(String path) throws IOException {
+        for (String folder : importantFolders) {
+            if (path.equals(folder)) {
+                return;
+            }
+        }
+
         for (String restrictedPath : moveConfig.restrictedRemovePaths()) {
             if (path.contains(restrictedPath)) {
                 return;
