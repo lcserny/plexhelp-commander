@@ -13,11 +13,15 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Pattern;
 
 @Singleton
 public class SubtitleMover {
 
     private static final Logger LOGGER = Logger.getLogger(SubtitleMover.class);
+    private static final String SUBS_SUBFOLDER = "Subs";
+
+    private final Pattern episodeSegmentRegex = Pattern.compile(".*[eE](\\d{1,2}).*");
 
     @Inject
     LocalFileService fileService;
@@ -63,15 +67,34 @@ public class SubtitleMover {
 
     private List<MediaMoveError> moveTvSubs(SubsMoveOperation operation, List<Path> subs) {
         List<MediaMoveError> errors = new ArrayList<>();
-        // create Subs folder in subsDest
-            // for each file
-                // go over each segment of path, if one segment contains e99 prepend that segment to the file name
-                // move file to Subs folder with new name
+
+        for (Path sub : subs) {
+            String subName = sub.getFileName().toString();
+            for (Path segment : sub) {
+                String segmentStr = segment.toString();
+                if (segmentStr.matches(episodeSegmentRegex.pattern())) {
+                    subName = segmentStr + "." + subName;
+                    break;
+                }
+            }
+
+            LocalPath subSrc = fileService.produceLocalPath(sub.toString());
+            LocalPath subDest = fileService.produceLocalPath(operation.subsDest().toString(), SUBS_SUBFOLDER, subName);
+
+            try {
+                fileService.move(subSrc, subDest);
+            } catch (IOException e) {
+                LOGGER.warn("Could not move sub", e);
+                errors.add(new MediaMoveError(subSrc.path().toString(), e.getMessage()));
+            }
+        }
+
         return errors;
     }
 
     private List<MediaMoveError> moveMovieSubs(SubsMoveOperation operation, List<Path> subs) {
         List<MediaMoveError> errors = new ArrayList<>();
+
         for (Path sub : subs) {
             LocalPath subSrc = fileService.produceLocalPath(sub.toString());
             String subFilename = sub.getFileName().toString();
@@ -84,6 +107,7 @@ public class SubtitleMover {
                 errors.add(new MediaMoveError(subSrc.path().toString(), e.getMessage()));
             }
         }
+
         return errors;
     }
 
