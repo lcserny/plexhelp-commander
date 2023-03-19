@@ -11,6 +11,7 @@ import info.movito.themoviedbapi.model.core.NamedIdElement;
 import info.movito.themoviedbapi.model.tv.TvSeries;
 import net.cserny.rename.NameNormalizer.NameYear;
 import org.apache.http.util.TextUtils;
+import org.jboss.logging.Logger;
 
 import javax.annotation.Priority;
 import javax.inject.Inject;
@@ -25,6 +26,8 @@ import java.util.regex.Pattern;
 @Priority(0)
 @Singleton
 public class TMDBSearcher implements Searcher {
+
+    private static final Logger LOGGER = Logger.getLogger(TMDBSearcher.class);
 
     @Inject
     OnlineCacheRepository repository;
@@ -57,6 +60,11 @@ public class TMDBSearcher implements Searcher {
 
     private List<MediaDescription> searchTvShow(NameYear nameYear) {
         TvResultsPage page = tmdbSearch.searchTv(nameYear.name(), null, 0);
+        if (page == null) {
+            LOGGER.warn("TMDB Search could not search TV, check configuration");
+            return Collections.emptyList();
+        }
+
         List<TvSeries> results = page.getResults();
         if (results == null || results.isEmpty()) {
             return Collections.emptyList();
@@ -80,6 +88,11 @@ public class TMDBSearcher implements Searcher {
 
     private List<MediaDescription> searchMovie(NameYear nameYear) {
         MovieResultsPage page = tmdbSearch.searchMovie(nameYear.name(), nameYear.year(), null, false, 0);
+        if (page == null) {
+            LOGGER.warn("TMDB Search could not search Movie, check configuration");
+            return Collections.emptyList();
+        }
+
         List<MovieDb> results = page.getResults();
         if (results == null || results.isEmpty()) {
             return Collections.emptyList();

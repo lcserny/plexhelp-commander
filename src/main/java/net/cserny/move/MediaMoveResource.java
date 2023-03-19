@@ -1,6 +1,7 @@
 package net.cserny.move;
 
 import javax.inject.Inject;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -14,6 +15,7 @@ public class MediaMoveResource {
     MediaMoveService service;
 
     @POST
+    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public List<MediaMoveError> moveMedia(MediaMoveRequest moveRequest) {
         return service.moveMedia(moveRequest.fileGroup(), moveRequest.type());
