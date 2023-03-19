@@ -13,7 +13,7 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.is;
 
 @QuarkusTest
-public class LocalMediaSearchEndpointTest extends AbstractInMemoryFileService {
+public class MediaSearchResourceTest extends AbstractInMemoryFileService {
 
     @Inject
     FilesystemConfig filesystemConfig;
@@ -41,7 +41,7 @@ public class LocalMediaSearchEndpointTest extends AbstractInMemoryFileService {
         createFile(video7, 6);
 
         given()
-                .when().get("/api/v1/search/media")
+                .when().get("/api/v1/media-searches")
                 .then()
                 .statusCode(200)
                 .body("$.size()", is(3))

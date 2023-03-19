@@ -14,10 +14,10 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @QuarkusTest
-public class LocalMediaSearchServiceTest extends AbstractInMemoryFileService {
+public class MediaSearchServiceTest extends AbstractInMemoryFileService {
 
     @Inject
-    LocalMediaSearchService service;
+    MediaSearchService service;
 
     @Inject
     FilesystemConfig filesystemConfig;

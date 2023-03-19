@@ -18,7 +18,7 @@ import static org.hamcrest.CoreMatchers.is;
 @QuarkusTest
 @Testcontainers
 @QuarkusTestResource(MongoTestSetup.class)
-public class DownloadHistoryEndpointTest {
+public class MediaDownloadResourceTest {
 
     @Inject
     DownloadedMediaRepository repository;
@@ -44,7 +44,7 @@ public class DownloadHistoryEndpointTest {
         repository.persist(media);
 
         given()
-                .when().get("/api/v1/downloads/completed/" + year + "/" + month + "/" + day)
+                .when().get("/api/v1/media-downloads?year=" + year + "&month=" + month + "&day=" + day)
                 .then()
                 .statusCode(200)
                 .body("$.size()", is(1))

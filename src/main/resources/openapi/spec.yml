@@ -4,75 +4,24 @@ info:
   title: plexhelp-commander API
   version: 1.0.0
 paths:
-  /api/hello:
+  /api/v1/media-downloads:
     get:
       tags:
-      - Greeting Resource
-      operationId: hello
-      responses:
-        "200":
-          description: OK
-          content:
-            text/plain:
-              schema:
-                type: string
-  /api/hello/json:
-    get:
-      tags:
-      - Greeting Resource
-      operationId: helloJson
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: string
-  /api/hello/jsonAuto:
-    get:
-      tags:
-      - Greeting Resource
-      operationId: helloJsonAuto
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SomeData'
-  /api/hello/new:
-    get:
-      tags:
-      - Greeting Resource
-      operationId: helloNew
-      responses:
-        "200":
-          description: OK
-          content:
-            text/plain:
-              schema:
-                type: string
-  /api/v1/downloads/completed/{year}/{month}/{day}:
-    get:
-      tags:
-      - Download History Endpoint
+      - Media Download Resource
       operationId: downloadsCompleted
       parameters:
       - name: day
-        in: path
-        required: true
+        in: query
         schema:
           format: int32
           type: integer
       - name: month
-        in: path
-        required: true
+        in: query
         schema:
           format: int32
           type: integer
       - name: year
-        in: path
-        required: true
+        in: query
         schema:
           format: int32
           type: integer
@@ -85,10 +34,10 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/DownloadedMedia'
-  /api/v1/move/media:
+  /api/v1/media-moves:
     post:
       tags:
-      - Media Move Endpoint
+      - Media Move Resource
       operationId: moveMedia
       requestBody:
         content:
@@ -104,10 +53,10 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/MediaMoveError'
-  /api/v1/rename/media:
+  /api/v1/media-renames:
     post:
       tags:
-      - Media Rename Endpoint
+      - Media Rename Resource
       operationId: produceRenames
       requestBody:
         content:
@@ -121,10 +70,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RenamedMediaOptions'
-  /api/v1/search/media:
+  /api/v1/media-searches:
     get:
       tags:
-      - Local Media Search Endpoint
+      - Media Search Resource
       operationId: searchMedia
       responses:
         "200":
@@ -245,8 +194,3 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/MediaDescription'
-    SomeData:
-      type: object
-      properties:
-        name:
-          type: string

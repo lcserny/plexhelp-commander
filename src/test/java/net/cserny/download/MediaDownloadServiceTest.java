@@ -10,7 +10,6 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import javax.inject.Inject;
 import java.time.LocalDateTime;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -19,10 +18,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @QuarkusTest
 @Testcontainers
 @QuarkusTestResource(MongoTestSetup.class)
-public class DownloadHistoryServiceTest {
+public class MediaDownloadServiceTest {
 
     @Inject
-    DownloadHistoryService service;
+    MediaDownloadService service;
 
     @Inject
     DownloadedMediaRepository repository;

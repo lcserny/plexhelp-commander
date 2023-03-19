@@ -6,7 +6,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Singleton
-public class DownloadHistoryService {
+public class MediaDownloadService {
 
     @Inject
     DownloadedMediaRepository repository;

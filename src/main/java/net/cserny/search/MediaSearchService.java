@@ -14,9 +14,9 @@ import java.nio.file.Path;
 import java.util.*;
 
 @Singleton
-public class LocalMediaSearchService {
+public class MediaSearchService {
 
-    private static final Logger LOGGER = Logger.getLogger(LocalMediaSearchService.class);
+    private static final Logger LOGGER = Logger.getLogger(MediaSearchService.class);
 
     @Inject
     LocalFileService fileService;

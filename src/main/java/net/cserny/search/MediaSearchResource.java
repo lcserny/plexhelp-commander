@@ -7,13 +7,12 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
 
-@Path("/v1/search")
-public class LocalMediaSearchEndpoint {
+@Path("/v1/media-searches")
+public class MediaSearchResource {
 
     @Inject
-    LocalMediaSearchService service;
+    MediaSearchService service;
 
-    @Path("/media")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public List<MediaFileGroup> searchMedia() {
