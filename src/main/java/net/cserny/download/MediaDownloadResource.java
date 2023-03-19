@@ -12,14 +12,14 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Path("/v1/media-downloads")
+@Consumes(MediaType.APPLICATION_JSON)
+@Produces(MediaType.APPLICATION_JSON)
 public class MediaDownloadResource {
 
     @Inject
     MediaDownloadService service;
 
     @GET
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
     public List<DownloadedMedia> downloadsCompleted(@RestQuery int year, @RestQuery int month, @RestQuery int day) {
         return service.retrieveAllFromDate(LocalDate.of(year, month, day));
     }

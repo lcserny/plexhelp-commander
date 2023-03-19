@@ -9,14 +9,14 @@ import javax.ws.rs.core.MediaType;
 import java.util.List;
 
 @Path("/v1/media-searches")
+@Consumes(MediaType.APPLICATION_JSON)
+@Produces(MediaType.APPLICATION_JSON)
 public class MediaSearchResource {
 
     @Inject
     MediaSearchService service;
 
     @GET
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
     public List<MediaFileGroup> searchMedia() {
         return service.findMedia();
     }
