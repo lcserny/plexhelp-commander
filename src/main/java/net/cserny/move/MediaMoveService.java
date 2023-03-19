@@ -56,8 +56,8 @@ public class MediaMoveService {
         };
 
         for (String video : fileGroup.videos()) {
-            LocalPath srcPath = fileService.produceLocalPath(fileGroup.path(), video);
-            LocalPath destPath = fileService.produceLocalPath(destRoot, fileGroup.name(), video);
+            LocalPath srcPath = fileService.toLocalPath(fileGroup.path(), video);
+            LocalPath destPath = fileService.toLocalPath(destRoot, fileGroup.name(), video);
 
             try {
                 fileService.move(srcPath, destPath);
@@ -67,8 +67,8 @@ public class MediaMoveService {
             }
         }
 
-        LocalPath subsSrc = fileService.produceLocalPath(fileGroup.path());
-        LocalPath subsDest = fileService.produceLocalPath(destRoot, fileGroup.name());
+        LocalPath subsSrc = fileService.toLocalPath(fileGroup.path());
+        LocalPath subsDest = fileService.toLocalPath(destRoot, fileGroup.name());
         SubsMoveOperation subsMoveOperation = new SubsMoveOperation(subsSrc, subsDest, type);
         errors.addAll(subtitleMover.moveSubs(subsMoveOperation));
 
@@ -97,13 +97,13 @@ public class MediaMoveService {
             }
         }
 
-        LocalPath removePath = fileService.produceLocalPath(path);
+        LocalPath removePath = fileService.toLocalPath(path);
         fileService.deleteDirectory(removePath);
     }
 
     private boolean movieExists(String movieName, MediaFileType type) {
         if (type == MediaFileType.MOVIE) {
-            LocalPath moviePath = fileService.produceLocalPath(filesystemConfig.moviesPath(), movieName);
+            LocalPath moviePath = fileService.toLocalPath(filesystemConfig.moviesPath(), movieName);
             return Files.exists(moviePath.path()) && Files.isDirectory(moviePath.path());
         }
         return false;

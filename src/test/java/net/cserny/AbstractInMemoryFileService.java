@@ -21,13 +21,13 @@ public abstract class AbstractInMemoryFileService {
     }
 
     public LocalPath createDirectories(String somePath) throws IOException {
-        LocalPath localPath = fileService.produceLocalPath(somePath);
+        LocalPath localPath = fileService.toLocalPath(somePath);
         Files.createDirectories(localPath.path());
         return localPath;
     }
 
     public LocalPath createFile(String somePath) throws IOException {
-        LocalPath localPath = fileService.produceLocalPath(somePath);
+        LocalPath localPath = fileService.toLocalPath(somePath);
         if (localPath.path().getParent() != null) {
             Files.createDirectories(localPath.path().getParent());
         }

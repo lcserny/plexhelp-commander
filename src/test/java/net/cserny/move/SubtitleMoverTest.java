@@ -40,13 +40,13 @@ class SubtitleMoverTest extends AbstractInMemoryFileService {
         String subFile = filesystemConfig.downloadsPath() + "/mysub.srt";
         createFile(subFile);
 
-        LocalPath subsSrc = fileService.produceLocalPath(filesystemConfig.downloadsPath());
+        LocalPath subsSrc = fileService.toLocalPath(filesystemConfig.downloadsPath());
 
         SubsMoveOperation operation = new SubsMoveOperation(subsSrc, null, null);
         List<MediaMoveError> errors = mover.moveSubs(operation);
 
         assertEquals(0, errors.size());
-        assertTrue(Files.exists(fileService.produceLocalPath(subFile).path()));
+        assertTrue(Files.exists(fileService.toLocalPath(subFile).path()));
     }
 
     @Test
@@ -62,16 +62,16 @@ class SubtitleMoverTest extends AbstractInMemoryFileService {
         createDirectories(movieDest);
 
         SubsMoveOperation operation = new SubsMoveOperation(
-                fileService.produceLocalPath(movieSrc),
-                fileService.produceLocalPath(movieDest),
+                fileService.toLocalPath(movieSrc),
+                fileService.toLocalPath(movieDest),
                 MediaFileType.MOVIE
         );
 
         List<MediaMoveError> errors = mover.moveSubs(operation);
 
         assertEquals(0, errors.size());
-        assertFalse(Files.exists(fileService.produceLocalPath(movieSrc, subName).path()));
-        assertTrue(Files.exists(fileService.produceLocalPath(movieDest, subName).path()));
+        assertFalse(Files.exists(fileService.toLocalPath(movieSrc, subName).path()));
+        assertTrue(Files.exists(fileService.toLocalPath(movieDest, subName).path()));
     }
 
     @Test
@@ -87,16 +87,16 @@ class SubtitleMoverTest extends AbstractInMemoryFileService {
         createDirectories(showDest);
 
         SubsMoveOperation operation = new SubsMoveOperation(
-                fileService.produceLocalPath(showSrc),
-                fileService.produceLocalPath(showDest),
+                fileService.toLocalPath(showSrc),
+                fileService.toLocalPath(showDest),
                 MediaFileType.TV
         );
 
         List<MediaMoveError> errors = mover.moveSubs(operation);
 
         assertEquals(0, errors.size());
-        assertFalse(Files.exists(fileService.produceLocalPath(showSrc, subName).path()));
-        assertTrue(Files.exists(fileService.produceLocalPath(showDest, SUBS_SUBFOLDER, subName).path()));
+        assertFalse(Files.exists(fileService.toLocalPath(showSrc, subName).path()));
+        assertTrue(Files.exists(fileService.toLocalPath(showDest, SUBS_SUBFOLDER, subName).path()));
     }
 
     @Test
@@ -113,15 +113,15 @@ class SubtitleMoverTest extends AbstractInMemoryFileService {
         createDirectories(showDest);
 
         SubsMoveOperation operation = new SubsMoveOperation(
-                fileService.produceLocalPath(showSrc),
-                fileService.produceLocalPath(showDest),
+                fileService.toLocalPath(showSrc),
+                fileService.toLocalPath(showDest),
                 MediaFileType.TV
         );
 
         List<MediaMoveError> errors = mover.moveSubs(operation);
 
         assertEquals(0, errors.size());
-        assertFalse(Files.exists(fileService.produceLocalPath(showSrc, subName).path()));
-        assertTrue(Files.exists(fileService.produceLocalPath(showDest, SUBS_SUBFOLDER, nestedSubFolderName + "." + subName).path()));
+        assertFalse(Files.exists(fileService.toLocalPath(showSrc, subName).path()));
+        assertTrue(Files.exists(fileService.toLocalPath(showDest, SUBS_SUBFOLDER, nestedSubFolderName + "." + subName).path()));
     }
 }

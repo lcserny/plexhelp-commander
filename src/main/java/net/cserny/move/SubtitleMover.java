@@ -79,8 +79,8 @@ public class SubtitleMover {
                 }
             }
 
-            LocalPath subSrc = fileService.produceLocalPath(sub.toString());
-            LocalPath subDest = fileService.produceLocalPath(operation.subsDest().path().toString(), SUBS_SUBFOLDER, subName);
+            LocalPath subSrc = fileService.toLocalPath(sub.toString());
+            LocalPath subDest = fileService.toLocalPath(operation.subsDest().path().toString(), SUBS_SUBFOLDER, subName);
 
             try {
                 fileService.move(subSrc, subDest);
@@ -97,9 +97,9 @@ public class SubtitleMover {
         List<MediaMoveError> errors = new ArrayList<>();
 
         for (Path sub : subs) {
-            LocalPath subSrc = fileService.produceLocalPath(sub.toString());
+            LocalPath subSrc = fileService.toLocalPath(sub.toString());
             String subFilename = sub.getFileName().toString();
-            LocalPath subDest = fileService.produceLocalPath(operation.subsDest().path().toString(), subFilename);
+            LocalPath subDest = fileService.toLocalPath(operation.subsDest().path().toString(), subFilename);
 
             try {
                 fileService.move(subSrc, subDest);

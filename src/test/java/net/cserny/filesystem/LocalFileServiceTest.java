@@ -2,7 +2,6 @@ package net.cserny.filesystem;
 
 import io.quarkus.test.junit.QuarkusTest;
 import net.cserny.AbstractInMemoryFileService;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -33,7 +32,7 @@ public class LocalFileServiceTest extends AbstractInMemoryFileService {
     @DisplayName("Service can delete a directory")
     public void deleteDirectoryWorks() throws IOException {
         createFile("/hello/my.txt");
-        LocalPath directory = fileService.produceLocalPath("/hello");
+        LocalPath directory = fileService.toLocalPath("/hello");
 
         assertTrue(Files.exists(directory.path()));
 
@@ -46,7 +45,7 @@ public class LocalFileServiceTest extends AbstractInMemoryFileService {
     @DisplayName("Service can move a path")
     public void moveWorks() throws IOException {
         LocalPath localPath = createFile("/hmmm/test.txt");
-        LocalPath destPath = fileService.produceLocalPath("/someOther/path/text.txt");
+        LocalPath destPath = fileService.toLocalPath("/someOther/path/text.txt");
 
         assertTrue(Files.exists(localPath.path()));
         assertFalse(Files.exists(destPath.path()));
@@ -60,7 +59,7 @@ public class LocalFileServiceTest extends AbstractInMemoryFileService {
     @Test
     @DisplayName("Service can walk a path")
     public void walkWorks() throws IOException {
-        LocalPath rootPath = fileService.produceLocalPath("/mypath");
+        LocalPath rootPath = fileService.toLocalPath("/mypath");
         String path1 = "/mypath/file1.txt";
         String path2 = "/mypath/file2.txt";
         String path3 = "/mypath/sub1/file3.txt";
@@ -82,7 +81,7 @@ public class LocalFileServiceTest extends AbstractInMemoryFileService {
     @Test
     @DisplayName("Service can walk a path of max depth passed from path passed")
     public void walkDepthIsCorrect() throws IOException {
-        LocalPath rootPath = fileService.produceLocalPath("/aaa/main/movies");
+        LocalPath rootPath = fileService.toLocalPath("/aaa/main/movies");
         String path1 = "/aaa/main/movies/movie1.mp4";
         String path2 = "/aaa/main/movies/movie2/file1.mp4";
         String path3 = "/aaa/main/movies/mypath/movie3/file3.mkv";
@@ -115,7 +114,7 @@ public class LocalFileServiceTest extends AbstractInMemoryFileService {
     @Test
     @DisplayName("Service can walk a path at least depth 1")
     public void walkDepthCannotBeZero() throws IOException {
-        LocalPath rootPath = fileService.produceLocalPath("/bbb");
+        LocalPath rootPath = fileService.toLocalPath("/bbb");
         createFile("/bbb/doesntMatter.txt");
         assertThrows(IllegalArgumentException.class, () -> {
             fileService.walk(rootPath, 0);
@@ -125,7 +124,7 @@ public class LocalFileServiceTest extends AbstractInMemoryFileService {
     @Test
     @DisplayName("Service can walk a directory only")
     public void walkPathMustBeDirectory() throws IOException {
-        LocalPath rootPath = fileService.produceLocalPath("/ccc");
+        LocalPath rootPath = fileService.toLocalPath("/ccc");
         assertThrows(NotDirectoryException.class, () -> {
             fileService.walk(rootPath, 1);
         });

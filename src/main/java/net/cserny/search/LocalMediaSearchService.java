@@ -28,7 +28,7 @@ public class LocalMediaSearchService {
     SearchConfig searchConfig;
 
     public List<MediaFileGroup> findMedia() {
-        LocalPath walkPath = fileService.produceLocalPath(filesystemConfig.downloadsPath());
+        LocalPath walkPath = fileService.toLocalPath(filesystemConfig.downloadsPath());
         try {
             List<Path> files = fileService.walk(walkPath, searchConfig.maxDepth());
 
@@ -49,7 +49,7 @@ public class LocalMediaSearchService {
     private List<MediaFileGroup> generateMediaFileGroups(List<Path> allVideos) {
         List<MediaFileGroup> mediaFileGroups = new ArrayList<>();
 
-        Path downloadsPath = fileService.produceLocalPath(filesystemConfig.downloadsPath()).path();
+        Path downloadsPath = fileService.toLocalPath(filesystemConfig.downloadsPath()).path();
         int downloadsPathSegments = downloadsPath.getNameCount();
 
         Map<Pair<String, String>, List<String>> tmpMap = new TreeMap<>();
@@ -65,7 +65,7 @@ public class LocalMediaSearchService {
                 video = videoPath.subpath(downloadsPathSegments + 1, videoPathSegments);
             } else {
                 String nameString = name.toString();
-                name = fileService.produceLocalPath(nameString.substring(0, nameString.lastIndexOf("."))).path();
+                name = fileService.toLocalPath(nameString.substring(0, nameString.lastIndexOf("."))).path();
             }
 
             Pair<String, String> key = Pair.of(path.toString(), name.toString());

@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
 
-import static net.cserny.move.SubtitleMover.SUBS_SUBFOLDER;
 import static org.junit.jupiter.api.Assertions.*;
 
 @QuarkusTest
@@ -48,7 +47,7 @@ class MediaMoveServiceTest extends AbstractInMemoryFileService {
         List<MediaMoveError> errors = service.moveMedia(fileGroup, MediaFileType.MOVIE);
 
         assertEquals(1, errors.size());
-        assertTrue(Files.exists(fileService.produceLocalPath(path, movie).path()));
+        assertTrue(Files.exists(fileService.toLocalPath(path, movie).path()));
     }
 
     @Test
@@ -65,8 +64,8 @@ class MediaMoveServiceTest extends AbstractInMemoryFileService {
         List<MediaMoveError> errors = service.moveMedia(fileGroup, MediaFileType.TV);
 
         assertEquals(0, errors.size());
-        assertFalse(Files.exists(fileService.produceLocalPath(path, show).path()));
-        assertTrue(Files.exists(fileService.produceLocalPath(filesystemConfig.tvShowsPath(), name, show).path()));
+        assertFalse(Files.exists(fileService.toLocalPath(path, show).path()));
+        assertTrue(Files.exists(fileService.toLocalPath(filesystemConfig.tvShowsPath(), name, show).path()));
     }
 
     @Test
@@ -85,8 +84,8 @@ class MediaMoveServiceTest extends AbstractInMemoryFileService {
         List<MediaMoveError> errors = service.moveMedia(fileGroup, MediaFileType.MOVIE);
 
         assertEquals(0, errors.size());
-        assertFalse(Files.exists(fileService.produceLocalPath(path, movie).path()));
-        assertTrue(Files.exists(fileService.produceLocalPath(filesystemConfig.moviesPath(), name, movie).path()));
-        assertTrue(Files.exists(fileService.produceLocalPath(filesystemConfig.downloadsPath(), randomFile).path()));
+        assertFalse(Files.exists(fileService.toLocalPath(path, movie).path()));
+        assertTrue(Files.exists(fileService.toLocalPath(filesystemConfig.moviesPath(), name, movie).path()));
+        assertTrue(Files.exists(fileService.toLocalPath(filesystemConfig.downloadsPath(), randomFile).path()));
     }
 }

@@ -14,7 +14,6 @@ import javax.inject.Singleton;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -42,7 +41,7 @@ public class DiskSearcher implements Searcher {
     private final LevenshteinDistance levenshteinDistance = new LevenshteinDistance();
 
     public RenamedMediaOptions search(NameYear nameYear, MediaFileType type) {
-        LocalPath mediaPath = localFileService.produceLocalPath(switch (type) {
+        LocalPath mediaPath = localFileService.toLocalPath(switch (type) {
             case MOVIE -> filesystemConfig.moviesPath();
             case TV -> filesystemConfig.tvShowsPath();
         });

@@ -14,7 +14,7 @@ public class LocalFileService {
 
     public FileSystem fileSystem = FileSystems.getDefault();
 
-    public LocalPath produceLocalPath(String root, String... segments) {
+    public LocalPath toLocalPath(String root, String... segments) {
         return new LocalPath(fileSystem.getPath(root, segments));
     }
 
