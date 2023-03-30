@@ -25,4 +25,4 @@ EXPOSE 8080
 
 VOLUME /work/config
 
-CMD ["./application", "-Dquarkus.http.host=0.0.0.0"]
+CMD ["./application", "-Xmn32m", "-Dquarkus.http.host=0.0.0.0"]
