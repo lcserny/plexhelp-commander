@@ -25,4 +25,6 @@ EXPOSE 8080
 
 VOLUME /work/config
 
+VOLUME /work/media
+
 CMD ["./application", "-Xmn32m", "-Dquarkus.http.host=0.0.0.0"]
