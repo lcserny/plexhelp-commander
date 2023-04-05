@@ -5,11 +5,8 @@ import io.smallrye.config.ConfigMapping;
 import io.smallrye.config.WithName;
 
 @StaticInitSafe
-@ConfigMapping(prefix = "tmdb")
-public interface TMDBConfig {
-
-    @WithName("api.key")
-    String apiKey();
+@ConfigMapping(prefix = "online")
+public interface OnlineConfig {
 
     @WithName("result.limit")
     int resultLimit();

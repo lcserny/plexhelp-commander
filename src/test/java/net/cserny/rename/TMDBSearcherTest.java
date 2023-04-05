@@ -1,12 +1,9 @@
 package net.cserny.rename;
 
-import info.movito.themoviedbapi.TvResultsPage;
-import info.movito.themoviedbapi.model.Credits;
-import info.movito.themoviedbapi.model.MovieDb;
-import info.movito.themoviedbapi.model.core.MovieResultsPage;
-import info.movito.themoviedbapi.model.tv.TvSeries;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
+import io.smallrye.mutiny.operators.multi.builders.CollectionBasedMulti;
+import io.v47.tmdb.model.*;
 import net.cserny.MongoTestSetup;
 import net.cserny.rename.NameNormalizer.NameYear;
 import org.junit.jupiter.api.DisplayName;
@@ -18,6 +15,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
@@ -37,20 +35,15 @@ class TMDBSearcherTest {
         int movieId = 1;
         String title = "fight club";
 
-        MovieDb movieDb = new MovieDb();
-        movieDb.setId(movieId);
-        movieDb.setTitle(title);
-        MovieResultsPage page = new MovieResultsPage();
-        page.setResults(List.of(movieDb));
-
-        Credits credits = new Credits();
-        credits.setCast(Collections.emptyList());
+        MovieListResult movieDb = createMovie(movieId, title);
+        PaginatedListResults<MovieListResult> page = new PaginatedListResults<>(null, 0, List.of(movieDb), 1, 1);
+        MovieCredits credits = new MovieCredits(null, Collections.emptyList(), Collections.emptyList());
 
         NameYear movie = new NameYear(title, 2000);
-        when(searcher.tmdbSearch.searchMovie(movie.name(), movie.year(), null, false, 0))
-                .thenReturn(page);
-        when(searcher.tmdbMovies.getCredits(movieId))
-                .thenReturn(credits);
+        when(searcher.tmdbWrapper.searchMovies(eq(movie.name()), eq(movie.year())))
+                .thenReturn(new CollectionBasedMulti<>(page));
+        when(searcher.tmdbWrapper.movieCredits(eq(movieId)))
+                .thenReturn(new CollectionBasedMulti<>(credits));
 
         RenamedMediaOptions options = searcher.search(movie, MediaFileType.MOVIE);
 
@@ -69,20 +62,15 @@ class TMDBSearcherTest {
         int tvId = 2;
         String title = "game of thrones";
 
-        TvSeries tvSeries = new TvSeries();
-        tvSeries.setId(tvId);
-        tvSeries.setName(title);
-        TvResultsPage page = new TvResultsPage();
-        page.setResults(List.of(tvSeries));
-
-        Credits credits = new Credits();
-        credits.setCast(Collections.emptyList());
+        TvListResult tvSeries = createTvShow(tvId, title);
+        PaginatedListResults<TvListResult> page = new PaginatedListResults<>(null, 0, List.of(tvSeries), 1, 1);
+        TvShowCredits credits = new TvShowCredits(null, Collections.emptyList(), Collections.emptyList());
 
         NameYear tvShow = new NameYear(title, 2011);
-        when(searcher.tmdbSearch.searchTv(tvShow.name(), null, 0))
-                .thenReturn(page);
-        when(searcher.tmdbTV.getCredits(tvId, null))
-                .thenReturn(credits);
+        when(searcher.tmdbWrapper.searchTvShows(eq(tvShow.name()), eq(tvShow.year())))
+                .thenReturn(new CollectionBasedMulti<>(page));
+        when(searcher.tmdbWrapper.tvShowCredits(eq(tvId)))
+                .thenReturn(new CollectionBasedMulti<>(credits));
 
         RenamedMediaOptions options = searcher.search(tvShow, MediaFileType.TV);
 
@@ -93,5 +81,21 @@ class TMDBSearcherTest {
         List<OnlineCacheItem> onlineCacheItems = repository.retrieveAllByNameYearAndType(tvShow, MediaFileType.TV);
         assertEquals(1, onlineCacheItems.size());
         assertEquals(title, onlineCacheItems.get(0).title);
+    }
+
+    private MovieListResult createMovie(int id, String title) {
+        return new MovieListResult( null, false, null,
+                null, Collections.emptyList(), id, null,
+                null, title, null, null,
+                null, null, null, null
+        );
+    }
+
+    private TvListResult createTvShow(int id, String title) {
+        return new TvListResult( null, null, id, null,
+                null, null, null, null,
+                null, null, null, null,
+                title, null, null, false
+        );
     }
 }

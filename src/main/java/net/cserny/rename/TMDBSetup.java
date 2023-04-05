@@ -1,9 +1,6 @@
 package net.cserny.rename;
 
-import info.movito.themoviedbapi.TmdbApi;
-import info.movito.themoviedbapi.TmdbMovies;
-import info.movito.themoviedbapi.TmdbSearch;
-import info.movito.themoviedbapi.TmdbTV;
+import io.v47.tmdb.TmdbClient;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
@@ -13,25 +10,10 @@ import javax.inject.Inject;
 public class TMDBSetup {
 
     @Inject
-    TMDBConfig config;
+    TmdbClient tmdbClient;
 
     @Produces
-    public TmdbApi tmdbApi() {
-        return new TmdbApi(config.apiKey());
-    }
-
-    @Produces
-    public TmdbSearch tmdbSearch(TmdbApi tmdbApi) {
-        return tmdbApi.getSearch();
-    }
-
-    @Produces
-    public TmdbMovies tmdbMovies(TmdbApi tmdbApi) {
-        return tmdbApi.getMovies();
-    }
-
-    @Produces
-    public TmdbTV tmdbTV(TmdbApi tmdbApi) {
-        return tmdbApi.getTvSeries();
+    public TmdbWrapper tmdbWrapper() {
+        return new TmdbWrapper(tmdbClient);
     }
 }

@@ -15,7 +15,7 @@
         <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
         <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
         <quarkus.platform.version>2.16.3.Final</quarkus.platform.version>
-        <tmdb.version>1.12</tmdb.version>
+        <tmdb.version>1.6.0</tmdb.version>
         <jimfs.version>1.2</jimfs.version>
         <skipITs>true</skipITs>
         <surefire-plugin.version>3.0.0-M7</surefire-plugin.version>
@@ -76,8 +76,8 @@
             <artifactId>commons-text</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.github.holgerbrandl</groupId>
-            <artifactId>themoviedbapi</artifactId>
+            <groupId>io.v47.tmdb-api-client</groupId>
+            <artifactId>quarkus</artifactId>
             <version>${tmdb.version}</version>
         </dependency>
 
