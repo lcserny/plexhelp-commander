@@ -1,5 +1,7 @@
 package net.cserny.search;
 
+import org.jboss.logging.Logger;
+
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -13,11 +15,14 @@ import java.util.List;
 @Produces(MediaType.APPLICATION_JSON)
 public class MediaSearchResource {
 
+    private static final Logger LOGGER = Logger.getLogger(MediaSearchResource.class);
+
     @Inject
     MediaSearchService service;
 
     @GET
     public List<MediaFileGroup> searchMedia() {
+        LOGGER.info("Received searchMedia request");
         return service.findMedia();
     }
 }

@@ -1,5 +1,7 @@
 package net.cserny.rename;
 
+import org.jboss.logging.Logger;
+
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -12,11 +14,14 @@ import javax.ws.rs.core.MediaType;
 @Produces(MediaType.APPLICATION_JSON)
 public class MediaRenameResource {
 
+    private static final Logger LOGGER = Logger.getLogger(MediaRenameResource.class);
+
     @Inject
     MediaRenameService service;
 
     @POST
     public RenamedMediaOptions produceRenames(MediaRenameRequest request) {
+        LOGGER.infov("Received produceRenames request for payload {0}", request);
         return service.produceNames(request.name(), request.type());
     }
 }
