@@ -85,6 +85,8 @@ public class MediaMoveService {
     }
 
     private void cleanSourceMediaDir(String path) throws IOException {
+        LocalPath removePath = fileService.toLocalPath(path);
+
         for (String folder : importantFolders) {
             if (path.equals(folder)) {
                 LOGGER.infov("Clean source media dir aborted, important folder, {0}", folder);
@@ -93,13 +95,12 @@ public class MediaMoveService {
         }
 
         for (String restrictedPath : moveConfig.restrictedRemovePaths()) {
-            if (path.contains(restrictedPath)) {
+            if (removePath.path().getFileName().toString().equals(restrictedPath)) {
                 LOGGER.infov("Clean source media dir aborted, restricted folder, {0}", restrictedPath);
                 return;
             }
         }
 
-        LocalPath removePath = fileService.toLocalPath(path);
         fileService.deleteDirectory(removePath);
     }
 
