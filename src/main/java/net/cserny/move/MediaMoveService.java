@@ -87,12 +87,14 @@ public class MediaMoveService {
     private void cleanSourceMediaDir(String path) throws IOException {
         for (String folder : importantFolders) {
             if (path.equals(folder)) {
+                LOGGER.infov("Clean source media dir aborted, important folder, {0}", folder);
                 return;
             }
         }
 
         for (String restrictedPath : moveConfig.restrictedRemovePaths()) {
             if (path.contains(restrictedPath)) {
+                LOGGER.infov("Clean source media dir aborted, restricted folder, {0}", restrictedPath);
                 return;
             }
         }
