@@ -51,13 +51,13 @@ public class DiskSearcher implements Searcher {
         try {
             List<Path> paths = localFileService.walk(mediaPath, renameConfig.maxDepth(), ONLY_DIRECTORIES);
 
-            nameVariants = paths.stream()
+           nameVariants = paths.stream()
                     .filter(path -> !mediaPath.path().equals(path))
                     .map(this::convertAndtrimReleaseDate)
-                    .map(folder -> parseDistance(folder, nameYear.name()))
-                    .filter(pair -> excludeNotSimilarPaths(pair, nameYear.name()))
-                    .sorted(Comparator.comparing(Pair::getLeft))
-                    .map(Pair::getRight)
+                    .map(diskPath -> parseDistance(diskPath, nameYear.name()))
+                    .filter(diskPath -> excludeNotSimilarPaths(diskPath, nameYear.name()))
+                    .sorted(Comparator.comparing(DiskPath::similarity))
+                    .map(this::chooseCorrectPath)
                     .collect(Collectors.toList());
         } catch (IOException e) {
             LOGGER.warn("Could not walk path " + mediaPath.path(), e);
@@ -66,19 +66,36 @@ public class DiskSearcher implements Searcher {
         return new RenamedMediaOptions(MediaRenameOrigin.DISK, generateDescFrom(nameVariants));
     }
 
-    private String convertAndtrimReleaseDate(Path path) {
+    private DiskPath convertAndtrimReleaseDate(Path path) {
         String folder = path.getFileName().toString();
-        return folder.replaceAll(releaseDateRegex.pattern(), "");
+        String trimmedLocalPath = folder.replaceAll(releaseDateRegex.pattern(), "");
+        return new DiskPath(null, folder, trimmedLocalPath);
     }
 
-    private boolean excludeNotSimilarPaths(Pair<Integer, String> similarPath, String name) {
-        int bigger = Math.max(similarPath.getRight().length(), name.length());
-        int simPercent = (int)((float)(bigger - similarPath.getLeft()) / (float)bigger * 100);
-        return simPercent >= renameConfig.similarityPercent();
+    private boolean excludeNotSimilarPaths(DiskPath diskPath, String name) {
+        int bigger = Math.max(diskPath.trimmedLocalPpath().length(), name.length());
+        int simPercent = (int)((float)(bigger - diskPath.similarity()) / (float)bigger * 100);
+        if (simPercent >= renameConfig.similarityPercent()) {
+            LOGGER.infov("For path {0}, the disk path {1} is {2}% similar with distance of {3}",
+                    name, diskPath.trimmedLocalPpath(), simPercent, diskPath.similarity());
+            return true;
+        }
+        return false;
     }
 
-    private Pair<Integer, String> parseDistance(String folder, String name) {
-        Integer distance = levenshteinDistance.apply(folder, name);
-        return Pair.of(distance, folder);
+    private DiskPath parseDistance(DiskPath diskPath, String name) {
+        Integer distance = levenshteinDistance.apply(diskPath.trimmedLocalPpath(), name);
+        return new DiskPath(distance, diskPath.localPath(), diskPath.trimmedLocalPpath());
+    }
+
+    private String chooseCorrectPath(DiskPath diskPath) {
+        if (diskPath.similarity() == 0) {
+            return diskPath.localPath();
+        } else {
+            return diskPath.trimmedLocalPpath();
+        }
+    }
+
+    private record DiskPath(Integer similarity, String localPath, String trimmedLocalPpath) {
     }
 }
