@@ -1,7 +1,5 @@
 package net.cserny.command;
 
-import net.cserny.command.shutdown.CommandResponse;
-
 import javax.inject.Singleton;
 
 @Singleton
@@ -12,7 +10,7 @@ public class TestCommand implements Command {
     private boolean executed;
 
     @Override
-    public CommandResponse execute() {
+    public CommandResponse execute(Param[] params) {
         executed = true;
         return CommandResponse.EMPTY;
     }

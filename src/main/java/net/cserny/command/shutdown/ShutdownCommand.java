@@ -1,6 +1,8 @@
 package net.cserny.command.shutdown;
 
 import net.cserny.command.Command;
+import net.cserny.command.CommandResponse;
+import net.cserny.command.Param;
 
 import javax.inject.Singleton;
 import java.io.IOException;
@@ -10,9 +12,9 @@ public class ShutdownCommand implements Command {
 
     public static final String NAME = "shutdown";
 
-    // TODO: impl params passing from Cloud DB to here for seconds or other data
+    // TODO: impl params for seconds
     @Override
-    public CommandResponse execute() {
+    public CommandResponse execute(Param[] params) {
         Runtime runtime = Runtime.getRuntime();
         String os = System.getProperty("os.name");
         if (os.contains("win")) {

@@ -4,6 +4,23 @@ info:
   title: plexhelp-commander API
   version: 1.0.0
 paths:
+  /api/v1/commands:
+    post:
+      tags:
+      - Command Resource
+      operationId: executeCommand
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommandRequest'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommandResponse'
   /api/v1/media-downloads:
     get:
       tags:
@@ -86,6 +103,20 @@ paths:
                   $ref: '#/components/schemas/MediaFileGroup'
 components:
   schemas:
+    CommandRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        params:
+          type: array
+          items:
+            $ref: '#/components/schemas/Param'
+    CommandResponse:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/Status'
     Date:
       format: date
       type: string
@@ -185,6 +216,13 @@ components:
           type: integer
         date:
           $ref: '#/components/schemas/Date'
+    Param:
+      type: object
+      properties:
+        key:
+          type: string
+        value:
+          type: string
     RenamedMediaOptions:
       type: object
       properties:
@@ -194,3 +232,9 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/MediaDescription'
+    Status:
+      enum:
+      - SUCCESS
+      - NOT_FOUND
+      - FAILED
+      type: string
