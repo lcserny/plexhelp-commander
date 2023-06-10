@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Deprecated
 @Singleton
 public class ServerCommandService {
 
@@ -44,7 +45,7 @@ public class ServerCommandService {
         }
     }
 
-    @Scheduled(cron = "{server.command.listen.cron}")
+//    @Scheduled(cron = "{server.command.listen.cron}")
     public void startListeningForActions() {
         repository.setLastPingDate(config.name(), System.currentTimeMillis());
 
