@@ -1,10 +1,12 @@
 package net.cserny.rename;
 
 import net.cserny.rename.NameNormalizer.NameYear;
+import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -16,7 +18,7 @@ public interface OnlineCacheRepository extends MongoRepository<OnlineCacheItem, 
         item.searchYear = nameYear.year();
         item.coverPath = description.posterUrl();
         item.title = description.title();
-        item.date = description.date();
+        item.date = StringUtils.isBlank(description.date()) ? null : LocalDate.parse(description.date());
         item.description = description.description();
         item.cast = description.cast();
         item.mediaType = mediaType;

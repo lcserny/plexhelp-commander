@@ -1,15 +1,16 @@
 package net.cserny.rename;
 
-import io.smallrye.mutiny.operators.multi.builders.CollectionBasedMulti;
-import io.v47.tmdb.model.*;
+import info.movito.themoviedbapi.TvResultsPage;
+import info.movito.themoviedbapi.model.Credits;
+import info.movito.themoviedbapi.model.MovieDb;
+import info.movito.themoviedbapi.model.core.MovieResultsPage;
+import info.movito.themoviedbapi.model.tv.TvSeries;
 import net.cserny.rename.NameNormalizer.NameYear;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -18,6 +19,7 @@ import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -62,15 +64,17 @@ class TMDBSearcherTest {
         int movieId = 1;
         String title = "fight club";
 
-        MovieListResult movieDb = createMovie(movieId, title);
-        PaginatedListResults<MovieListResult> page = new PaginatedListResults<>(null, 0, List.of(movieDb), 1, 1);
-        MovieCredits credits = new MovieCredits(null, Collections.emptyList(), Collections.emptyList());
+        MovieDb movieDb = createMovie(movieId, title);
+        MovieResultsPage page = new MovieResultsPage();
+        page.setResults(List.of(movieDb));
+        Credits credits = new Credits();
+        credits.setCast(Collections.emptyList());
 
         NameYear movie = new NameYear(title, 2000);
         when(searcher.tmdbWrapper.searchMovies(eq(movie.name()), eq(movie.year())))
-                .thenReturn(new CollectionBasedMulti<>(page));
+                .thenReturn(page);
         when(searcher.tmdbWrapper.movieCredits(eq(movieId)))
-                .thenReturn(new CollectionBasedMulti<>(credits));
+                .thenReturn(credits);
 
         RenamedMediaOptions options = searcher.search(movie, MediaFileType.MOVIE);
 
@@ -89,15 +93,17 @@ class TMDBSearcherTest {
         int tvId = 2;
         String title = "game of thrones";
 
-        TvListResult tvSeries = createTvShow(tvId, title);
-        PaginatedListResults<TvListResult> page = new PaginatedListResults<>(null, 0, List.of(tvSeries), 1, 1);
-        TvShowCredits credits = new TvShowCredits(null, Collections.emptyList(), Collections.emptyList());
+        TvSeries tvSeries = createTvShow(tvId, title);
+        TvResultsPage page = new TvResultsPage();
+        page.setResults(List.of(tvSeries));
+        Credits credits = new Credits();
+        credits.setCast(Collections.emptyList());
 
         NameYear tvShow = new NameYear(title, 2011);
-        when(searcher.tmdbWrapper.searchTvShows(eq(tvShow.name()), eq(tvShow.year())))
-                .thenReturn(new CollectionBasedMulti<>(page));
+        when(searcher.tmdbWrapper.searchTvShows(eq(tvShow.name())))
+                .thenReturn(page);
         when(searcher.tmdbWrapper.tvShowCredits(eq(tvId)))
-                .thenReturn(new CollectionBasedMulti<>(credits));
+                .thenReturn(credits);
 
         RenamedMediaOptions options = searcher.search(tvShow, MediaFileType.TV);
 
@@ -110,19 +116,17 @@ class TMDBSearcherTest {
         assertEquals(title, onlineCacheItems.get(0).title);
     }
 
-    private MovieListResult createMovie(int id, String title) {
-        return new MovieListResult( null, false, null,
-                null, Collections.emptyList(), id, null,
-                null, title, null, null,
-                null, null, null, null, MediaType.Movie
-        );
+    private MovieDb createMovie(int id, String title) {
+        MovieDb movie =  new MovieDb();
+        movie.setId(id);
+        movie.setTitle(title);
+        return movie;
     }
 
-    private TvListResult createTvShow(int id, String title) {
-        return new TvListResult( null, null, id, null,
-                null, null, null, Collections.emptyList(),
-                Collections.emptyList(), Collections.emptyList(), null, null,
-                null, title, null, MediaType.Tv, false
-        );
+    private TvSeries createTvShow(int id, String title) {
+        TvSeries series = new TvSeries();
+        series.setId(id);
+        series.setName(title);
+        return series;
     }
 }

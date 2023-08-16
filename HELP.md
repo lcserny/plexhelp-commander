@@ -1,6 +1,6 @@
 ### Local setup
 Build with:  
-`./mvnw clean package -Pnative`
+`./mvnw -Pnative clean package native:compile`
 
 Copy native executable to your start server path:  
 `cp target/plexhelp-commander your/Path`

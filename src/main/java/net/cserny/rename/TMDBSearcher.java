@@ -1,7 +1,11 @@
 package net.cserny.rename;
 
-import io.smallrye.mutiny.Multi;
-import io.v47.tmdb.model.*;
+import info.movito.themoviedbapi.TvResultsPage;
+import info.movito.themoviedbapi.model.Credits;
+import info.movito.themoviedbapi.model.MovieDb;
+import info.movito.themoviedbapi.model.core.MovieResultsPage;
+import info.movito.themoviedbapi.model.people.PersonCast;
+import info.movito.themoviedbapi.model.tv.TvSeries;
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.rename.NameNormalizer.NameYear;
 import org.apache.commons.lang3.StringUtils;
@@ -9,12 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Flow;
 import java.util.regex.Pattern;
 
 @Order(2)
@@ -46,26 +47,26 @@ public class TMDBSearcher implements Searcher {
     }
 
     private List<MediaDescription> searchTvShow(NameYear nameYear) {
-        PaginatedListResults<TvListResult> page = pullFromPublisher(tmdbWrapper.searchTvShows(nameYear.name(), nameYear.year()));
+        TvResultsPage page = tmdbWrapper.searchTvShows(nameYear.name());
         if (page == null) {
             log.warn("TMDB Search could not search TV, check configuration");
             return Collections.emptyList();
         }
 
-        List<TvListResult> results = page.getResults();
+        List<TvSeries> results = page.getResults();
         if (results.isEmpty()) {
             return Collections.emptyList();
         }
 
-        List<TvListResult> sublist = results.subList(0, Math.min(results.size(), onlineConfig.getResultLimit()));
+        List<TvSeries> sublist = results.subList(0, Math.min(results.size(), onlineConfig.getResultLimit()));
 
         List<MediaDescription> descriptions = new ArrayList<>();
-        for (TvListResult tvSeries : sublist) {
+        for (TvSeries tvSeries : sublist) {
             String posterUrl = producePosterUrl(tvSeries.getPosterPath());
             String title = processTitle(tvSeries.getName());
-            LocalDate date = tvSeries.getFirstAirDate();
+            String date = tvSeries.getFirstAirDate();
             String description = nullIfBlank(tvSeries.getOverview());
-            List<String> cast = produceCast(pullFromPublisher(tmdbWrapper.tvShowCredits(tvSeries.getId())));
+            List<String> cast = produceCast(tmdbWrapper.tvShowCredits(tvSeries.getId()));
 
             descriptions.add(new MediaDescription( posterUrl, title, date, description, cast ));
         }
@@ -74,26 +75,26 @@ public class TMDBSearcher implements Searcher {
     }
 
     private List<MediaDescription> searchMovie(NameYear nameYear) {
-        PaginatedListResults<MovieListResult> page = pullFromPublisher(tmdbWrapper.searchMovies(nameYear.name(), nameYear.year()));
+        MovieResultsPage page = tmdbWrapper.searchMovies(nameYear.name(), nameYear.year());
         if (page == null) {
             log.warn("TMDB Search could not search Movies, check configuration");
             return Collections.emptyList();
         }
 
-        List<MovieListResult> results = page.getResults();
+        List<MovieDb> results = page.getResults();
         if (results.isEmpty()) {
             return Collections.emptyList();
         }
 
-        List<MovieListResult> sublist = results.subList(0, Math.min(results.size(), onlineConfig.getResultLimit()));
+        List<MovieDb> sublist = results.subList(0, Math.min(results.size(), onlineConfig.getResultLimit()));
 
         List<MediaDescription> descriptions = new ArrayList<>();
-        for (MovieListResult movieDb : sublist) {
+        for (MovieDb movieDb : sublist) {
             String posterUrl = producePosterUrl(movieDb.getPosterPath());
             String title = processTitle(movieDb.getTitle());
-            LocalDate date = movieDb.getReleaseDate();
+            String date = movieDb.getReleaseDate();
             String description = nullIfBlank(movieDb.getOverview());
-            List<String> cast = produceCast(pullFromPublisher(tmdbWrapper.movieCredits(movieDb.getId())));
+            List<String> cast = produceCast(tmdbWrapper.movieCredits(movieDb.getId()));
 
             descriptions.add(new MediaDescription( posterUrl, title, date, description, cast ));
         }
@@ -106,10 +107,6 @@ public class TMDBSearcher implements Searcher {
                 .replaceAll(specialCharsRegex.pattern(), "");
     }
 
-    private LocalDate produceDate(String releaseDate) {
-        return StringUtils.isBlank(releaseDate) ? null : LocalDate.parse(releaseDate, DateTimeFormatter.ISO_DATE);
-    }
-
     private String producePosterUrl(String posterPath) {
         return StringUtils.isBlank(posterPath) ? null : onlineConfig.getPosterBase() + posterPath;
     }
@@ -118,36 +115,13 @@ public class TMDBSearcher implements Searcher {
         return StringUtils.isBlank(text) ? null : text;
     }
 
-    private <T> T pullFromPublisher(Flow.Publisher<T> publisher) {
-        if (publisher == null) {
-            return null;
-        }
-
-        return Multi.createFrom()
-                .publisher(publisher)
-                .subscribe()
-                .asIterable()
-                .stream().findFirst().get();
-    }
-
-    private List<String> produceCast(TvShowCredits credits) {
+    private List<String> produceCast(Credits credits) {
         if (credits == null) {
             return Collections.emptyList();
         }
 
         return credits.getCast().stream()
-                .map(CreditListResult::getName)
-                .limit(onlineConfig.getResultLimit())
-                .toList();
-    }
-
-    private List<String> produceCast(MovieCredits credits) {
-        if (credits == null) {
-            return Collections.emptyList();
-        }
-
-        return credits.getCast().stream()
-                .map(CreditListResult::getName)
+                .map(PersonCast::getCharacter)
                 .limit(onlineConfig.getResultLimit())
                 .toList();
     }

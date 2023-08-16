@@ -1,7 +1,9 @@
 package net.cserny.rename;
 
-import io.v47.tmdb.TmdbClient;
-import io.v47.tmdb.model.*;
+import info.movito.themoviedbapi.TmdbApi;
+import info.movito.themoviedbapi.TvResultsPage;
+import info.movito.themoviedbapi.model.Credits;
+import info.movito.themoviedbapi.model.core.MovieResultsPage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -11,21 +13,21 @@ import java.util.concurrent.Flow;
 public class TmdbWrapper {
 
     @Autowired
-    TmdbClient tmdbClient;
+    TmdbApi tmdbApi;
 
-    public Flow.Publisher<PaginatedListResults<TvListResult>> searchTvShows(String query, Integer year) {
-        return tmdbClient.getSearch().forTvShows(query, 1, null, year);
+    public TvResultsPage searchTvShows(String query) {
+        return tmdbApi.getSearch().searchTv(query, null, 0);
     }
 
-    public Flow.Publisher<PaginatedListResults<MovieListResult>> searchMovies(String query, Integer year) {
-        return tmdbClient.getSearch().forMovies(query, 1, null, null, false, year, null);
+    public MovieResultsPage searchMovies(String query, Integer year) {
+        return tmdbApi.getSearch().searchMovie(query, year, null, false, 0);
     }
 
-    public Flow.Publisher<MovieCredits> movieCredits(int movieId) {
-        return tmdbClient.getMovie().credits(movieId);
+    public Credits movieCredits(int movieId) {
+        return tmdbApi.getMovies().getCredits(movieId);
     }
 
-    public Flow.Publisher<TvShowCredits> tvShowCredits(int tvShowCredits) {
-        return tmdbClient.getTvShow().credits(tvShowCredits, null);
+    public Credits tvShowCredits(int tvShowCredits) {
+        return tmdbApi.getTvSeries().getCredits(tvShowCredits, null);
     }
 }

@@ -1,6 +1,7 @@
 package net.cserny.rename;
 
 import net.cserny.rename.NameNormalizer.NameYear;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -27,10 +28,11 @@ public class OnlineCacheSearcher implements Searcher {
     }
 
     private MediaDescription convert(OnlineCacheItem item) {
+        String date = item.date == null ? null : item.date.toString();
         return new MediaDescription(
                 item.coverPath,
                 item.title,
-                item.date,
+                date,
                 item.description,
                 item.cast
         );
