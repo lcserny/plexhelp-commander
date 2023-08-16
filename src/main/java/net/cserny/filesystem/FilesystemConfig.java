@@ -1,19 +1,37 @@
 package net.cserny.filesystem;
 
-import io.quarkus.runtime.annotations.StaticInitSafe;
-import io.smallrye.config.ConfigMapping;
-import io.smallrye.config.WithName;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
 
-@StaticInitSafe
-@ConfigMapping(prefix = "filesystem")
-public interface FilesystemConfig {
+@Configuration
+@ConfigurationProperties(prefix = "filesystem")
+public class FilesystemConfig {
 
-    @WithName("downloads.path")
-    String downloadsPath();
+    private String downloadsPath;
+    private String moviesPath;
+    private String tvPath;
 
-    @WithName("movies.path")
-    String moviesPath();
+    public String getDownloadsPath() {
+        return downloadsPath;
+    }
 
-    @WithName("tv.path")
-    String tvShowsPath();
+    public void setDownloadsPath(String downloadsPath) {
+        this.downloadsPath = downloadsPath;
+    }
+
+    public String getMoviesPath() {
+        return moviesPath;
+    }
+
+    public void setMoviesPath(String moviesPath) {
+        this.moviesPath = moviesPath;
+    }
+
+    public String getTvPath() {
+        return tvPath;
+    }
+
+    public void setTvPath(String tvPath) {
+        this.tvPath = tvPath;
+    }
 }

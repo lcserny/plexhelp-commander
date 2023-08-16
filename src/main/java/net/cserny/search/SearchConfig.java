@@ -1,24 +1,48 @@
 package net.cserny.search;
 
-import io.quarkus.runtime.annotations.StaticInitSafe;
-import io.smallrye.config.ConfigMapping;
-import io.smallrye.config.WithName;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
 
-@StaticInitSafe
-@ConfigMapping(prefix = "search")
-public interface SearchConfig {
+@Configuration
+@ConfigurationProperties(prefix = "search")
+public class SearchConfig {
 
-    @WithName("max.depth")
-    int maxDepth();
+    private int maxDepth;
+    private List<String> excludePaths;
+    private long videoMinSizeBytes;
+    private List<String> videoMimeTypes;
 
-    @WithName("exclude.paths")
-    List<String> excludePaths();
+    public int getMaxDepth() {
+        return maxDepth;
+    }
 
-    @WithName("video.min.size.bytes")
-    long videoMinSizeInBytes();
+    public void setMaxDepth(int maxDepth) {
+        this.maxDepth = maxDepth;
+    }
 
-    @WithName("video.mime.types")
-    List<String> videoMimeTypes();
+    public List<String> getExcludePaths() {
+        return excludePaths;
+    }
+
+    public void setExcludePaths(List<String> excludePaths) {
+        this.excludePaths = excludePaths;
+    }
+
+    public long getVideoMinSizeBytes() {
+        return videoMinSizeBytes;
+    }
+
+    public void setVideoMinSizeBytes(long videoMinSizeBytes) {
+        this.videoMinSizeBytes = videoMinSizeBytes;
+    }
+
+    public List<String> getVideoMimeTypes() {
+        return videoMimeTypes;
+    }
+
+    public void setVideoMimeTypes(List<String> videoMimeTypes) {
+        this.videoMimeTypes = videoMimeTypes;
+    }
 }

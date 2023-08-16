@@ -1,38 +1,54 @@
 package net.cserny.search;
 
+import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
 import net.cserny.AbstractInMemoryFileService;
 import net.cserny.filesystem.FilesystemConfig;
 import net.cserny.filesystem.LocalFileService;
+import net.cserny.move.MediaMoveService;
+import net.cserny.move.MoveConfig;
+import net.cserny.move.SubtitleMover;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.io.IOException;
-import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.CoreMatchers.is;
 
-@SpringBootTest({
+@SpringBootTest(value = {
         "server.command.name=test-server",
         "server.command.listen-cron=disabled",
         "search.video-min-size-bytes=5",
         "search.exclude-paths[0]=Excluded Folder 1"
-})
+}, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ContextConfiguration(classes = {
+        MediaSearchController.class,
         MediaSearchService.class,
         FilesystemConfig.class,
         SearchConfig.class,
         LocalFileService.class
 })
 @EnableAutoConfiguration(exclude = MongoAutoConfiguration.class)
-public class MediaSearchServiceTest extends AbstractInMemoryFileService {
+public class MediaSearchControllerTest extends AbstractInMemoryFileService {
 
-    @Autowired
-    MediaSearchService service;
+    private final static String BASE_URI = "http://localhost";
+
+    @LocalServerPort
+    private int port;
+
+    @BeforeEach
+    public void configureRestAssured() {
+        RestAssured.baseURI = BASE_URI;
+        RestAssured.port = port;
+    }
 
     @Autowired
     FilesystemConfig filesystemConfig;
@@ -40,41 +56,6 @@ public class MediaSearchServiceTest extends AbstractInMemoryFileService {
     @Autowired
     SearchConfig searchConfig;
 
-    /*
-    [
-      {
-        "path": "/downloads/some movie folder",
-        "name": "some movie folder", // this is showed in UI, used by rename
-        "videos": [ // also shown in UI under, but you can't change these individually
-          "video1.mp4"
-        ]
-      },
-      {
-        "path": "/downloads/some tv folder",
-        "name": "some tv folder",
-        "videos": [ // used by move, just resolve <path> to them
-          "video1.mp4",
-          "video2.mp4",
-          "video3.mp4",
-        ]
-      },
-      {
-        "path": "/downloads/some nested folder", // easier to delete
-        "name": "some nested folder", // notice the nested structure
-        "videos": [
-          "another folder/video1.mp4",
-          "another folder/video2.mp4"
-        ]
-      },
-      {
-        "path": "/downloads", // notice no parent folder
-        "name": "video5", // notice its generated from file name without extension
-        "videos": [
-          "video5.mp4",
-        ]
-      },
-    ]
-     */
     @Test
     @DisplayName("Check search finds correct media")
     public void checkSearchFindsCorrectMedia() throws IOException {
@@ -94,15 +75,18 @@ public class MediaSearchServiceTest extends AbstractInMemoryFileService {
         String video7 = downloadPath + "/some tvShow/video5.mp4";
         createFile(video7, 6);
 
-        List<MediaFileGroup> media = service.findMedia();
-
-        assertEquals(3, media.size());
-        assertEquals(downloadPath, media.get(0).path());
-        assertEquals("video1", media.get(0).name());
-        assertEquals(downloadPath + "/some tvShow", media.get(2).path());
-        assertEquals("some tvShow", media.get(2).name());
-        assertEquals("video1.mp4", media.get(2).videos().get(0));
-        assertEquals("video3.mp4", media.get(2).videos().get(1));
-        assertEquals("video5.mp4", media.get(2).videos().get(2));
+        given()
+                .contentType(ContentType.JSON)
+                .when().get("/api/v1/media-searches")
+                .then()
+                .statusCode(200)
+                .body("$.size()", is(3))
+                .body("[0].path", is(downloadPath))
+                .body("[0].name", is("video1"))
+                .body("[2].path", is(downloadPath + "/some tvShow"))
+                .body("[2].name", is("some tvShow"))
+                .body("[2].videos[0]", is("video1.mp4"))
+                .body("[2].videos[1]", is("video3.mp4"))
+                .body("[2].videos[2]", is("video5.mp4"));
     }
 }

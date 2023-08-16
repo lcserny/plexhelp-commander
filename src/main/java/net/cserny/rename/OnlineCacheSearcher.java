@@ -1,24 +1,23 @@
 package net.cserny.rename;
 
 import net.cserny.rename.NameNormalizer.NameYear;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Component;
 
-import javax.annotation.Priority;
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Priority(1)
-@Singleton
+@Order(1)
+@Component
 public class OnlineCacheSearcher implements Searcher {
 
-    @Inject
+    @Autowired
     OnlineCacheRepository repository;
 
     @Override
     public RenamedMediaOptions search(NameYear nameYear, MediaFileType type) {
-        List<OnlineCacheItem> items = repository.retrieveAllByNameYearAndType(nameYear, type);
+        List<OnlineCacheItem> items = repository.autoRetrieveAllByNameYearAndType(nameYear, type);
 
         List<MediaDescription> mediaDescriptions = items.stream()
                 .map(this::convert)

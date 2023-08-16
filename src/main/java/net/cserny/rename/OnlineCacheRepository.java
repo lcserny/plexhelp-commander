@@ -1,14 +1,14 @@
 package net.cserny.rename;
 
-import io.quarkus.mongodb.panache.PanacheMongoRepository;
 import net.cserny.rename.NameNormalizer.NameYear;
+import org.bson.types.ObjectId;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 
-import javax.enterprise.context.ApplicationScoped;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@ApplicationScoped
-public class OnlineCacheRepository implements PanacheMongoRepository<OnlineCacheItem> {
+public interface OnlineCacheRepository extends MongoRepository<OnlineCacheItem, ObjectId> {
 
     private OnlineCacheItem convert(NameYear nameYear, MediaDescription description, MediaFileType mediaType) {
         OnlineCacheItem item = new OnlineCacheItem();
@@ -23,27 +23,27 @@ public class OnlineCacheRepository implements PanacheMongoRepository<OnlineCache
         return item;
     }
 
-    public void saveOnlineCacheItem(NameYear nameYear, MediaDescription description, MediaFileType mediaType) {
-        persist(convert(nameYear, description, mediaType));
+    default void saveOnlineCacheItem(NameYear nameYear, MediaDescription description, MediaFileType mediaType) {
+        save(convert(nameYear, description, mediaType));
     }
 
-    public void saveAllOnlineCacheItem(NameYear nameYear, List<MediaDescription> descriptions, MediaFileType mediaType) {
+    default void saveAllOnlineCacheItem(NameYear nameYear, List<MediaDescription> descriptions, MediaFileType mediaType) {
         List<OnlineCacheItem> items = descriptions.stream()
                 .map(description -> this.convert(nameYear, description, mediaType))
                 .collect(Collectors.toList());
-        persist(items);
+        saveAll(items);
     }
 
-    public List<OnlineCacheItem> retrieveAllByNameYearAndType(NameYear nameYear, MediaFileType type) {
+    default List<OnlineCacheItem> autoRetrieveAllByNameYearAndType(NameYear nameYear, MediaFileType type) {
         if (nameYear.year() == null) {
-            return retrieveAllByNameAndType(nameYear, type);
+            return retrieveAllByNameAndType(nameYear.name(), type);
         }
-        return list("searchName = ?1 and searchYear = ?2 and mediaType = ?3",
-                nameYear.name(), nameYear.year(), type);
+        return retrieveAllByNameYearAndType(nameYear.name(), nameYear.year(), type);
     }
 
-    private List<OnlineCacheItem> retrieveAllByNameAndType(NameYear nameYear, MediaFileType type) {
-        return list("searchName = ?1 and mediaType = ?2",
-                nameYear.name(), type);
-    }
+    @Query("{'searchName' : { $eq: ?0 }, 'searchYear' : { $eq: ?1 }, 'mediaType' : { $eq: ?2 } }")
+    List<OnlineCacheItem> retrieveAllByNameYearAndType(String name, Integer year, MediaFileType type);
+
+    @Query("{'searchName' : { $eq: ?0 }, 'mediaType' : { $eq: ?1 } }")
+    List<OnlineCacheItem> retrieveAllByNameAndType(String name, MediaFileType type);
 }

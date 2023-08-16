@@ -1,20 +1,17 @@
 package net.cserny.command;
 
-import io.quarkus.arc.All;
-import org.jboss.logging.Logger;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.List;
 
 // TODO: add tests
-@Singleton
+@Service
+@Slf4j
 public class LocalCommandService {
 
-    private static final Logger LOGGER = Logger.getLogger(LocalCommandService.class);
-
-    @Inject
-    @All
+    @Autowired
     List<Command> commands;
 
     public CommandResponse execute(String name, Param[] params) {
@@ -23,7 +20,7 @@ public class LocalCommandService {
                 try {
                     return command.execute(params);
                 } catch (Exception e) {
-                    LOGGER.warnv("Error occurred executing command {0}: {1}", name, e.getMessage());
+                    log.warn("Error occurred executing command {}: {}", name, e.getMessage());
                     return new CommandResponse(CommandResponse.Status.FAILED);
                 }
             }

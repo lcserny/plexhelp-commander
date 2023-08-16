@@ -1,15 +1,17 @@
 package net.cserny.rename;
 
-import io.quarkus.mongodb.panache.common.MongoEntity;
 import org.bson.types.ObjectId;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 
-@MongoEntity(collection = "online_cache")
+@Document(collection = "online_cache")
 public class OnlineCacheItem {
 
+    @Id
     public ObjectId id;
     public String searchName;
     public Integer searchYear;

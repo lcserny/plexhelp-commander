@@ -1,17 +1,18 @@
 package net.cserny.download;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import java.time.LocalDate;
 import java.util.List;
 
-@Singleton
+@Service
 public class MediaDownloadService {
 
-    @Inject
+    @Autowired
     DownloadedMediaRepository repository;
 
     public List<DownloadedMedia> retrieveAllFromDate(LocalDate date) {
-        return repository.retrieveAllFromDate(date);
+        return repository.retrieveAllFromDate(date.atStartOfDay(), date.plusDays(1).atStartOfDay());
     }
 }

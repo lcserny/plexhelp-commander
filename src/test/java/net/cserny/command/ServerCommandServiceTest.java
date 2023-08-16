@@ -1,36 +1,66 @@
 package net.cserny.command;
 
-import io.quarkus.test.common.QuarkusTestResource;
-import io.quarkus.test.junit.QuarkusTest;
-import net.cserny.MongoCloudTestSetup;
+import io.v47.tmdb.autoconfigure.TmdbAutoConfiguration;
 import org.jboss.logging.Logger;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.testcontainers.containers.MongoDBContainer;
+import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import javax.inject.Inject;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@QuarkusTest
+@SpringBootTest(value = {
+        "server.command.name=test-server",
+        "server.command.listen-cron=disabled"
+})
+@ContextConfiguration(classes = {
+        ServerCommandService.class,
+        ServerCommandRepository.class,
+        TestCommand.class,
+        ServerCommandConfig.class
+})
+@EnableAutoConfiguration
+@EnableMongoRepositories
 @Testcontainers
-@QuarkusTestResource(MongoCloudTestSetup.class)
 public class ServerCommandServiceTest {
+
+    @Container
+    public static MongoDBContainer mongoContainer = new MongoDBContainer("mongo:5.0");
+
+    @DynamicPropertySource
+    public static void qTorrentProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.data.mongodb.uri", () -> mongoContainer.getConnectionString());
+    }
 
     private static final Logger LOGGER = Logger.getLogger(ServerCommandServiceTest.class);
 
-    @Inject
+    @Autowired
     ServerCommandService service;
 
-    @Inject
+    @Autowired
     ServerCommandRepository repository;
 
-    @Inject
+    @Autowired
     ServerCommandConfig config;
 
-    @Inject
+    @Autowired
     TestCommand testCommand;
 
     @Test
@@ -39,10 +69,10 @@ public class ServerCommandServiceTest {
         assertFalse(testCommand.isExecuted());
 
         service.initServerCommand();
-        repository.getByServerName(config.name()).ifPresent(serverCommand -> {
+        repository.getByServerName(config.getName()).ifPresent(serverCommand -> {
             serverCommand.actionsPending = List.of(TestCommand.TEST_COMMAND);
-            repository.updateServerCommand(serverCommand);
-            LOGGER.info("Updating test command " + config.name() + " with command " + TestCommand.TEST_COMMAND);
+            repository.save(serverCommand);
+            LOGGER.info("Updating test command " + config.getName() + " with command " + TestCommand.TEST_COMMAND);
         });
         service.startListeningForActions();
 

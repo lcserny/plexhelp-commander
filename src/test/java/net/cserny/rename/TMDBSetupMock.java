@@ -1,18 +1,24 @@
 package net.cserny.rename;
 
-import io.quarkus.test.Mock;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Produces;
+import io.v47.tmdb.TmdbClient;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 
 import static org.mockito.Mockito.mock;
 
-@Mock
-@ApplicationScoped
-public class TMDBSetupMock extends TMDBSetup {
+@Configuration
+public class TMDBSetupMock {
 
-    @Produces
+    @Bean
+    @Primary
     public TmdbWrapper tmdbWrapper() {
         return mock(TmdbWrapper.class);
+    }
+
+    @Bean
+    @Primary
+    public TmdbClient tmdbClient() {
+        return mock(TmdbClient.class);
     }
 }

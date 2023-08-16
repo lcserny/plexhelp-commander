@@ -1,16 +1,28 @@
 package net.cserny.rename;
 
-import io.quarkus.runtime.annotations.StaticInitSafe;
-import io.smallrye.config.ConfigMapping;
-import io.smallrye.config.WithName;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
 
-@StaticInitSafe
-@ConfigMapping(prefix = "online")
-public interface OnlineConfig {
+@Configuration
+@ConfigurationProperties(prefix = "online")
+public class OnlineConfig {
 
-    @WithName("result.limit")
-    int resultLimit();
+    private int resultLimit;
+    private String posterBase;
 
-    @WithName("poster.base")
-    String posterBase();
+    public int getResultLimit() {
+        return resultLimit;
+    }
+
+    public void setResultLimit(int resultLimit) {
+        this.resultLimit = resultLimit;
+    }
+
+    public String getPosterBase() {
+        return posterBase;
+    }
+
+    public void setPosterBase(String posterBase) {
+        this.posterBase = posterBase;
+    }
 }

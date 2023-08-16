@@ -5,14 +5,14 @@ import com.google.common.jimfs.Jimfs;
 import net.cserny.filesystem.LocalFileService;
 import net.cserny.filesystem.LocalPath;
 import org.junit.jupiter.api.BeforeEach;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.inject.Inject;
 import java.io.IOException;
 import java.nio.file.Files;
 
 public abstract class AbstractInMemoryFileService {
 
-    @Inject
+    @Autowired
     public LocalFileService fileService;
 
     @BeforeEach

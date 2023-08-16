@@ -1,9 +1,13 @@
 package net.cserny.filesystem;
 
-import io.quarkus.test.junit.QuarkusTest;
 import net.cserny.AbstractInMemoryFileService;
+import net.cserny.download.DownloadedMediaRepository;
+import net.cserny.download.MediaDownloadController;
+import net.cserny.download.MediaDownloadService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ContextConfiguration;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -13,7 +17,10 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@QuarkusTest
+@SpringBootTest
+@ContextConfiguration(classes = {
+        LocalFileService.class,
+})
 public class LocalFileServiceTest extends AbstractInMemoryFileService {
 
     @Test

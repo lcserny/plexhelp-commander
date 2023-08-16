@@ -1,15 +1,28 @@
 package net.cserny.command;
 
-import io.quarkus.runtime.annotations.StaticInitSafe;
-import io.smallrye.config.ConfigMapping;
-import io.smallrye.config.WithName;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
 
-@StaticInitSafe
-@ConfigMapping(prefix = "server.command")
-public interface ServerCommandConfig {
+@Configuration
+@ConfigurationProperties(prefix = "server.command")
+public class ServerCommandConfig {
 
-    String name();
+    private String name;
+    private String listenCron;
 
-    @WithName("listen.cron")
-    String listenCron();
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getListenCron() {
+        return listenCron;
+    }
+
+    public void setListenCron(String listenCron) {
+        this.listenCron = listenCron;
+    }
 }

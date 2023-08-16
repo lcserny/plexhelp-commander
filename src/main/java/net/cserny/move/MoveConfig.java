@@ -1,21 +1,39 @@
 package net.cserny.move;
 
-import io.quarkus.runtime.annotations.StaticInitSafe;
-import io.smallrye.config.ConfigMapping;
-import io.smallrye.config.WithName;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
 
-@StaticInitSafe
-@ConfigMapping(prefix = "move")
-public interface MoveConfig {
+@Configuration
+@ConfigurationProperties(prefix = "move")
+public class MoveConfig {
 
-    @WithName("restricted.remove.paths")
-    List<String> restrictedRemovePaths();
+    private List<String> restrictedRemovePaths;
+    private List<String> subsExt;
+    private int subsMaxDepth;
 
-    @WithName("subs.ext")
-    List<String> subsExtensions();
+    public List<String> getRestrictedRemovePaths() {
+        return restrictedRemovePaths;
+    }
 
-    @WithName("subs.max.depth")
-    int subsMaxDepth();
+    public void setRestrictedRemovePaths(List<String> restrictedRemovePaths) {
+        this.restrictedRemovePaths = restrictedRemovePaths;
+    }
+
+    public List<String> getSubsExt() {
+        return subsExt;
+    }
+
+    public void setSubsExt(List<String> subsExt) {
+        this.subsExt = subsExt;
+    }
+
+    public int getSubsMaxDepth() {
+        return subsMaxDepth;
+    }
+
+    public void setSubsMaxDepth(int subsMaxDepth) {
+        this.subsMaxDepth = subsMaxDepth;
+    }
 }

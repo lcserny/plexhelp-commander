@@ -1,21 +1,39 @@
 package net.cserny.rename;
 
-import io.quarkus.runtime.annotations.StaticInitSafe;
-import io.smallrye.config.ConfigMapping;
-import io.smallrye.config.WithName;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
 
-@StaticInitSafe
-@ConfigMapping(prefix = "rename")
-public interface RenameConfig {
+@Configuration
+@ConfigurationProperties(prefix = "rename")
+public class RenameConfig {
 
-    @WithName("trim.regex")
-    List<String> trimRegexList();
+    private List<String> trimRegex;
+    private int similarityPercent;
+    private int maxDepth;
 
-    @WithName("similarity.percent")
-    int similarityPercent();
+    public List<String> getTrimRegex() {
+        return trimRegex;
+    }
 
-    @WithName("max.depth")
-    int maxDepth();
+    public void setTrimRegex(List<String> trimRegex) {
+        this.trimRegex = trimRegex;
+    }
+
+    public int getSimilarityPercent() {
+        return similarityPercent;
+    }
+
+    public void setSimilarityPercent(int similarityPercent) {
+        this.similarityPercent = similarityPercent;
+    }
+
+    public int getMaxDepth() {
+        return maxDepth;
+    }
+
+    public void setMaxDepth(int maxDepth) {
+        this.maxDepth = maxDepth;
+    }
 }

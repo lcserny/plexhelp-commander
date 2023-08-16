@@ -1,13 +1,16 @@
 package net.cserny.command;
 
-import io.quarkus.mongodb.panache.common.MongoEntity;
 import org.bson.types.ObjectId;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
 
-@MongoEntity(collection = "server_commands", clientName = "cloud")
+// clientName = "cloud" ??? - how to use multiplemongo client configs
+@Document(collection = "server_commands")
 public class ServerCommand {
 
+    @Id
     public ObjectId id;
     public String serverName;
     public long lastPingDate;

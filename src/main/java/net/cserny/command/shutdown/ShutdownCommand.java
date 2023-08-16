@@ -3,11 +3,11 @@ package net.cserny.command.shutdown;
 import net.cserny.command.Command;
 import net.cserny.command.CommandResponse;
 import net.cserny.command.Param;
+import org.springframework.stereotype.Component;
 
-import javax.inject.Singleton;
 import java.io.IOException;
 
-@Singleton
+@Component
 public class ShutdownCommand implements Command {
 
     public static final String NAME = "shutdown";

@@ -1,62 +1,66 @@
 package net.cserny.command;
 
-import io.quarkus.arc.All;
-import io.quarkus.scheduler.Scheduled;
+import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.jboss.logging.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Deprecated
-@Singleton
+@Service
+@Slf4j
 public class ServerCommandService {
 
-    private static final Logger LOGGER = Logger.getLogger(ServerCommandService.class);
-
-    @Inject
+    @Autowired
     ServerCommandRepository repository;
 
-    @Inject
+    @Autowired
     ServerCommandConfig config;
 
-    @Inject
-    @All
+    @Autowired
     List<Command> commands;
 
     @PostConstruct
     public void initServerCommand() {
-        LOGGER.info("Initializing " + config.name());
-        Optional<ServerCommand> serverCommand = repository.getByServerName(config.name());
+        log.info("Initializing " + config.getName());
+        Optional<ServerCommand> serverCommand = repository.getByServerName(config.getName());
         if (serverCommand.isPresent()) {
-            LOGGER.info("Found remote server command with name " + config.name());
+            log.info("Found remote server command with name " + config.getName());
             ServerCommand server = serverCommand.get();
             server.actionsPending = new ArrayList<>();
-            repository.updateServerCommand(server);
+            repository.save(server);
         } else {
-            LOGGER.info("Remote server command with name " + config.name() + " not found, creating...");
+            log.info("Remote server command with name " + config.getName() + " not found, creating...");
             ServerCommand server = new ServerCommand();
-            server.serverName = config.name();
+            server.serverName = config.getName();
             server.actionsAvailable = commands.stream().map(Command::name).toList();
-            repository.saveServer(server);
+            repository.save(server);
         }
     }
 
-//    @Scheduled(cron = "{server.command.listen.cron}")
+    // EnableScheduledJobs needed on Configuration somewhere
+//    @Scheduled(cron = "${server.command.listen.cron}")
     public void startListeningForActions() {
-        repository.setLastPingDate(config.name(), System.currentTimeMillis());
+        repository.getByServerName(config.getName()).ifPresent(server -> {
+            server.lastPingDate = System.currentTimeMillis();
+            repository.save(server);
+        });
 
-        repository.getByServerName(config.name()).ifPresent(server -> {
+
+        repository.getByServerName(config.getName()).ifPresent(server -> {
             if (server.actionsPending != null && !server.actionsPending.isEmpty()) {
                 String firstActionPending = server.actionsPending.remove(0);
-                repository.updateServerCommand(server);
+                repository.save(server);
 
                 for (Command command : commands) {
                     if (command.name().equals(firstActionPending)) {
-                        LOGGER.info("Executing action " + command.name() + " for server " + config.name());
+                        log.info("Executing action " + command.name() + " for server " + config.getName());
                         command.execute(new Param[]{});
                     }
                 }

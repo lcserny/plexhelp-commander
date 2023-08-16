@@ -1,13 +1,13 @@
 package net.cserny.move;
 
+import lombok.extern.slf4j.Slf4j;
 import net.cserny.filesystem.FilesystemConfig;
 import net.cserny.filesystem.LocalFileService;
 import net.cserny.filesystem.LocalFileService.WalkOptions;
 import net.cserny.filesystem.LocalPath;
-import org.jboss.logging.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -15,27 +15,26 @@ import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
-@Singleton
+@Service
+@Slf4j
 public class SubtitleMover {
 
     public static final String SUBS_SUBFOLDER = "Subs";
 
-    private static final Logger LOGGER = Logger.getLogger(SubtitleMover.class);
-
     private final Pattern episodeSegmentRegex = Pattern.compile(".*[eE](\\d{1,2}).*");
 
-    @Inject
+    @Autowired
     LocalFileService fileService;
 
-    @Inject
+    @Autowired
     FilesystemConfig filesystemConfig;
 
-    @Inject
+    @Autowired
     MoveConfig moveConfig;
 
     public List<MediaMoveError> moveSubs(SubsMoveOperation operation) {
-        if (operation.subsSrc().path().toString().equals(filesystemConfig.downloadsPath())) {
-            LOGGER.info("Path to move subs is root Downloads path, skipping operation...");
+        if (operation.subsSrc().path().toString().equals(filesystemConfig.getDownloadsPath())) {
+            log.info("Path to move subs is root Downloads path, skipping operation...");
             return Collections.emptyList();
         }
 
@@ -43,18 +42,18 @@ public class SubtitleMover {
 
         List<Path> subs;
         try {
-            subs = fileService.walk(operation.subsSrc(), moveConfig.subsMaxDepth(), WalkOptions.ONLY_FILES)
+            subs = fileService.walk(operation.subsSrc(), moveConfig.getSubsMaxDepth(), WalkOptions.ONLY_FILES)
                     .stream()
                     .filter(this::filterBySubExtension)
                     .toList();
         } catch (IOException e) {
-            LOGGER.warn("Could not walk subs path", e);
+            log.warn("Could not walk subs path", e);
             errors.add(new MediaMoveError(operation.subsSrc().path().toString(), e.getMessage()));
             return errors;
         }
 
         if (subs.isEmpty()) {
-            LOGGER.info("No subs found for media " + operation.subsSrc().path());
+            log.info("No subs found for media " + operation.subsSrc().path());
             return Collections.emptyList();
         }
 
@@ -85,7 +84,7 @@ public class SubtitleMover {
             try {
                 fileService.move(subSrc, subDest);
             } catch (IOException e) {
-                LOGGER.warn("Could not move sub", e);
+                log.warn("Could not move sub", e);
                 errors.add(new MediaMoveError(subSrc.path().toString(), e.getMessage()));
             }
         }
@@ -104,7 +103,7 @@ public class SubtitleMover {
             try {
                 fileService.move(subSrc, subDest);
             } catch (IOException e) {
-                LOGGER.warn("Could not move sub", e);
+                log.warn("Could not move sub", e);
                 errors.add(new MediaMoveError(subSrc.path().toString(), e.getMessage()));
             }
         }
@@ -116,7 +115,7 @@ public class SubtitleMover {
         String filename = subPath.getFileName().toString();
         String ext = filename.substring(filename.lastIndexOf("."));
 
-        for (String subsExtension : moveConfig.subsExtensions()) {
+        for (String subsExtension : moveConfig.getSubsExt()) {
             if (ext.equals(subsExtension)) {
                 return true;
             }

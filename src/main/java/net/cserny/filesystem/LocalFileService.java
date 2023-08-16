@@ -1,6 +1,7 @@
 package net.cserny.filesystem;
 
-import javax.inject.Singleton;
+import org.springframework.stereotype.Service;
+
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -9,7 +10,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@Singleton
+@Service
 public class LocalFileService {
 
     public FileSystem fileSystem = FileSystems.getDefault();

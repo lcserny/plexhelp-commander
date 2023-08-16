@@ -1,36 +1,35 @@
 package net.cserny.search;
 
+import lombok.extern.slf4j.Slf4j;
 import net.cserny.filesystem.FilesystemConfig;
 import net.cserny.filesystem.LocalFileService;
 import net.cserny.filesystem.LocalPath;
 import org.apache.commons.lang3.tuple.Pair;
-import org.jboss.logging.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
-@Singleton
+@Service
+@Slf4j
 public class MediaSearchService {
 
-    private static final Logger LOGGER = Logger.getLogger(MediaSearchService.class);
-
-    @Inject
+    @Autowired
     LocalFileService fileService;
 
-    @Inject
+    @Autowired
     FilesystemConfig filesystemConfig;
 
-    @Inject
+    @Autowired
     SearchConfig searchConfig;
 
     public List<MediaFileGroup> findMedia() {
-        LocalPath walkPath = fileService.toLocalPath(filesystemConfig.downloadsPath());
+        LocalPath walkPath = fileService.toLocalPath(filesystemConfig.getDownloadsPath());
         try {
-            List<Path> files = fileService.walk(walkPath, searchConfig.maxDepth());
+            List<Path> files = fileService.walk(walkPath, searchConfig.getMaxDepth());
 
             List<Path> allVideos = files.stream()
                     .filter(this::excludeConfiguredPaths)
@@ -41,7 +40,7 @@ public class MediaSearchService {
 
             return generateMediaFileGroups(allVideos);
         } catch (IOException e) {
-            LOGGER.warn("Could not walk path " + walkPath.path(), e);
+            log.warn("Could not walk path " + walkPath.path(), e);
             return Collections.emptyList();
         }
     }
@@ -49,7 +48,7 @@ public class MediaSearchService {
     private List<MediaFileGroup> generateMediaFileGroups(List<Path> allVideos) {
         List<MediaFileGroup> mediaFileGroups = new ArrayList<>();
 
-        Path downloadsPath = fileService.toLocalPath(filesystemConfig.downloadsPath()).path();
+        Path downloadsPath = fileService.toLocalPath(filesystemConfig.getDownloadsPath()).path();
         int downloadsPathSegments = downloadsPath.getNameCount();
 
         Map<Pair<String, String>, List<String>> tmpMap = new TreeMap<>();
@@ -88,7 +87,7 @@ public class MediaSearchService {
     }
 
     private boolean excludeConfiguredPaths(Path path) {
-        for (String excludePath : searchConfig.excludePaths()) {
+        for (String excludePath : searchConfig.getExcludePaths()) {
             if (path.toAbsolutePath().toString().contains(excludePath)) {
                 return false;
             }
@@ -102,11 +101,11 @@ public class MediaSearchService {
         try {
             mimeType = Files.probeContentType(path);
         } catch (IOException e) {
-            LOGGER.warn("Could not get content type of file " + path, e);
+            log.warn("Could not get content type of file " + path, e);
             return false;
         }
 
-        for (String allowedType : searchConfig.videoMimeTypes()) {
+        for (String allowedType : searchConfig.getVideoMimeTypes()) {
             if (allowedType.equals(mimeType)) {
                 return true;
             }
@@ -118,9 +117,9 @@ public class MediaSearchService {
     private boolean excludeNonVideosBySize(Path path) {
         try {
             long size = Files.size(path);
-            return size >= searchConfig.videoMinSizeInBytes();
+            return size >= searchConfig.getVideoMinSizeBytes();
         } catch (IOException e) {
-            LOGGER.warn("Could not get size of file " + path, e);
+            log.warn("Could not get size of file " + path, e);
             return false;
         }
     }

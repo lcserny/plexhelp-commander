@@ -1,22 +1,23 @@
 package net.cserny.rename;
 
-import io.quarkus.arc.All;
 import net.cserny.rename.NameNormalizer.NameYear;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static net.cserny.rename.MediaDescription.generateDescFrom;
 
-@Singleton
+@Service
 public class MediaRenameService {
 
-    @Inject
+    @Autowired
     NameNormalizer normalizer;
 
-    @Inject
-    @All
+    @Autowired
     List<Searcher> searchers;
 
     public RenamedMediaOptions produceNames(String name, MediaFileType type) {

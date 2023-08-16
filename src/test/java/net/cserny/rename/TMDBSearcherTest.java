@@ -1,16 +1,23 @@
 package net.cserny.rename;
 
-import io.quarkus.test.common.QuarkusTestResource;
-import io.quarkus.test.junit.QuarkusTest;
 import io.smallrye.mutiny.operators.multi.builders.CollectionBasedMulti;
 import io.v47.tmdb.model.*;
-import net.cserny.MongoTestSetup;
 import net.cserny.rename.NameNormalizer.NameYear;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
+import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.testcontainers.containers.MongoDBContainer;
+import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import javax.inject.Inject;
 import java.util.Collections;
 import java.util.List;
 
@@ -18,15 +25,35 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
-@QuarkusTest
+@SpringBootTest({
+        "server.command.name=test-server",
+        "server.command.listen-cron=disabled",
+        "search.video-min-size-bytes=5",
+        "search.exclude-paths[0]=Excluded Folder 1"
+})
+@EnableAutoConfiguration
+@EnableMongoRepositories
+@ContextConfiguration(classes = {
+        TMDBSearcher.class,
+        OnlineCacheRepository.class,
+        OnlineConfig.class,
+        TMDBSetupMock.class
+})
 @Testcontainers
-@QuarkusTestResource(MongoTestSetup.class)
 class TMDBSearcherTest {
 
-    @Inject
+    @Container
+    public static MongoDBContainer mongoContainer = new MongoDBContainer("mongo:5.0");
+
+    @DynamicPropertySource
+    public static void qTorrentProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.data.mongodb.uri", () -> mongoContainer.getConnectionString());
+    }
+
+    @Autowired
     TMDBSearcher searcher;
 
-    @Inject
+    @Autowired
     OnlineCacheRepository repository;
 
     @Test
@@ -51,7 +78,7 @@ class TMDBSearcherTest {
         assertEquals(1, options.mediaDescriptions().size());
         assertEquals(title, options.mediaDescriptions().get(0).title());
 
-        List<OnlineCacheItem> onlineCacheItems = repository.retrieveAllByNameYearAndType(movie, MediaFileType.MOVIE);
+        List<OnlineCacheItem> onlineCacheItems = repository.autoRetrieveAllByNameYearAndType(movie, MediaFileType.MOVIE);
         assertEquals(1, onlineCacheItems.size());
         assertEquals(title, onlineCacheItems.get(0).title);
     }
@@ -78,7 +105,7 @@ class TMDBSearcherTest {
         assertEquals(1, options.mediaDescriptions().size());
         assertEquals(title, options.mediaDescriptions().get(0).title());
 
-        List<OnlineCacheItem> onlineCacheItems = repository.retrieveAllByNameYearAndType(tvShow, MediaFileType.TV);
+        List<OnlineCacheItem> onlineCacheItems = repository.autoRetrieveAllByNameYearAndType(tvShow, MediaFileType.TV);
         assertEquals(1, onlineCacheItems.size());
         assertEquals(title, onlineCacheItems.get(0).title);
     }
@@ -87,15 +114,15 @@ class TMDBSearcherTest {
         return new MovieListResult( null, false, null,
                 null, Collections.emptyList(), id, null,
                 null, title, null, null,
-                null, null, null, null
+                null, null, null, null, MediaType.Movie
         );
     }
 
     private TvListResult createTvShow(int id, String title) {
         return new TvListResult( null, null, id, null,
-                null, null, null, null,
-                null, null, null, null,
-                title, null, null, false
+                null, null, null, Collections.emptyList(),
+                Collections.emptyList(), Collections.emptyList(), null, null,
+                null, title, null, MediaType.Tv, false
         );
     }
 }

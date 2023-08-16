@@ -2,34 +2,33 @@ package net.cserny.rename;
 
 import io.smallrye.mutiny.Multi;
 import io.v47.tmdb.model.*;
+import lombok.extern.slf4j.Slf4j;
 import net.cserny.rename.NameNormalizer.NameYear;
 import org.apache.commons.lang3.StringUtils;
-import org.jboss.logging.Logger;
-import org.reactivestreams.Publisher;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Component;
 
-import javax.annotation.Priority;
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Flow;
 import java.util.regex.Pattern;
 
-@Priority(0)
-@Singleton
+@Order(2)
+@Component
+@Slf4j
 public class TMDBSearcher implements Searcher {
 
-    private static final Logger LOGGER = Logger.getLogger(TMDBSearcher.class);
-
-    @Inject
+    @Autowired
     OnlineCacheRepository repository;
 
-    @Inject
+    @Autowired
     OnlineConfig onlineConfig;
 
-    @Inject
+    @Autowired
     TmdbWrapper tmdbWrapper;
 
     private final Pattern specialCharsRegex = Pattern.compile("[^a-zA-Z0-9-\s]");
@@ -49,7 +48,7 @@ public class TMDBSearcher implements Searcher {
     private List<MediaDescription> searchTvShow(NameYear nameYear) {
         PaginatedListResults<TvListResult> page = pullFromPublisher(tmdbWrapper.searchTvShows(nameYear.name(), nameYear.year()));
         if (page == null) {
-            LOGGER.warn("TMDB Search could not search TV, check configuration");
+            log.warn("TMDB Search could not search TV, check configuration");
             return Collections.emptyList();
         }
 
@@ -58,7 +57,7 @@ public class TMDBSearcher implements Searcher {
             return Collections.emptyList();
         }
 
-        List<TvListResult> sublist = results.subList(0, Math.min(results.size(), onlineConfig.resultLimit()));
+        List<TvListResult> sublist = results.subList(0, Math.min(results.size(), onlineConfig.getResultLimit()));
 
         List<MediaDescription> descriptions = new ArrayList<>();
         for (TvListResult tvSeries : sublist) {
@@ -77,7 +76,7 @@ public class TMDBSearcher implements Searcher {
     private List<MediaDescription> searchMovie(NameYear nameYear) {
         PaginatedListResults<MovieListResult> page = pullFromPublisher(tmdbWrapper.searchMovies(nameYear.name(), nameYear.year()));
         if (page == null) {
-            LOGGER.warn("TMDB Search could not search Movies, check configuration");
+            log.warn("TMDB Search could not search Movies, check configuration");
             return Collections.emptyList();
         }
 
@@ -86,7 +85,7 @@ public class TMDBSearcher implements Searcher {
             return Collections.emptyList();
         }
 
-        List<MovieListResult> sublist = results.subList(0, Math.min(results.size(), onlineConfig.resultLimit()));
+        List<MovieListResult> sublist = results.subList(0, Math.min(results.size(), onlineConfig.getResultLimit()));
 
         List<MediaDescription> descriptions = new ArrayList<>();
         for (MovieListResult movieDb : sublist) {
@@ -112,14 +111,14 @@ public class TMDBSearcher implements Searcher {
     }
 
     private String producePosterUrl(String posterPath) {
-        return StringUtils.isBlank(posterPath) ? null : onlineConfig.posterBase() + posterPath;
+        return StringUtils.isBlank(posterPath) ? null : onlineConfig.getPosterBase() + posterPath;
     }
 
     private String nullIfBlank(String text) {
         return StringUtils.isBlank(text) ? null : text;
     }
 
-    private <T> T pullFromPublisher(Publisher<T> publisher) {
+    private <T> T pullFromPublisher(Flow.Publisher<T> publisher) {
         if (publisher == null) {
             return null;
         }
@@ -138,7 +137,7 @@ public class TMDBSearcher implements Searcher {
 
         return credits.getCast().stream()
                 .map(CreditListResult::getName)
-                .limit(onlineConfig.resultLimit())
+                .limit(onlineConfig.getResultLimit())
                 .toList();
     }
 
@@ -149,7 +148,7 @@ public class TMDBSearcher implements Searcher {
 
         return credits.getCast().stream()
                 .map(CreditListResult::getName)
-                .limit(onlineConfig.resultLimit())
+                .limit(onlineConfig.getResultLimit())
                 .toList();
     }
 }

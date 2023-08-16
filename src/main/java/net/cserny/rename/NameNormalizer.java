@@ -1,20 +1,19 @@
 package net.cserny.rename;
 
+import jakarta.annotation.PostConstruct;
 import org.apache.commons.text.WordUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@Singleton
+@Component
 public class NameNormalizer {
 
-    @Inject
+    @Autowired
     RenameConfig renameConfig;
 
     private final Pattern preNormalizedNameRegex = Pattern.compile("^\s*(?<name>[a-zA-Z0-9-\s]+)\s\\((?<year>\\d{4})(-\\d{1,2}-\\d{1,2})?\\)$");
@@ -26,7 +25,7 @@ public class NameNormalizer {
 
     @PostConstruct
     public void init() {
-        for (String regex : renameConfig.trimRegexList()) {
+        for (String regex : renameConfig.getTrimRegex()) {
             nameTrimPatterns.add(Pattern.compile(regex));
         }
     }

@@ -1,18 +1,32 @@
 package net.cserny.rename;
 
-import io.quarkus.test.junit.QuarkusTest;
 import net.cserny.rename.NameNormalizer.NameYear;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import javax.inject.Inject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
+import org.springframework.test.context.ContextConfiguration;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@QuarkusTest
+@SpringBootTest({
+        "server.command.name=test-server",
+        "server.command.listen-cron=disabled",
+        "search.video-min-size-bytes=5",
+        "search.exclude-paths[0]=Excluded Folder 1"
+})
+@EnableAutoConfiguration
+@EnableMongoRepositories
+@ContextConfiguration(classes = {
+        NameNormalizer.class,
+        RenameConfig.class
+})
 class NameNormalizerTest {
 
-    @Inject
+    @Autowired
     NameNormalizer normalizer;
 
     private void checkNormalizedFormatted(String name, String expected) {

@@ -1,46 +1,46 @@
 package net.cserny.move;
 
+import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import net.cserny.filesystem.FilesystemConfig;
 import net.cserny.filesystem.LocalFileService;
 import net.cserny.filesystem.LocalPath;
 import net.cserny.rename.MediaFileType;
 import net.cserny.search.MediaFileGroup;
-import org.jboss.logging.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
-@Singleton
+@Service
+@Slf4j
 public class MediaMoveService {
 
-    private static final Logger LOGGER = Logger.getLogger(MediaMoveService.class);
     private static final String MOVIE_EXISTS = "Movie already exists";
 
     private List<String> importantFolders = new ArrayList<>();
 
-    @Inject
+    @Autowired
     LocalFileService fileService;
 
-    @Inject
+    @Autowired
     SubtitleMover subtitleMover;
 
-    @Inject
+    @Autowired
     FilesystemConfig filesystemConfig;
 
-    @Inject
+    @Autowired
     MoveConfig moveConfig;
 
     @PostConstruct
     public void init() {
         this.importantFolders = List.of(
-                filesystemConfig.downloadsPath(),
-                filesystemConfig.moviesPath(),
-                filesystemConfig.tvShowsPath());
+                filesystemConfig.getDownloadsPath(),
+                filesystemConfig.getMoviesPath(),
+                filesystemConfig.getTvPath());
     }
 
     public List<MediaMoveError> moveMedia(MediaFileGroup fileGroup, MediaFileType type) {
@@ -51,8 +51,8 @@ public class MediaMoveService {
         }
 
         String destRoot = switch (type) {
-            case MOVIE -> filesystemConfig.moviesPath();
-            case TV -> filesystemConfig.tvShowsPath();
+            case MOVIE -> filesystemConfig.getMoviesPath();
+            case TV -> filesystemConfig.getTvPath();
         };
 
         for (String video : fileGroup.videos()) {
@@ -62,7 +62,7 @@ public class MediaMoveService {
             try {
                 fileService.move(srcPath, destPath);
             } catch (IOException e) {
-                LOGGER.warn("Could not move media", e);
+                log.warn("Could not move media", e);
                 errors.add(new MediaMoveError(srcPath.path().toString(), e.getMessage()));
             }
         }
@@ -76,7 +76,7 @@ public class MediaMoveService {
             try {
                 cleanSourceMediaDir(fileGroup.path());
             } catch (IOException e) {
-                LOGGER.warn("Could not clean source media folder", e);
+                log.warn("Could not clean source media folder", e);
                 errors.add(new MediaMoveError(fileGroup.path(), e.getMessage()));
             }
         }
@@ -89,14 +89,14 @@ public class MediaMoveService {
 
         for (String folder : importantFolders) {
             if (path.equals(folder)) {
-                LOGGER.infov("Clean source media dir aborted, important folder, {0}", folder);
+                log.info("Clean source media dir aborted, important folder, {}", folder);
                 return;
             }
         }
 
-        for (String restrictedPath : moveConfig.restrictedRemovePaths()) {
+        for (String restrictedPath : moveConfig.getRestrictedRemovePaths()) {
             if (removePath.path().getFileName().toString().equals(restrictedPath)) {
-                LOGGER.infov("Clean source media dir aborted, restricted folder, {0}", restrictedPath);
+                log.info("Clean source media dir aborted, restricted folder, {}", restrictedPath);
                 return;
             }
         }
@@ -106,7 +106,7 @@ public class MediaMoveService {
 
     private boolean movieExists(String movieName, MediaFileType type) {
         if (type == MediaFileType.MOVIE) {
-            LocalPath moviePath = fileService.toLocalPath(filesystemConfig.moviesPath(), movieName);
+            LocalPath moviePath = fileService.toLocalPath(filesystemConfig.getMoviesPath(), movieName);
             return Files.exists(moviePath.path()) && Files.isDirectory(moviePath.path());
         }
         return false;

@@ -1,16 +1,15 @@
 package net.cserny.rename;
 
+import lombok.extern.slf4j.Slf4j;
 import net.cserny.filesystem.FilesystemConfig;
 import net.cserny.filesystem.LocalFileService;
 import net.cserny.filesystem.LocalPath;
 import net.cserny.rename.NameNormalizer.NameYear;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.text.similarity.LevenshteinDistance;
-import org.jboss.logging.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Component;
 
-import javax.annotation.Priority;
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -22,19 +21,18 @@ import java.util.stream.Collectors;
 import static net.cserny.filesystem.LocalFileService.WalkOptions.ONLY_DIRECTORIES;
 import static net.cserny.rename.MediaDescription.generateDescFrom;
 
-@Priority(2)
-@Singleton
+@Order(0)
+@Component
+@Slf4j
 public class DiskSearcher implements Searcher {
 
-    private static final Logger LOGGER = Logger.getLogger(DiskSearcher.class);
-
-    @Inject
+    @Autowired
     FilesystemConfig filesystemConfig;
 
-    @Inject
+    @Autowired
     RenameConfig renameConfig;
 
-    @Inject
+    @Autowired
     LocalFileService localFileService;
 
     private final Pattern releaseDateRegex = Pattern.compile("\s+\\(\\d{4}(-\\d{2}-\\d{2})?\\)$");
@@ -42,14 +40,14 @@ public class DiskSearcher implements Searcher {
 
     public RenamedMediaOptions search(NameYear nameYear, MediaFileType type) {
         LocalPath mediaPath = localFileService.toLocalPath(switch (type) {
-            case MOVIE -> filesystemConfig.moviesPath();
-            case TV -> filesystemConfig.tvShowsPath();
+            case MOVIE -> filesystemConfig.getMoviesPath();
+            case TV -> filesystemConfig.getTvPath();
         });
 
         List<String> nameVariants = new ArrayList<>();
 
         try {
-            List<Path> paths = localFileService.walk(mediaPath, renameConfig.maxDepth(), ONLY_DIRECTORIES);
+            List<Path> paths = localFileService.walk(mediaPath, renameConfig.getMaxDepth(), ONLY_DIRECTORIES);
 
            nameVariants = paths.stream()
                     .filter(path -> !mediaPath.path().equals(path))
@@ -60,7 +58,7 @@ public class DiskSearcher implements Searcher {
                     .map(this::chooseCorrectPath)
                     .collect(Collectors.toList());
         } catch (IOException e) {
-            LOGGER.warn("Could not walk path " + mediaPath.path(), e);
+            log.warn("Could not walk path " + mediaPath.path(), e);
         }
 
         return new RenamedMediaOptions(MediaRenameOrigin.DISK, generateDescFrom(nameVariants));
@@ -75,8 +73,8 @@ public class DiskSearcher implements Searcher {
     private boolean excludeNotSimilarPaths(DiskPath diskPath, String name) {
         int bigger = Math.max(diskPath.trimmedLocalPpath().length(), name.length());
         int simPercent = (int)((float)(bigger - diskPath.similarity()) / (float)bigger * 100);
-        if (simPercent >= renameConfig.similarityPercent()) {
-            LOGGER.infov("For path {0}, the disk path {1} is {2}% similar with distance of {3}",
+        if (simPercent >= renameConfig.getSimilarityPercent()) {
+            log.info("For path {}, the disk path {} is {}% similar with distance of {}",
                     name, diskPath.trimmedLocalPpath(), simPercent, diskPath.similarity());
             return true;
         }

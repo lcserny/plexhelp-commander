@@ -1,8 +1,8 @@
 package net.cserny.command;
 
-import javax.inject.Singleton;
+import org.springframework.stereotype.Component;
 
-@Singleton
+@Component
 public class TestCommand implements Command {
 
     public static final String TEST_COMMAND = "test";

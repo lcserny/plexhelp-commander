@@ -1,16 +1,15 @@
 package net.cserny.download;
 
-import io.quarkus.mongodb.panache.PanacheMongoRepository;
+import org.bson.types.ObjectId;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 
-import javax.enterprise.context.ApplicationScoped;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
-@ApplicationScoped
-public class DownloadedMediaRepository implements PanacheMongoRepository<DownloadedMedia> {
+public interface DownloadedMediaRepository extends MongoRepository<DownloadedMedia, ObjectId> {
 
-    public List<DownloadedMedia> retrieveAllFromDate(LocalDate date) {
-        return list("date_downloaded >= ?1 and date_downloaded < ?2",
-                date.atStartOfDay(), date.plusDays(1).atStartOfDay());
-    }
+    @Query("{'dateDownloaded' : { $gte: ?0, $lt: ?1 } }")
+    List<DownloadedMedia> retrieveAllFromDate(LocalDateTime from, LocalDateTime to);
 }

@@ -1,15 +1,16 @@
 package net.cserny.download;
 
-import io.quarkus.mongodb.panache.common.MongoEntity;
 import org.bson.codecs.pojo.annotations.BsonProperty;
 import org.bson.types.ObjectId;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
 
-@MongoEntity(collection = "download_cache")
+@Document(collection = "download_cache")
 public class DownloadedMedia {
 
+    @Id
     public ObjectId id;
     @BsonProperty("file_name")
     public String fileName;

@@ -1,10 +1,14 @@
 package net.cserny.download;
 
+import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -14,26 +18,31 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
+import java.time.format.DateTimeFormatter;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.CoreMatchers.is;
 
-@SpringBootTest({
+@SpringBootTest(value = {
         "server.command.name=test-server",
         "server.command.listen-cron=disabled",
         "search.video-min-size-bytes=5",
         "search.exclude-paths[0]=Excluded Folder 1"
-})
+}, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ContextConfiguration(classes = {
         DownloadedMediaRepository.class,
+        MediaDownloadController.class,
         MediaDownloadService.class
 })
 @EnableAutoConfiguration
 @EnableMongoRepositories
 @Testcontainers
-public class MediaDownloadServiceTest {
+public class MediaDownloadControllerTest {
+
+    private final static String BASE_URI = "http://localhost";
+
+    @LocalServerPort
+    private int port;
 
     @Container
     public static MongoDBContainer mongoContainer = new MongoDBContainer("mongo:5.0");
@@ -44,36 +53,42 @@ public class MediaDownloadServiceTest {
     }
 
     @Autowired
-    MediaDownloadService service;
-
-    @Autowired
     DownloadedMediaRepository repository;
 
+    @BeforeEach
+    public void configureRestAssured() {
+        RestAssured.baseURI = BASE_URI;
+        RestAssured.port = port;
+    }
+
     @Test
-    @DisplayName("Check that service retrieves correct media")
-    void retrieveCorrectMedia() {
-        String name = "hello";
+    @DisplayName("Check that the endpoint can retrieve downloads history from service")
+    public void testCanRetrieveDownloadHistory() {
+        String name = "name";
         long size = 1L;
-        LocalDateTime date = LocalDateTime.of(2010, 10, 1, 9, 33);
+        int year = 2012;
+        int month = 10;
+        int day = 1;
+        int hour = 9;
+        int minute = 33;
+        int sec = 44;
+        LocalDateTime date = LocalDateTime.of(year, month, day, hour, minute, sec);
 
         DownloadedMedia media = new DownloadedMedia();
         media.fileName = name;
         media.fileSize = size;
         media.dateDownloaded = date;
 
-        DownloadedMedia media2 = new DownloadedMedia();
-        media2.fileName = name;
-        media2.fileSize = size;
-        media2.dateDownloaded = date.plusDays(3);
+        repository.save(media);
 
-        repository.saveAll(Arrays.asList(media, media2));
-
-        List<DownloadedMedia> list = service.retrieveAllFromDate(date.toLocalDate());
-
-        assertNotNull(list);
-        assertEquals(1, list.size());
-        assertEquals(name, list.get(0).fileName);
-        assertEquals(size, list.get(0).fileSize);
-        assertEquals(date, list.get(0).dateDownloaded);
+        given()
+                .contentType(ContentType.JSON)
+                .when().get("/api/v1/media-downloads?year=" + year + "&month=" + month + "&day=" + day)
+                .then()
+                .statusCode(200)
+                .body("$.size()", is(1))
+                .body("[0].fileName", is(name))
+                .body("[0].fileSize", is((int) size))
+                .body("[0].dateDownloaded", is(date.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)));
     }
 }

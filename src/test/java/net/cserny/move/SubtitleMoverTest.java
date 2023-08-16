@@ -1,15 +1,18 @@
 package net.cserny.move;
 
-import io.quarkus.test.junit.QuarkusTest;
 import net.cserny.AbstractInMemoryFileService;
 import net.cserny.filesystem.FilesystemConfig;
+import net.cserny.filesystem.LocalFileService;
 import net.cserny.filesystem.LocalPath;
 import net.cserny.rename.MediaFileType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import javax.inject.Inject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ContextConfiguration;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -18,29 +21,41 @@ import java.util.List;
 import static net.cserny.move.SubtitleMover.SUBS_SUBFOLDER;
 import static org.junit.jupiter.api.Assertions.*;
 
-@QuarkusTest
+@SpringBootTest({
+        "server.command.name=test-server",
+        "server.command.listen-cron=disabled",
+        "search.video-min-size-bytes=5",
+        "search.exclude-paths[0]=Excluded Folder 1"
+})
+@ContextConfiguration(classes = {
+        SubtitleMover.class,
+        FilesystemConfig.class,
+        MoveConfig.class,
+        LocalFileService.class
+})
+@EnableAutoConfiguration(exclude = MongoAutoConfiguration.class)
 class SubtitleMoverTest extends AbstractInMemoryFileService {
 
-    @Inject
+    @Autowired
     SubtitleMover mover;
 
-    @Inject
+    @Autowired
     FilesystemConfig filesystemConfig;
 
     @BeforeEach
     public void init() throws IOException {
-        createDirectories(filesystemConfig.downloadsPath());
-        createDirectories(filesystemConfig.moviesPath());
-        createDirectories(filesystemConfig.tvShowsPath());
+        createDirectories(filesystemConfig.getDownloadsPath());
+        createDirectories(filesystemConfig.getMoviesPath());
+        createDirectories(filesystemConfig.getTvPath());
     }
 
     @Test
     @DisplayName("Sub search skipped if media is in root of Downloads")
     public void rootDownloadsSubSkip() throws IOException {
-        String subFile = filesystemConfig.downloadsPath() + "/mysub.srt";
+        String subFile = filesystemConfig.getDownloadsPath() + "/mysub.srt";
         createFile(subFile);
 
-        LocalPath subsSrc = fileService.toLocalPath(filesystemConfig.downloadsPath());
+        LocalPath subsSrc = fileService.toLocalPath(filesystemConfig.getDownloadsPath());
 
         SubsMoveOperation operation = new SubsMoveOperation(subsSrc, null, null);
         List<MediaMoveError> errors = mover.moveSubs(operation);
@@ -55,10 +70,10 @@ class SubtitleMoverTest extends AbstractInMemoryFileService {
         String movieName = "some movie";
         String subName = "sub.srt";
 
-        String movieSrc = filesystemConfig.downloadsPath() + "/" + movieName;
+        String movieSrc = filesystemConfig.getDownloadsPath() + "/" + movieName;
         createFile(movieSrc + "/" + subName);
 
-        String movieDest = filesystemConfig.moviesPath() + "/" + movieName;
+        String movieDest = filesystemConfig.getMoviesPath() + "/" + movieName;
         createDirectories(movieDest);
 
         SubsMoveOperation operation = new SubsMoveOperation(
@@ -80,10 +95,10 @@ class SubtitleMoverTest extends AbstractInMemoryFileService {
         String showName = "some show";
         String subName = "sub.srt";
 
-        String showSrc = filesystemConfig.downloadsPath() + "/" + showName;
+        String showSrc = filesystemConfig.getDownloadsPath() + "/" + showName;
         createFile(showSrc + "/" + subName);
 
-        String showDest = filesystemConfig.tvShowsPath() + "/" + showName;
+        String showDest = filesystemConfig.getTvPath() + "/" + showName;
         createDirectories(showDest);
 
         SubsMoveOperation operation = new SubsMoveOperation(
@@ -106,10 +121,10 @@ class SubtitleMoverTest extends AbstractInMemoryFileService {
         String nestedSubFolderName = "show.s02e12.1080p";
         String subName = "sub.srt";
 
-        String showSrc = filesystemConfig.downloadsPath() + "/" + showName;
+        String showSrc = filesystemConfig.getDownloadsPath() + "/" + showName;
         createFile(showSrc + "/" + nestedSubFolderName + "/" + subName);
 
-        String showDest = filesystemConfig.tvShowsPath() + "/" + showName;
+        String showDest = filesystemConfig.getTvPath() + "/" + showName;
         createDirectories(showDest);
 
         SubsMoveOperation operation = new SubsMoveOperation(
