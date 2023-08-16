@@ -1,11 +1,9 @@
 package net.cserny.rename;
 
-import info.movito.themoviedbapi.TvResultsPage;
-import info.movito.themoviedbapi.model.Credits;
-import info.movito.themoviedbapi.model.MovieDb;
-import info.movito.themoviedbapi.model.core.MovieResultsPage;
-import info.movito.themoviedbapi.model.tv.TvSeries;
 import net.cserny.rename.NameNormalizer.NameYear;
+import net.cserny.rename.TmdbWrapper.Credits;
+import net.cserny.rename.TmdbWrapper.Movie;
+import net.cserny.rename.TmdbWrapper.Tv;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,10 +13,12 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.web.client.RestTemplate;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -39,6 +39,8 @@ import static org.mockito.Mockito.when;
         TMDBSearcher.class,
         OnlineCacheRepository.class,
         OnlineConfig.class,
+        TmdbConfig.class,
+        RestTemplate.class,
         TMDBSetupMock.class
 })
 @Testcontainers
@@ -64,15 +66,15 @@ class TMDBSearcherTest {
         int movieId = 1;
         String title = "fight club";
 
-        MovieDb movieDb = createMovie(movieId, title);
-        MovieResultsPage page = new MovieResultsPage();
-        page.setResults(List.of(movieDb));
+        Movie movieDb = createMovie(movieId, title);
+        List<Movie> results = new ArrayList<>();
+        results.add(movieDb);
         Credits credits = new Credits();
         credits.setCast(Collections.emptyList());
 
         NameYear movie = new NameYear(title, 2000);
         when(searcher.tmdbWrapper.searchMovies(eq(movie.name()), eq(movie.year())))
-                .thenReturn(page);
+                .thenReturn(results);
         when(searcher.tmdbWrapper.movieCredits(eq(movieId)))
                 .thenReturn(credits);
 
@@ -93,15 +95,15 @@ class TMDBSearcherTest {
         int tvId = 2;
         String title = "game of thrones";
 
-        TvSeries tvSeries = createTvShow(tvId, title);
-        TvResultsPage page = new TvResultsPage();
-        page.setResults(List.of(tvSeries));
+        Tv tvSeries = createTvShow(tvId, title);
+        List<Tv> results = new ArrayList<>();
+        results.add(tvSeries);
         Credits credits = new Credits();
         credits.setCast(Collections.emptyList());
 
         NameYear tvShow = new NameYear(title, 2011);
-        when(searcher.tmdbWrapper.searchTvShows(eq(tvShow.name())))
-                .thenReturn(page);
+        when(searcher.tmdbWrapper.searchTvShows(eq(tvShow.name()), eq(tvShow.year())))
+                .thenReturn(results);
         when(searcher.tmdbWrapper.tvShowCredits(eq(tvId)))
                 .thenReturn(credits);
 
@@ -116,15 +118,15 @@ class TMDBSearcherTest {
         assertEquals(title, onlineCacheItems.get(0).title);
     }
 
-    private MovieDb createMovie(int id, String title) {
-        MovieDb movie =  new MovieDb();
+    private Movie createMovie(int id, String title) {
+        Movie movie =  new Movie();
         movie.setId(id);
         movie.setTitle(title);
         return movie;
     }
 
-    private TvSeries createTvShow(int id, String title) {
-        TvSeries series = new TvSeries();
+    private Tv createTvShow(int id, String title) {
+        Tv series = new Tv();
         series.setId(id);
         series.setName(title);
         return series;

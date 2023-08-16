@@ -1,13 +1,11 @@
 package net.cserny.rename;
 
-import info.movito.themoviedbapi.TvResultsPage;
-import info.movito.themoviedbapi.model.Credits;
-import info.movito.themoviedbapi.model.MovieDb;
-import info.movito.themoviedbapi.model.core.MovieResultsPage;
-import info.movito.themoviedbapi.model.people.PersonCast;
-import info.movito.themoviedbapi.model.tv.TvSeries;
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.rename.NameNormalizer.NameYear;
+import net.cserny.rename.TmdbWrapper.Credits;
+import net.cserny.rename.TmdbWrapper.Movie;
+import net.cserny.rename.TmdbWrapper.Person;
+import net.cserny.rename.TmdbWrapper.Tv;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
@@ -47,21 +45,15 @@ public class TMDBSearcher implements Searcher {
     }
 
     private List<MediaDescription> searchTvShow(NameYear nameYear) {
-        TvResultsPage page = tmdbWrapper.searchTvShows(nameYear.name());
-        if (page == null) {
-            log.warn("TMDB Search could not search TV, check configuration");
-            return Collections.emptyList();
-        }
-
-        List<TvSeries> results = page.getResults();
+        List<Tv> results = tmdbWrapper.searchTvShows(nameYear.name(), nameYear.year());
         if (results.isEmpty()) {
             return Collections.emptyList();
         }
 
-        List<TvSeries> sublist = results.subList(0, Math.min(results.size(), onlineConfig.getResultLimit()));
+        List<Tv> sublist = results.subList(0, Math.min(results.size(), onlineConfig.getResultLimit()));
 
         List<MediaDescription> descriptions = new ArrayList<>();
-        for (TvSeries tvSeries : sublist) {
+        for (Tv tvSeries : sublist) {
             String posterUrl = producePosterUrl(tvSeries.getPosterPath());
             String title = processTitle(tvSeries.getName());
             String date = tvSeries.getFirstAirDate();
@@ -75,21 +67,15 @@ public class TMDBSearcher implements Searcher {
     }
 
     private List<MediaDescription> searchMovie(NameYear nameYear) {
-        MovieResultsPage page = tmdbWrapper.searchMovies(nameYear.name(), nameYear.year());
-        if (page == null) {
-            log.warn("TMDB Search could not search Movies, check configuration");
-            return Collections.emptyList();
-        }
-
-        List<MovieDb> results = page.getResults();
+        List<Movie> results = tmdbWrapper.searchMovies(nameYear.name(), nameYear.year());
         if (results.isEmpty()) {
             return Collections.emptyList();
         }
 
-        List<MovieDb> sublist = results.subList(0, Math.min(results.size(), onlineConfig.getResultLimit()));
+        List<Movie> sublist = results.subList(0, Math.min(results.size(), onlineConfig.getResultLimit()));
 
         List<MediaDescription> descriptions = new ArrayList<>();
-        for (MovieDb movieDb : sublist) {
+        for (Movie movieDb : sublist) {
             String posterUrl = producePosterUrl(movieDb.getPosterPath());
             String title = processTitle(movieDb.getTitle());
             String date = movieDb.getReleaseDate();
@@ -121,7 +107,7 @@ public class TMDBSearcher implements Searcher {
         }
 
         return credits.getCast().stream()
-                .map(PersonCast::getCharacter)
+                .map(Person::getCharacter)
                 .limit(onlineConfig.getResultLimit())
                 .toList();
     }

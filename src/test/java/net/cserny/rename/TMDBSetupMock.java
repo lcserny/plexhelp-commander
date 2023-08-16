@@ -1,6 +1,5 @@
 package net.cserny.rename;
 
-import info.movito.themoviedbapi.TmdbApi;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -14,11 +13,5 @@ public class TMDBSetupMock {
     @Primary
     public TmdbWrapper tmdbWrapper() {
         return mock(TmdbWrapper.class);
-    }
-
-    @Bean
-    @Primary
-    public TmdbApi tmdbApi() {
-        return mock(TmdbApi.class);
     }
 }
