@@ -17,7 +17,9 @@ import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 
 import static io.restassured.RestAssured.given;
@@ -72,12 +74,12 @@ public class MediaDownloadControllerTest {
         int hour = 9;
         int minute = 33;
         int sec = 44;
-        LocalDateTime date = LocalDateTime.of(year, month, day, hour, minute, sec);
+        Instant date = LocalDateTime.of(year, month, day, hour, minute, sec).atZone(ZoneOffset.UTC).toInstant();
 
         DownloadedMedia media = new DownloadedMedia();
-        media.fileName = name;
-        media.fileSize = size;
-        media.dateDownloaded = date;
+        media.setFileName(name);
+        media.setFileSize(size);
+        media.setDateDownloaded(date);
 
         repository.save(media);
 
@@ -89,6 +91,6 @@ public class MediaDownloadControllerTest {
                 .body("$.size()", is(1))
                 .body("[0].fileName", is(name))
                 .body("[0].fileSize", is((int) size))
-                .body("[0].dateDownloaded", is(date.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)));
+                .body("[0].dateDownloaded", is(DateTimeFormatter.ISO_INSTANT.format(date)));
     }
 }

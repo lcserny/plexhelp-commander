@@ -54,16 +54,16 @@ public class OnlineCacheSearcherTest {
         String desc = "my description";
 
         OnlineCacheItem item1 = new OnlineCacheItem();
-        item1.searchName = nameYear.name();
-        item1.searchYear = nameYear.year();
-        item1.mediaType = MediaFileType.MOVIE;
-        item1.description = desc;
+        item1.setSearchName(nameYear.name());
+        item1.setSearchYear(nameYear.year());
+        item1.setMediaType(MediaFileType.MOVIE);
+        item1.setDescription(desc);
 
         OnlineCacheItem item2 = new OnlineCacheItem();
-        item2.searchName = nameYear.name();
-        item2.searchYear = nameYear.year();
-        item2.mediaType = MediaFileType.TV;
-        item2.description = desc;
+        item2.setSearchName(nameYear.name());
+        item2.setSearchYear(nameYear.year());
+        item2.setMediaType(MediaFileType.TV);
+        item2.setDescription(desc);
 
         repository.saveAll(List.of(item1, item2));
 
@@ -80,16 +80,16 @@ public class OnlineCacheSearcherTest {
         String desc = "another description";
 
         OnlineCacheItem item1 = new OnlineCacheItem();
-        item1.searchName = nameYear.name();
-        item1.searchYear = nameYear.year();
-        item1.mediaType = MediaFileType.MOVIE;
-        item1.description = desc;
+        item1.setSearchName(nameYear.name());
+        item1.setSearchYear(nameYear.year());
+        item1.setMediaType(MediaFileType.MOVIE);
+        item1.setDescription(desc);
 
         OnlineCacheItem item2 = new OnlineCacheItem();
-        item2.searchName = nameYear.name();
-        item2.searchYear = 2022;
-        item2.mediaType = MediaFileType.MOVIE;
-        item2.description = desc;
+        item2.setSearchName(nameYear.name());
+        item2.setSearchYear(2022);
+        item2.setMediaType(MediaFileType.MOVIE);
+        item2.setDescription(desc);
 
         repository.saveAll(List.of(item1, item2));
 

@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
         ServerCommandService.class,
         ServerCommandRepository.class,
         TestCommand.class,
-        ServerCommandConfig.class
+        ServerCommandProperties.class
 })
 @EnableAutoConfiguration
 @EnableMongoRepositories
@@ -51,7 +51,7 @@ public class ServerCommandServiceTest {
     ServerCommandRepository repository;
 
     @Autowired
-    ServerCommandConfig config;
+    ServerCommandProperties config;
 
     @Autowired
     TestCommand testCommand;

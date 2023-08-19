@@ -2,8 +2,6 @@ package net.cserny;
 
 import net.cserny.command.Param;
 import net.cserny.rename.TmdbWrapper;
-import org.springframework.aot.hint.RuntimeHints;
-import org.springframework.aot.hint.RuntimeHintsRegistrar;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,7 +1,7 @@
 package net.cserny.search;
 
 import lombok.extern.slf4j.Slf4j;
-import net.cserny.filesystem.FilesystemConfig;
+import net.cserny.filesystem.FilesystemProperties;
 import net.cserny.filesystem.LocalFileService;
 import net.cserny.filesystem.LocalPath;
 import org.apache.commons.lang3.tuple.Pair;
@@ -21,10 +21,10 @@ public class MediaSearchService {
     LocalFileService fileService;
 
     @Autowired
-    FilesystemConfig filesystemConfig;
+    FilesystemProperties filesystemConfig;
 
     @Autowired
-    SearchConfig searchConfig;
+    SearchProperties searchConfig;
 
     public List<MediaFileGroup> findMedia() {
         LocalPath walkPath = fileService.toLocalPath(filesystemConfig.getDownloadsPath());

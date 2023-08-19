@@ -1,7 +1,7 @@
 package net.cserny.search;
 
 import net.cserny.AbstractInMemoryFileService;
-import net.cserny.filesystem.FilesystemConfig;
+import net.cserny.filesystem.FilesystemProperties;
 import net.cserny.filesystem.LocalFileService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,8 +24,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 })
 @ContextConfiguration(classes = {
         MediaSearchService.class,
-        FilesystemConfig.class,
-        SearchConfig.class,
+        FilesystemProperties.class,
+        SearchProperties.class,
         LocalFileService.class
 })
 @EnableAutoConfiguration(exclude = MongoAutoConfiguration.class)
@@ -35,10 +35,10 @@ public class MediaSearchServiceTest extends AbstractInMemoryFileService {
     MediaSearchService service;
 
     @Autowired
-    FilesystemConfig filesystemConfig;
+    FilesystemProperties filesystemConfig;
 
     @Autowired
-    SearchConfig searchConfig;
+    SearchProperties searchConfig;
 
     /*
     [

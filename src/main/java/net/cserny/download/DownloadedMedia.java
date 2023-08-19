@@ -1,21 +1,24 @@
 package net.cserny.download;
 
-import org.bson.codecs.pojo.annotations.BsonProperty;
+import java.time.Instant;
+
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
-import java.time.LocalDateTime;
+import lombok.Data;
 
+@Data
 @Document(collection = "download_cache")
 public class DownloadedMedia {
 
     @Id
-    public ObjectId id;
-    @BsonProperty("file_name")
-    public String fileName;
-    @BsonProperty("file_size")
-    public long fileSize;
-    @BsonProperty("date_downloaded")
-    public LocalDateTime dateDownloaded;
+    private ObjectId id;
+    @Field("file_name")
+    private String fileName;
+    @Field("file_size")
+    private long fileSize;
+    @Field("date_downloaded")
+    private Instant dateDownloaded;
 }

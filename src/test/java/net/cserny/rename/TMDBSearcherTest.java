@@ -19,7 +19,6 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -38,8 +37,8 @@ import static org.mockito.Mockito.when;
 @ContextConfiguration(classes = {
         TMDBSearcher.class,
         OnlineCacheRepository.class,
-        OnlineConfig.class,
-        TmdbConfig.class,
+        OnlineProperties.class,
+        TmdbProperties.class,
         RestTemplate.class,
         TMDBSetupMock.class
 })
@@ -84,9 +83,9 @@ class TMDBSearcherTest {
         assertEquals(1, options.mediaDescriptions().size());
         assertEquals(title, options.mediaDescriptions().get(0).title());
 
-        List<OnlineCacheItem> onlineCacheItems = repository.autoRetrieveAllByNameYearAndType(movie, MediaFileType.MOVIE);
+        List<OnlineCacheItem> onlineCacheItems = repository.findByNameYearAndType(movie.name(), movie.year(), MediaFileType.MOVIE);
         assertEquals(1, onlineCacheItems.size());
-        assertEquals(title, onlineCacheItems.get(0).title);
+        assertEquals(title, onlineCacheItems.get(0).getTitle());
     }
 
     @Test
@@ -113,9 +112,9 @@ class TMDBSearcherTest {
         assertEquals(1, options.mediaDescriptions().size());
         assertEquals(title, options.mediaDescriptions().get(0).title());
 
-        List<OnlineCacheItem> onlineCacheItems = repository.autoRetrieveAllByNameYearAndType(tvShow, MediaFileType.TV);
+        List<OnlineCacheItem> onlineCacheItems = repository.findByNameYearAndType(tvShow.name(), tvShow.year(), MediaFileType.TV);
         assertEquals(1, onlineCacheItems.size());
-        assertEquals(title, onlineCacheItems.get(0).title);
+        assertEquals(title, onlineCacheItems.get(0).getTitle());
     }
 
     private Movie createMovie(int id, String title) {

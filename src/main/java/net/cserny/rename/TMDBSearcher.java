@@ -11,10 +11,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Order(2)
 @Component
@@ -25,7 +28,7 @@ public class TMDBSearcher implements Searcher {
     OnlineCacheRepository repository;
 
     @Autowired
-    OnlineConfig onlineConfig;
+    OnlineProperties onlineConfig;
 
     @Autowired
     TmdbWrapper tmdbWrapper;
@@ -39,9 +42,29 @@ public class TMDBSearcher implements Searcher {
             case TV -> searchTvShow(nameYear);
         };
 
-        repository.saveAllOnlineCacheItem(nameYear, mediaFound, type);
+        List<OnlineCacheItem> items = convertAll(nameYear, mediaFound, type);
+        repository.saveAll(items);
 
         return new RenamedMediaOptions(MediaRenameOrigin.TMDB, mediaFound);
+    }
+
+    private OnlineCacheItem convert(NameYear nameYear, MediaDescription description, MediaFileType mediaType) {
+        OnlineCacheItem item = new OnlineCacheItem();
+        item.setSearchName(nameYear.name());
+        item.setSearchYear(nameYear.year());
+        item.setCoverPath(description.posterUrl());
+        item.setTitle(description.title());
+        item.setDate(StringUtils.isBlank(description.date()) ? null : LocalDate.parse(description.date()).atStartOfDay(ZoneOffset.UTC).toInstant());
+        item.setDescription(description.description());
+        item.setCast(description.cast());
+        item.setMediaType(mediaType);
+        return item;
+    }
+
+    private List<OnlineCacheItem> convertAll(NameYear nameYear, List<MediaDescription> descriptions, MediaFileType mediaType) {
+        return descriptions.stream()
+                .map(description -> this.convert(nameYear, description, mediaType))
+                .collect(Collectors.toList());
     }
 
     private List<MediaDescription> searchTvShow(NameYear nameYear) {

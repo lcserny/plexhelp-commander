@@ -7,7 +7,7 @@ import java.util.List;
 
 @Configuration
 @ConfigurationProperties(prefix = "move")
-public class MoveConfig {
+public class MoveProperties {
 
     private List<String> restrictedRemovePaths;
     private List<String> subsExt;

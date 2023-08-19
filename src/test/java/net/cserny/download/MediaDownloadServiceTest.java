@@ -13,7 +13,9 @@ import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.List;
 
@@ -55,16 +57,17 @@ public class MediaDownloadServiceTest {
         String name = "hello";
         long size = 1L;
         LocalDateTime date = LocalDateTime.of(2010, 10, 1, 9, 33);
+        Instant media1Date = date.atZone(ZoneOffset.UTC).toInstant();
 
         DownloadedMedia media = new DownloadedMedia();
-        media.fileName = name;
-        media.fileSize = size;
-        media.dateDownloaded = date;
+        media.setFileName(name);
+        media.setFileSize(size);
+        media.setDateDownloaded(media1Date);
 
         DownloadedMedia media2 = new DownloadedMedia();
-        media2.fileName = name;
-        media2.fileSize = size;
-        media2.dateDownloaded = date.plusDays(3);
+        media2.setFileName(name);
+        media2.setFileSize(size);
+        media2.setDateDownloaded(date.plusDays(3).atZone(ZoneOffset.UTC).toInstant());
 
         repository.saveAll(Arrays.asList(media, media2));
 
@@ -72,8 +75,8 @@ public class MediaDownloadServiceTest {
 
         assertNotNull(list);
         assertEquals(1, list.size());
-        assertEquals(name, list.get(0).fileName);
-        assertEquals(size, list.get(0).fileSize);
-        assertEquals(date, list.get(0).dateDownloaded);
+        assertEquals(name, list.get(0).getFileName());
+        assertEquals(size, list.get(0).getFileSize());
+        assertEquals(media1Date, list.get(0).getDateDownloaded());
     }
 }

@@ -1,7 +1,7 @@
 package net.cserny.move;
 
 import net.cserny.AbstractInMemoryFileService;
-import net.cserny.filesystem.FilesystemConfig;
+import net.cserny.filesystem.FilesystemProperties;
 import net.cserny.filesystem.LocalFileService;
 import net.cserny.rename.MediaFileType;
 import net.cserny.search.MediaFileGroup;
@@ -30,8 +30,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @ContextConfiguration(classes = {
         MediaMoveService.class,
         SubtitleMover.class,
-        FilesystemConfig.class,
-        MoveConfig.class,
+        FilesystemProperties.class,
+        MoveProperties.class,
         LocalFileService.class
 })
 @EnableAutoConfiguration(exclude = MongoAutoConfiguration.class)
@@ -41,7 +41,7 @@ public class MediaMoveServiceTest extends AbstractInMemoryFileService {
     MediaMoveService service;
 
     @Autowired
-    FilesystemConfig filesystemConfig;
+    FilesystemProperties filesystemConfig;
 
     @BeforeEach
     public void init() throws IOException {

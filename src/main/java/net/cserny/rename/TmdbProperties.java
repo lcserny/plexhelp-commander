@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 @Data
 @Configuration
 @ConfigurationProperties(prefix = "tmdb.client")
-public class TmdbConfig {
+public class TmdbProperties {
 
     private String apiKey;
     private String baseUrl;

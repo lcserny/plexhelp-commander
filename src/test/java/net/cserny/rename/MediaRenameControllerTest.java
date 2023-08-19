@@ -3,7 +3,7 @@ package net.cserny.rename;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import net.cserny.AbstractInMemoryFileService;
-import net.cserny.filesystem.FilesystemConfig;
+import net.cserny.filesystem.FilesystemProperties;
 import net.cserny.filesystem.LocalFileService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -41,10 +41,10 @@ import static org.hamcrest.CoreMatchers.is;
         OnlineCacheSearcher.class,
         TMDBSearcher.class,
         NameNormalizer.class,
-        FilesystemConfig.class,
+        FilesystemProperties.class,
         RenameConfig.class,
-        OnlineConfig.class,
-        TmdbConfig.class,
+        OnlineProperties.class,
+        TmdbProperties.class,
         RestTemplate.class,
         TMDBSetupMock.class,
         LocalFileService.class
@@ -66,7 +66,7 @@ class MediaRenameControllerTest extends AbstractInMemoryFileService {
     }
 
     @Autowired
-    FilesystemConfig filesystemConfig;
+    FilesystemProperties filesystemConfig;
 
     @BeforeEach
     public void init() throws IOException {

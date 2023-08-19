@@ -1,7 +1,7 @@
 package net.cserny.rename;
 
 import lombok.extern.slf4j.Slf4j;
-import net.cserny.filesystem.FilesystemConfig;
+import net.cserny.filesystem.FilesystemProperties;
 import net.cserny.filesystem.LocalFileService;
 import net.cserny.filesystem.LocalPath;
 import net.cserny.rename.NameNormalizer.NameYear;
@@ -27,7 +27,7 @@ import static net.cserny.rename.MediaDescription.generateDescFrom;
 public class DiskSearcher implements Searcher {
 
     @Autowired
-    FilesystemConfig filesystemConfig;
+    FilesystemProperties filesystemConfig;
 
     @Autowired
     RenameConfig renameConfig;

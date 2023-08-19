@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @ConfigurationProperties(prefix = "server.command")
-public class ServerCommandConfig {
+public class ServerCommandProperties {
 
     private String name;
     private String listenCron;

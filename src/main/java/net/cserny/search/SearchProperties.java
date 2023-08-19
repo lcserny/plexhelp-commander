@@ -7,7 +7,7 @@ import java.util.List;
 
 @Configuration
 @ConfigurationProperties(prefix = "search")
-public class SearchConfig {
+public class SearchProperties {
 
     private int maxDepth;
     private List<String> excludePaths;

@@ -1,7 +1,7 @@
 package net.cserny.rename;
 
 import net.cserny.AbstractInMemoryFileService;
-import net.cserny.filesystem.FilesystemConfig;
+import net.cserny.filesystem.FilesystemProperties;
 import net.cserny.filesystem.LocalFileService;
 import net.cserny.rename.NameNormalizer.NameYear;
 import org.junit.jupiter.api.DisplayName;
@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 })
 @ContextConfiguration(classes = {
         DiskSearcher.class,
-        FilesystemConfig.class,
+        FilesystemProperties.class,
         RenameConfig.class,
         LocalFileService.class
 })
@@ -38,7 +38,7 @@ public class DiskSearcherTest extends AbstractInMemoryFileService {
     DiskSearcher searcher;
 
     @Autowired
-    FilesystemConfig filesystemConfig;
+    FilesystemProperties filesystemConfig;
 
     @Test
     @DisplayName("Check similar media folders are detected correctly")

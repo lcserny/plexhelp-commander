@@ -3,7 +3,6 @@ package net.cserny.rename;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
-import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -18,7 +17,7 @@ import java.util.List;
 public class TmdbWrapper {
 
     @Autowired
-    TmdbConfig tmdbConfig;
+    TmdbProperties tmdbConfig;
 
     @Autowired
     RestTemplate restTemplate;

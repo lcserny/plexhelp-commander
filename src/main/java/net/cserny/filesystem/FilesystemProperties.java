@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @ConfigurationProperties(prefix = "filesystem")
-public class FilesystemConfig {
+public class FilesystemProperties {
 
     private String downloadsPath;
     private String moviesPath;

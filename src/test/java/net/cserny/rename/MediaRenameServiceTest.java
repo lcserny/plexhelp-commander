@@ -1,6 +1,6 @@
 package net.cserny.rename;
 
-import net.cserny.filesystem.FilesystemConfig;
+import net.cserny.filesystem.FilesystemProperties;
 import net.cserny.filesystem.LocalFileService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,10 +31,10 @@ import static org.junit.jupiter.api.Assertions.*;
         OnlineCacheSearcher.class,
         TMDBSearcher.class,
         NameNormalizer.class,
-        FilesystemConfig.class,
+        FilesystemProperties.class,
         RenameConfig.class,
-        OnlineConfig.class,
-        TmdbConfig.class,
+        OnlineProperties.class,
+        TmdbProperties.class,
         RestTemplate.class,
         TMDBSetupMock.class,
         LocalFileService.class}

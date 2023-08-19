@@ -3,11 +3,8 @@ package net.cserny.search;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import net.cserny.AbstractInMemoryFileService;
-import net.cserny.filesystem.FilesystemConfig;
+import net.cserny.filesystem.FilesystemProperties;
 import net.cserny.filesystem.LocalFileService;
-import net.cserny.move.MediaMoveService;
-import net.cserny.move.MoveConfig;
-import net.cserny.move.SubtitleMover;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -32,8 +29,8 @@ import static org.hamcrest.CoreMatchers.is;
 @ContextConfiguration(classes = {
         MediaSearchController.class,
         MediaSearchService.class,
-        FilesystemConfig.class,
-        SearchConfig.class,
+        FilesystemProperties.class,
+        SearchProperties.class,
         LocalFileService.class
 })
 @EnableAutoConfiguration(exclude = MongoAutoConfiguration.class)
@@ -51,10 +48,10 @@ public class MediaSearchControllerTest extends AbstractInMemoryFileService {
     }
 
     @Autowired
-    FilesystemConfig filesystemConfig;
+    FilesystemProperties filesystemConfig;
 
     @Autowired
-    SearchConfig searchConfig;
+    SearchProperties searchConfig;
 
     @Test
     @DisplayName("Check search finds correct media")

@@ -2,7 +2,7 @@ package net.cserny.move;
 
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-import net.cserny.filesystem.FilesystemConfig;
+import net.cserny.filesystem.FilesystemProperties;
 import net.cserny.filesystem.LocalFileService;
 import net.cserny.filesystem.LocalPath;
 import net.cserny.rename.MediaFileType;
@@ -30,10 +30,10 @@ public class MediaMoveService {
     SubtitleMover subtitleMover;
 
     @Autowired
-    FilesystemConfig filesystemConfig;
+    FilesystemProperties filesystemConfig;
 
     @Autowired
-    MoveConfig moveConfig;
+    MoveProperties moveConfig;
 
     @PostConstruct
     public void init() {

@@ -6,7 +6,7 @@ import net.cserny.AbstractInMemoryFileService;
 import net.cserny.download.DownloadedMediaRepository;
 import net.cserny.download.MediaDownloadController;
 import net.cserny.download.MediaDownloadService;
-import net.cserny.filesystem.FilesystemConfig;
+import net.cserny.filesystem.FilesystemProperties;
 import net.cserny.filesystem.LocalFileService;
 import net.cserny.rename.MediaFileType;
 import net.cserny.search.MediaFileGroup;
@@ -37,8 +37,8 @@ import static org.hamcrest.CoreMatchers.is;
         MediaMoveController.class,
         MediaMoveService.class,
         SubtitleMover.class,
-        FilesystemConfig.class,
-        MoveConfig.class,
+        FilesystemProperties.class,
+        MoveProperties.class,
         LocalFileService.class
 })
 @EnableAutoConfiguration(exclude = MongoAutoConfiguration.class)
@@ -50,7 +50,7 @@ public class MediaMoveControllerTest extends AbstractInMemoryFileService {
     private int port;
 
     @Autowired
-    FilesystemConfig filesystemConfig;
+    FilesystemProperties filesystemConfig;
 
     @BeforeEach
     public void init() throws IOException {

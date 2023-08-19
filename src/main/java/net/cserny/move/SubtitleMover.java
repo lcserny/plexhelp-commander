@@ -1,7 +1,7 @@
 package net.cserny.move;
 
 import lombok.extern.slf4j.Slf4j;
-import net.cserny.filesystem.FilesystemConfig;
+import net.cserny.filesystem.FilesystemProperties;
 import net.cserny.filesystem.LocalFileService;
 import net.cserny.filesystem.LocalFileService.WalkOptions;
 import net.cserny.filesystem.LocalPath;
@@ -27,10 +27,10 @@ public class SubtitleMover {
     LocalFileService fileService;
 
     @Autowired
-    FilesystemConfig filesystemConfig;
+    FilesystemProperties filesystemConfig;
 
     @Autowired
-    MoveConfig moveConfig;
+    MoveProperties moveConfig;
 
     public List<MediaMoveError> moveSubs(SubsMoveOperation operation) {
         if (operation.subsSrc().path().toString().equals(filesystemConfig.getDownloadsPath())) {

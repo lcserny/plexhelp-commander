@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @ConfigurationProperties(prefix = "online")
-public class OnlineConfig {
+public class OnlineProperties {
 
     private int resultLimit;
     private String posterBase;

@@ -2,10 +2,7 @@ package net.cserny.command;
 
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-import org.jboss.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -21,7 +18,7 @@ public class ServerCommandService {
     ServerCommandRepository repository;
 
     @Autowired
-    ServerCommandConfig config;
+    ServerCommandProperties config;
 
     @Autowired
     List<Command> commands;
