@@ -1,6 +1,7 @@
 package net.cserny.rename;
 
 import net.cserny.AbstractInMemoryFileService;
+import net.cserny.MongoTestConfiguration;
 import net.cserny.filesystem.FilesystemProperties;
 import net.cserny.filesystem.LocalFileService;
 import net.cserny.rename.NameNormalizer.NameYear;
@@ -8,9 +9,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.io.IOException;
@@ -26,11 +25,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 })
 @ContextConfiguration(classes = {
         DiskSearcher.class,
+        MongoTestConfiguration.class,
         FilesystemProperties.class,
         RenameConfig.class,
         LocalFileService.class
 })
-@EnableMongoRepositories
 @EnableAutoConfiguration
 public class DiskSearcherTest extends AbstractInMemoryFileService {
 

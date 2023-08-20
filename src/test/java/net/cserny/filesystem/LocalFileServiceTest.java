@@ -1,9 +1,6 @@
 package net.cserny.filesystem;
 
 import net.cserny.AbstractInMemoryFileService;
-import net.cserny.download.DownloadedMediaRepository;
-import net.cserny.download.MediaDownloadController;
-import net.cserny.download.MediaDownloadService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

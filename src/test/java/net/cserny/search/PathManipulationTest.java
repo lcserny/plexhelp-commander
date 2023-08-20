@@ -2,18 +2,12 @@ package net.cserny.search;
 
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.logging.Logger;
-import java.util.regex.Pattern;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class PathManipulationTest {
-
-    private static final Logger LOGGER = Logger.getLogger(PathManipulationTest.class.getSimpleName());
 
     @Test
     public void substring1() {

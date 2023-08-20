@@ -3,15 +3,11 @@ package net.cserny.download;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
+import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
-import org.testcontainers.containers.MongoDBContainer;
-import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+
+import net.cserny.MongoTestConfiguration;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -22,28 +18,14 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@SpringBootTest({
-        "server.command.name=test-server",
-        "server.command.listen-cron=disabled",
-        "search.video-min-size-bytes=5",
-        "search.exclude-paths[0]=Excluded Folder 1"
-})
 @ContextConfiguration(classes = {
         DownloadedMediaRepository.class,
+        MongoTestConfiguration.class,
         MediaDownloadService.class
 })
-@EnableAutoConfiguration
-@EnableMongoRepositories
+@DataMongoTest
 @Testcontainers
 public class MediaDownloadServiceTest {
-
-    @Container
-    public static MongoDBContainer mongoContainer = new MongoDBContainer("mongo:5.0");
-
-    @DynamicPropertySource
-    public static void qTorrentProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.data.mongodb.uri", () -> mongoContainer.getConnectionString());
-    }
 
     @Autowired
     MediaDownloadService service;

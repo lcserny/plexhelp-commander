@@ -5,21 +5,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.test.context.ContextConfiguration;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest({
-        "server.command.name=test-server",
-        "server.command.listen-cron=disabled",
-        "search.video-min-size-bytes=5",
-        "search.exclude-paths[0]=Excluded Folder 1"
-})
+@SpringBootTest
 @EnableAutoConfiguration
-@EnableMongoRepositories
 @ContextConfiguration(classes = {
         NameNormalizer.class,
         RenameConfig.class

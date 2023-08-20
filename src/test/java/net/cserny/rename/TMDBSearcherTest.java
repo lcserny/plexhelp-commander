@@ -1,5 +1,6 @@
 package net.cserny.rename;
 
+import net.cserny.MongoTestConfiguration;
 import net.cserny.rename.NameNormalizer.NameYear;
 import net.cserny.rename.TmdbWrapper.Credits;
 import net.cserny.rename.TmdbWrapper.Movie;
@@ -7,15 +8,9 @@ import net.cserny.rename.TmdbWrapper.Tv;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
+import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.web.client.RestTemplate;
-import org.testcontainers.containers.MongoDBContainer;
-import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.ArrayList;
@@ -26,32 +21,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest({
-        "server.command.name=test-server",
-        "server.command.listen-cron=disabled",
-        "search.video-min-size-bytes=5",
-        "search.exclude-paths[0]=Excluded Folder 1"
-})
-@EnableAutoConfiguration
-@EnableMongoRepositories
 @ContextConfiguration(classes = {
         TMDBSearcher.class,
+        MongoTestConfiguration.class,
         OnlineCacheRepository.class,
         OnlineProperties.class,
         TmdbProperties.class,
         RestTemplate.class,
         TMDBSetupMock.class
 })
+@DataMongoTest
 @Testcontainers
 class TMDBSearcherTest {
-
-    @Container
-    public static MongoDBContainer mongoContainer = new MongoDBContainer("mongo:5.0");
-
-    @DynamicPropertySource
-    public static void qTorrentProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.data.mongodb.uri", () -> mongoContainer.getConnectionString());
-    }
 
     @Autowired
     TMDBSearcher searcher;
