@@ -43,7 +43,7 @@ public class DiskSearcherTest extends AbstractInMemoryFileService {
     @DisplayName("Check similar media folders are detected correctly")
     public void checkSimilarMedia() throws IOException {
         createDirectories(filesystemConfig.getMoviesPath() + "/My Coding Movee (2022)");
-        createDirectories(filesystemConfig.getMoviesPath() + "/My Codig Movee (2022)");
+        createDirectories(filesystemConfig.getMoviesPath() + "/My Codig Movee (2022-12-01)");
         createDirectories(filesystemConfig.getMoviesPath() + "/Another Something (2022)");
 
         NameYear movie = new NameYear("My Coding Novie", 1918);
@@ -52,6 +52,8 @@ public class DiskSearcherTest extends AbstractInMemoryFileService {
 
         assertEquals(2, results.size());
         assertEquals("My Coding Movee", results.get(0).title());
+        assertEquals("2022", results.get(0).date());
         assertEquals("My Codig Movee", results.get(1).title());
+        assertEquals("2022-12-01", results.get(1).date());
     }
 }

@@ -87,11 +87,7 @@ public class DiskSearcher implements Searcher {
     }
 
     private String chooseCorrectPath(DiskPath diskPath) {
-        if (diskPath.similarity() == 0) {
-            return diskPath.localPath();
-        } else {
-            return diskPath.trimmedLocalPpath();
-        }
+        return diskPath.localPath();
     }
 
     private record DiskPath(Integer similarity, String localPath, String trimmedLocalPpath) {
