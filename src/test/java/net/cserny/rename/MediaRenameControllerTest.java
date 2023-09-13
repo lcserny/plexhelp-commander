@@ -75,6 +75,7 @@ class MediaRenameControllerTest extends AbstractInMemoryFileService {
                 .then()
                 .statusCode(200)
                 .body("origin", is(MediaRenameOrigin.NAME.toString()))
-                .body("mediaDescriptions[0].title", is("My Movie (2022)"));
+                .body("mediaDescriptions[0].title", is("My Movie"))
+                .body("mediaDescriptions[0].date", is("2022"));
     }
 }
