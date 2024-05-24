@@ -31,7 +31,7 @@ public class OnlineCacheSearcherTest {
     @Test
     @DisplayName("Check that cache search works correctly")
     void checkCacheSearch() {
-        NameYear nameYear = new NameYear("My Movie", 2022);
+        NameYear nameYear = new NameYear("Leo Movie", 2022);
         String desc = "my description";
 
         OnlineCacheItem item1 = new OnlineCacheItem();
