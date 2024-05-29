@@ -4,45 +4,51 @@ import net.cserny.command.Command;
 import net.cserny.command.CommandResponse;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
+import java.util.List;
 
 @Component
 public class ShutdownCommand implements Command {
 
     public static final String NAME = "shutdown";
 
-    // TODO: impl params for seconds
     @Override
     public CommandResponse execute(String[] params) {
-        Runtime runtime = Runtime.getRuntime();
+        List<String> paramsList = List.of("shutdown");
+
         String os = System.getProperty("os.name");
         if (os.contains("win")) {
-            shutdownWindows(runtime, params);
+            buildParamsWindows(paramsList, params);
         } else if (os.contains("nix") || os.contains("nux") || os.contains("aix")) {
-            shutdownUnix(runtime, params);
+            buildParamsUnix(paramsList, params);
         }
+
+        try {
+            ProcessBuilder builder = new ProcessBuilder(paramsList);
+            builder.start();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
         return CommandResponse.EMPTY;
     }
 
-    private void shutdownUnix(Runtime runtime, String[] params) {
-        try {
-            if (params == null || params.length == 0) {
-                params = new String[]{"now"};
+    private void buildParamsUnix(List<String> paramsList, String[] params) {
+        if (params == null || params.length == 0) {
+            paramsList.add("now");
+        } else {
+            for (String p : params) {
+                paramsList.add(p);
             }
-            runtime.exec(new String[]{"shutdown"}, params);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         }
     }
 
-    private void shutdownWindows(Runtime runtime, String[] params) {
-        try {
-            if (params == null || params.length == 0) {
-                params = new String[]{"-s"};
+    private void buildParamsWindows(List<String> paramsList, String[] params) {
+        if (params == null || params.length == 0) {
+            paramsList.add("-s");
+        } else {
+            for (String p : params) {
+                paramsList.add(p);
             }
-            runtime.exec(new String[]{"shutdown"}, params);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         }
     }
 

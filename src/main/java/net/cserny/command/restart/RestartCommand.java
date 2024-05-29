@@ -4,36 +4,30 @@ import net.cserny.command.Command;
 import net.cserny.command.CommandResponse;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
+import java.util.List;
 
 @Component
 public class RestartCommand implements Command {
 
     public static final String NAME = "reboot";
 
-    // TODO: impl params for seconds
     @Override
     public CommandResponse execute(String[] params) {
-        Runtime runtime = Runtime.getRuntime();
+        List<String> paramsList = List.of("reboot");
+
         String os = System.getProperty("os.name");
         if (os.contains("win")) {
-            shutdownWindows(runtime, params);
-        } else if (os.contains("nix") || os.contains("nux") || os.contains("aix")) {
-            shutdownUnix(runtime, params);
-        }
-        return CommandResponse.EMPTY;
-    }
+            throw new RuntimeException("Reboot command not available for Windows OS");
+        } 
 
-    private void shutdownUnix(Runtime runtime, String[] params) {
         try {
-            runtime.exec(new String[]{"reboot"});
-        } catch (IOException e) {
+            ProcessBuilder builder = new ProcessBuilder(paramsList);
+            builder.start();
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
-    }
 
-    private void shutdownWindows(Runtime runtime, String[] params) {
-        throw new RuntimeException("Reboot command not available for Windows OS");
+        return CommandResponse.EMPTY;
     }
 
     @Override
