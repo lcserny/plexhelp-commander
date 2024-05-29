@@ -14,7 +14,7 @@ public class LocalCommandService {
     @Autowired
     List<Command> commands;
 
-    public CommandResponse execute(String name, Param[] params) {
+    public CommandResponse execute(String name, String[] params) {
         for (Command command : commands) {
             if (command.name().equals(name)) {
                 try {

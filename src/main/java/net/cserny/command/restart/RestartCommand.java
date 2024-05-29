@@ -1,4 +1,4 @@
-package net.cserny.command.shutdown;
+package net.cserny.command.restart;
 
 import net.cserny.command.Command;
 import net.cserny.command.CommandResponse;
@@ -7,9 +7,9 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 @Component
-public class ShutdownCommand implements Command {
+public class RestartCommand implements Command {
 
-    public static final String NAME = "shutdown";
+    public static final String NAME = "reboot";
 
     // TODO: impl params for seconds
     @Override
@@ -26,24 +26,14 @@ public class ShutdownCommand implements Command {
 
     private void shutdownUnix(Runtime runtime, String[] params) {
         try {
-            if (params == null || params.length == 0) {
-                params = new String[]{"now"};
-            }
-            runtime.exec(new String[]{"shutdown"}, params);
+            runtime.exec(new String[]{"reboot"});
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
     private void shutdownWindows(Runtime runtime, String[] params) {
-        try {
-            if (params == null || params.length == 0) {
-                params = new String[]{"-s"};
-            }
-            runtime.exec(new String[]{"shutdown"}, params);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        throw new RuntimeException("Reboot command not available for Windows OS");
     }
 
     @Override

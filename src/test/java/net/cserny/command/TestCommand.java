@@ -10,7 +10,7 @@ public class TestCommand implements Command {
     private boolean executed;
 
     @Override
-    public CommandResponse execute(Param[] params) {
+    public CommandResponse execute(String[] params) {
         executed = true;
         return CommandResponse.EMPTY;
     }

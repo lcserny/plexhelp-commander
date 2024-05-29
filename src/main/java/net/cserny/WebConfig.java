@@ -1,6 +1,5 @@
 package net.cserny;
 
-import net.cserny.command.Param;
 import net.cserny.rename.TmdbWrapper;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import org.springframework.context.annotation.Bean;
@@ -18,8 +17,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
         TmdbWrapper.Movie.class,
         TmdbWrapper.Tv.class,
         TmdbWrapper.Credits.class,
-        TmdbWrapper.Person.class,
-        Param.class
+        TmdbWrapper.Person.class
 })
 public class WebConfig implements WebMvcConfigurer {
 

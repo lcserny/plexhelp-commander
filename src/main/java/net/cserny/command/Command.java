@@ -2,7 +2,7 @@ package net.cserny.command;
 
 public interface Command {
 
-    CommandResponse execute(Param[] params);
+    CommandResponse execute(String[] params);
 
     String name();
 }

@@ -58,7 +58,7 @@ public class ServerCommandService {
                 for (Command command : commands) {
                     if (command.name().equals(firstActionPending)) {
                         log.info("Executing action " + command.name() + " for server " + config.getName());
-                        command.execute(new Param[]{});
+                        command.execute(new String[]{});
                     }
                 }
             }

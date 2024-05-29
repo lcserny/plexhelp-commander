@@ -1,3 +1,13 @@
+Commits in rustver to bring here:
+- 669bdce630624bd50b6b0569dd2e693d66b5d84c
+- 888383b3f46cd78ad667914eba5dc5918d3cf53a
+
+Then push tag 1.0
+
+
+
+
+
 ### Local setup
 Build with:  
 `./mvnw -Pnative clean package native:compile`
