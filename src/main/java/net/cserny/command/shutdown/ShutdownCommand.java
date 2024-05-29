@@ -4,6 +4,7 @@ import net.cserny.command.Command;
 import net.cserny.command.CommandResponse;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -13,7 +14,8 @@ public class ShutdownCommand implements Command {
 
     @Override
     public CommandResponse execute(String[] params) {
-        List<String> paramsList = List.of("shutdown");
+        List<String> paramsList = new ArrayList<>();
+        paramsList.add(NAME);
 
         String os = System.getProperty("os.name");
         if (os.contains("win")) {
@@ -23,8 +25,8 @@ public class ShutdownCommand implements Command {
         }
 
         try {
-            ProcessBuilder builder = new ProcessBuilder(paramsList);
-            builder.start();
+            Runtime runtime = Runtime.getRuntime();
+            runtime.exec(paramsList.toArray(new String[0]));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
