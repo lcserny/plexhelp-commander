@@ -22,7 +22,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 @ContextConfiguration(classes = {
-        TMDBSearcher.class,
+        ExternalSearcher.class,
         MongoTestConfiguration.class,
         OnlineCacheRepository.class,
         OnlineProperties.class,
@@ -32,10 +32,10 @@ import static org.mockito.Mockito.when;
 })
 @DataMongoTest
 @Testcontainers
-class TMDBSearcherTest {
+class ExternalSearcherTest {
 
     @Autowired
-    TMDBSearcher searcher;
+    ExternalSearcher searcher;
 
     @Autowired
     OnlineCacheRepository repository;
@@ -60,7 +60,7 @@ class TMDBSearcherTest {
 
         RenamedMediaOptions options = searcher.search(movie, MediaFileType.MOVIE);
 
-        assertEquals(MediaRenameOrigin.TMDB, options.origin());
+        assertEquals(MediaRenameOrigin.EXTERNAL, options.origin());
         assertEquals(1, options.mediaDescriptions().size());
         assertEquals(title, options.mediaDescriptions().get(0).title());
 
@@ -89,7 +89,7 @@ class TMDBSearcherTest {
 
         RenamedMediaOptions options = searcher.search(tvShow, MediaFileType.TV);
 
-        assertEquals(MediaRenameOrigin.TMDB, options.origin());
+        assertEquals(MediaRenameOrigin.EXTERNAL, options.origin());
         assertEquals(1, options.mediaDescriptions().size());
         assertEquals(title, options.mediaDescriptions().get(0).title());
 

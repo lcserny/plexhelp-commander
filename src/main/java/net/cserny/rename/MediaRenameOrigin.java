@@ -4,5 +4,5 @@ public enum MediaRenameOrigin {
     DISK,
     NAME,
     CACHE,
-    TMDB;
+    EXTERNAL;
 }

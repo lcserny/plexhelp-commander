@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
         MongoTestConfiguration.class,
         DiskSearcher.class,
         OnlineCacheSearcher.class,
-        TMDBSearcher.class,
+        ExternalSearcher.class,
         NameNormalizer.class,
         FilesystemProperties.class,
         RenameConfig.class,
@@ -40,6 +40,6 @@ class MediaRenameServiceTest {
     public void checkSearcherOrder() {
         assertEquals(DiskSearcher.class.getSimpleName(), service.searchers.get(0).getClass().getSimpleName());
         assertEquals(OnlineCacheSearcher.class.getSimpleName(), service.searchers.get(1).getClass().getSimpleName());
-        assertEquals(TMDBSearcher.class.getSimpleName(), service.searchers.get(2).getClass().getSimpleName());
+        assertEquals(ExternalSearcher.class.getSimpleName(), service.searchers.get(2).getClass().getSimpleName());
     }
 }

@@ -31,7 +31,7 @@ import static org.hamcrest.CoreMatchers.is;
         MediaRenameService.class,
         DiskSearcher.class,
         OnlineCacheSearcher.class,
-        TMDBSearcher.class,
+        ExternalSearcher.class,
         NameNormalizer.class,
         FilesystemProperties.class,
         RenameConfig.class,

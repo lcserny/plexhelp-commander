@@ -191,7 +191,7 @@ components:
       - DISK
       - NAME
       - CACHE
-      - TMDB
+      - EXTERNAL
       type: string
     MediaRenameRequest:
       type: object

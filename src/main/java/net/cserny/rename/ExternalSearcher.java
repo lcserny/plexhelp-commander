@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 @Order(2)
 @Component
 @Slf4j
-public class TMDBSearcher implements Searcher {
+public class ExternalSearcher implements Searcher {
 
     @Autowired
     OnlineCacheRepository repository;
@@ -45,7 +45,7 @@ public class TMDBSearcher implements Searcher {
         List<OnlineCacheItem> items = convertAll(nameYear, mediaFound, type);
         repository.saveAll(items);
 
-        return new RenamedMediaOptions(MediaRenameOrigin.TMDB, mediaFound);
+        return new RenamedMediaOptions(MediaRenameOrigin.EXTERNAL, mediaFound);
     }
 
     private OnlineCacheItem convert(NameYear nameYear, MediaDescription description, MediaFileType mediaType) {
