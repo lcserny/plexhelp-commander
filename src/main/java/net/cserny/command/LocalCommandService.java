@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-// TODO: add tests
 @Service
 @Slf4j
 public class LocalCommandService {
