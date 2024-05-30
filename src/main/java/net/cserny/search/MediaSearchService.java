@@ -89,6 +89,7 @@ public class MediaSearchService {
     private boolean excludeConfiguredPaths(Path path) {
         for (String excludePath : searchConfig.getExcludePaths()) {
             if (path.toAbsolutePath().toString().contains(excludePath)) {
+                log.info("Excluding based on path: " + path.toString());
                 return false;
             }
         }
@@ -111,13 +112,22 @@ public class MediaSearchService {
             }
         }
 
-        return mimeType != null && mimeType.startsWith("video/");
+        var result = mimeType != null && mimeType.startsWith("video/");
+        if (!result) {
+            log.info("Excluding based on mime: " + path.toString() + " - " + mimeType);
+        }
+
+        return result;
     }
 
     private boolean excludeNonVideosBySize(Path path) {
         try {
             long size = Files.size(path);
-            return size >= searchConfig.getVideoMinSizeBytes();
+            var result = size >= searchConfig.getVideoMinSizeBytes();
+            if (!result) {
+                log.info("Excluding based on size: " + path.toString() + " - " + size);
+            }
+            return result;
         } catch (IOException e) {
             log.warn("Could not get size of file " + path, e);
             return false;
