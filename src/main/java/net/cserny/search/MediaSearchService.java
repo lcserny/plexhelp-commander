@@ -4,8 +4,11 @@ import lombok.extern.slf4j.Slf4j;
 import net.cserny.filesystem.FilesystemProperties;
 import net.cserny.filesystem.LocalFileService;
 import net.cserny.filesystem.LocalPath;
+
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.http.MediaTypeFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -99,10 +102,11 @@ public class MediaSearchService {
     private boolean excludeNonVideosByContentType(Path path) {
         String mimeType;
 
-        try {
-            mimeType = Files.probeContentType(path);
-        } catch (IOException e) {
-            log.warn("Could not get content type of file " + path, e);
+            Optional<MediaType> mimeTypeOptional = MediaTypeFactory.getMediaType(path.toString());
+        if (mimeTypeOptional.isPresent()) {
+            mimeType = mimeTypeOptional.get().toString();
+         } else {
+            log.warn("Could not get content type of file " + path);
             return false;
         }
 
