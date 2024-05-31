@@ -158,7 +158,7 @@ public class TmdbWrapper {
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Person {
 
-        @JsonProperty("character")
-        private String character;
+        @JsonProperty("name")
+        private String name;
     }
 }

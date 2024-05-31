@@ -130,7 +130,7 @@ public class ExternalSearcher implements Searcher {
         }
 
         return credits.getCast().stream()
-                .map(Person::getCharacter)
+                .map(Person::getName)
                 .limit(onlineConfig.getResultLimit())
                 .toList();
     }
