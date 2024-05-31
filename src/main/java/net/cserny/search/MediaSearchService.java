@@ -100,16 +100,13 @@ public class MediaSearchService {
     }
 
     private boolean excludeNonVideosByContentType(Path path) {
-        String mimeType;
-
-            Optional<MediaType> mimeTypeOptional = MediaTypeFactory.getMediaType(path.toString());
-        if (mimeTypeOptional.isPresent()) {
-            mimeType = mimeTypeOptional.get().toString();
-         } else {
+        Optional<MediaType> mimeTypeOptional = MediaTypeFactory.getMediaType(path.toString());
+        if (!mimeTypeOptional.isPresent()) {
             log.warn("Could not get content type of file " + path);
             return false;
         }
 
+        String mimeType = mimeTypeOptional.get().toString();
         for (String allowedType : searchConfig.getVideoMimeTypes()) {
             if (allowedType.equals(mimeType)) {
                 return true;
