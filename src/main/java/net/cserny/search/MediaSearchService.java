@@ -86,6 +86,8 @@ public class MediaSearchService {
             mediaFileGroups.add(mediaFileGroup);
         }
 
+        log.info("Generated media file groups: {}", mediaFileGroups);
+
         return mediaFileGroups;
     }
 

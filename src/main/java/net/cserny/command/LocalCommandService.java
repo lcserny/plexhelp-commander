@@ -17,6 +17,7 @@ public class LocalCommandService {
         for (Command command : commands) {
             if (command.name().equals(name)) {
                 try {
+                    log.info("Executing command: {} with params {}", command.name(), params);
                     return command.execute(params);
                 } catch (Exception e) {
                     log.warn("Error occurred executing command {}: {}", name, e.getMessage());

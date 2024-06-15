@@ -41,12 +41,14 @@ public class MediaMoveService {
                 filesystemConfig.getDownloadsPath(),
                 filesystemConfig.getMoviesPath(),
                 filesystemConfig.getTvPath());
+        log.info("Important folders: {}", this.importantFolders);
     }
 
     public List<MediaMoveError> moveMedia(MediaFileGroup fileGroup, MediaFileType type) {
         List<MediaMoveError> errors = new ArrayList<>();
 
         if (movieExists(fileGroup.name(), type)) {
+            log.info("Movie already exists {}", fileGroup.name());
             return List.of(new MediaMoveError(fileGroup.name(), MOVIE_EXISTS));
         }
 
@@ -60,6 +62,7 @@ public class MediaMoveService {
             LocalPath destPath = fileService.toLocalPath(destRoot, fileGroup.name(), video);
 
             try {
+                log.info("Moving video {} to {}", srcPath, destPath);
                 fileService.move(srcPath, destPath);
             } catch (IOException e) {
                 log.warn("Could not move media", e);
@@ -74,6 +77,7 @@ public class MediaMoveService {
 
         if (errors.isEmpty()) {
             try {
+                log.info("Cleaning source media folders {}", fileGroup.path());
                 cleanSourceMediaDir(fileGroup.path());
             } catch (IOException e) {
                 log.warn("Could not clean source media folder", e);

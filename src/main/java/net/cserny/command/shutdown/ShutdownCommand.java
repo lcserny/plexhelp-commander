@@ -5,6 +5,7 @@ import net.cserny.command.CommandResponse;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Component
@@ -38,9 +39,7 @@ public class ShutdownCommand implements Command {
         if (params == null || params.length == 0) {
             paramsList.add("now");
         } else {
-            for (String p : params) {
-                paramsList.add(p);
-            }
+            Collections.addAll(paramsList, params);
         }
     }
 
@@ -48,9 +47,7 @@ public class ShutdownCommand implements Command {
         if (params == null || params.length == 0) {
             paramsList.add("-s");
         } else {
-            for (String p : params) {
-                paramsList.add(p);
-            }
+            Collections.addAll(paramsList, params);
         }
     }
 

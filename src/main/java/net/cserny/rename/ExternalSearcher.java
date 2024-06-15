@@ -43,6 +43,7 @@ public class ExternalSearcher implements Searcher {
         };
 
         List<OnlineCacheItem> items = convertAll(nameYear, mediaFound, type);
+        log.info("Saving media found to cache {}", items);
         repository.saveAll(items);
 
         return new RenamedMediaOptions(MediaRenameOrigin.EXTERNAL, mediaFound);
@@ -70,10 +71,12 @@ public class ExternalSearcher implements Searcher {
     private List<MediaDescription> searchTvShow(NameYear nameYear) {
         List<Tv> results = tmdbWrapper.searchTvShows(nameYear.name(), nameYear.year());
         if (results.isEmpty()) {
+            log.info("No TV show results found");
             return Collections.emptyList();
         }
 
         List<Tv> sublist = results.subList(0, Math.min(results.size(), onlineConfig.getResultLimit()));
+        log.info("TV show results found {}", sublist);
 
         List<MediaDescription> descriptions = new ArrayList<>();
         for (Tv tvSeries : sublist) {
@@ -92,10 +95,12 @@ public class ExternalSearcher implements Searcher {
     private List<MediaDescription> searchMovie(NameYear nameYear) {
         List<Movie> results = tmdbWrapper.searchMovies(nameYear.name(), nameYear.year());
         if (results.isEmpty()) {
+            log.info("No movie results found");
             return Collections.emptyList();
         }
 
         List<Movie> sublist = results.subList(0, Math.min(results.size(), onlineConfig.getResultLimit()));
+        log.info("Movie results found {}", sublist);
 
         List<MediaDescription> descriptions = new ArrayList<>();
         for (Movie movieDb : sublist) {

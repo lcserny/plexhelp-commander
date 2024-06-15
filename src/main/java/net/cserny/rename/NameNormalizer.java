@@ -63,7 +63,6 @@ public class NameNormalizer {
     }
 
     public record NameYear(String name, Integer year) {
-
         public String formatted() {
             return name() + (year != null ? " (" + year + ")" : "");
         }

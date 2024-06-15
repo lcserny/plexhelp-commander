@@ -57,6 +57,8 @@ public class SubtitleMover {
             return Collections.emptyList();
         }
 
+        log.info("{} type subs found {}", operation.type(), subs);
+
         errors.addAll(switch (operation.type()) {
             case MOVIE -> moveMovieSubs(operation, subs);
             case TV -> moveTvSubs(operation, subs);
@@ -82,6 +84,7 @@ public class SubtitleMover {
             LocalPath subDest = fileService.toLocalPath(operation.subsDest().path().toString(), SUBS_SUBFOLDER, subName);
 
             try {
+                log.info("Moving sub {} to {}", subSrc, subDest);
                 fileService.move(subSrc, subDest);
             } catch (IOException e) {
                 log.warn("Could not move sub", e);
@@ -101,6 +104,7 @@ public class SubtitleMover {
             LocalPath subDest = fileService.toLocalPath(operation.subsDest().path().toString(), subFilename);
 
             try {
+                log.info("Moving sub {} to {}", subSrc, subDest);
                 fileService.move(subSrc, subDest);
             } catch (IOException e) {
                 log.warn("Could not move sub", e);
@@ -121,6 +125,7 @@ public class SubtitleMover {
             }
         }
 
+        log.warn("Excluded sub based on extension {}", filename);
         return false;
     }
 }

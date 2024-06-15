@@ -1,5 +1,6 @@
 package net.cserny.rename;
 
+import lombok.extern.slf4j.Slf4j;
 import net.cserny.rename.NameNormalizer.NameYear;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
@@ -10,6 +11,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Order(1)
 @Component
 public class OnlineCacheSearcher implements Searcher {
@@ -23,6 +25,7 @@ public class OnlineCacheSearcher implements Searcher {
     public RenamedMediaOptions search(NameYear nameYear, MediaFileType type) {
         List<OnlineCacheItem> items;
         if (nameYear.year() == null) {
+            log.warn("No year specified, searching cache only by name {}", nameYear.name());
             items = repository.findByNameAndType(nameYear.name(), type);
         } else {
             items = repository.findByNameYearAndType(nameYear.name(), nameYear.year(), type);
