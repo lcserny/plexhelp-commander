@@ -48,7 +48,7 @@ public class MediaSearchService {
         }
     }
 
-    private List<MediaFileGroup> generateMediaFileGroups(List<Path> allVideos) {
+    public List<MediaFileGroup> generateMediaFileGroups(List<Path> allVideos) {
         List<MediaFileGroup> mediaFileGroups = new ArrayList<>();
 
         Path downloadsPath = fileService.toLocalPath(filesystemConfig.getDownloadsPath()).path();

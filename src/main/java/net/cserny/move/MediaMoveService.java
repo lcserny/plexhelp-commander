@@ -45,6 +45,10 @@ public class MediaMoveService {
     }
 
     public List<MediaMoveError> moveMedia(MediaFileGroup fileGroup, MediaFileType type) {
+        return moveMedia(fileGroup, type, true);
+    }
+
+    public List<MediaMoveError> moveMedia(MediaFileGroup fileGroup, MediaFileType type, boolean cleanDir) {
         List<MediaMoveError> errors = new ArrayList<>();
 
         if (movieExists(fileGroup.name(), type)) {
@@ -75,7 +79,7 @@ public class MediaMoveService {
         SubsMoveOperation subsMoveOperation = new SubsMoveOperation(subsSrc, subsDest, type);
         errors.addAll(subtitleMover.moveSubs(subsMoveOperation));
 
-        if (errors.isEmpty()) {
+        if (cleanDir && errors.isEmpty()) {
             try {
                 log.info("Cleaning source media folders {}", fileGroup.path());
                 cleanSourceMediaDir(fileGroup.path());

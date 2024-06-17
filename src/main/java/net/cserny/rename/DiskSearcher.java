@@ -5,7 +5,6 @@ import net.cserny.filesystem.FilesystemProperties;
 import net.cserny.filesystem.LocalFileService;
 import net.cserny.filesystem.LocalPath;
 import net.cserny.rename.NameNormalizer.NameYear;
-import org.apache.commons.text.similarity.LevenshteinDistance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -36,7 +35,6 @@ public class DiskSearcher implements Searcher {
     LocalFileService localFileService;
 
     private final Pattern releaseDateRegex = Pattern.compile("\s+\\(\\d{4}(-\\d{2}-\\d{2})?\\)$");
-    private final LevenshteinDistance levenshteinDistance = new LevenshteinDistance();
 
     public RenamedMediaOptions search(NameYear nameYear, MediaFileType type) {
         LocalPath mediaPath = localFileService.toLocalPath(switch (type) {
@@ -54,7 +52,7 @@ public class DiskSearcher implements Searcher {
                     .map(this::convertAndtrimReleaseDate)
                     .map(diskPath -> parseDistance(diskPath, nameYear.name()))
                     .filter(diskPath -> excludeNotSimilarPaths(diskPath, nameYear.name()))
-                    .sorted(Comparator.comparing(DiskPath::similarity))
+                    .sorted(Comparator.comparing(DiskPath::distance))
                     .map(this::chooseCorrectPath)
                     .collect(Collectors.toList());
         } catch (IOException e) {
@@ -72,17 +70,17 @@ public class DiskSearcher implements Searcher {
 
     private boolean excludeNotSimilarPaths(DiskPath diskPath, String name) {
         int bigger = Math.max(diskPath.trimmedLocalPpath().length(), name.length());
-        int simPercent = (int)((float)(bigger - diskPath.similarity()) / (float)bigger * 100);
+        int simPercent = SimilarityService.getSimilarityPercent(diskPath.distance(), bigger);
         if (simPercent >= renameConfig.getSimilarityPercent()) {
             log.info("For path {}, the disk path {} is {}% similar with distance of {}",
-                    name, diskPath.trimmedLocalPpath(), simPercent, diskPath.similarity());
+                    name, diskPath.trimmedLocalPpath(), simPercent, diskPath.distance());
             return true;
         }
         return false;
     }
 
     private DiskPath parseDistance(DiskPath diskPath, String name) {
-        Integer distance = levenshteinDistance.apply(diskPath.trimmedLocalPpath(), name);
+        Integer distance = SimilarityService.getDistance(diskPath.trimmedLocalPpath(), name);
         return new DiskPath(distance, diskPath.localPath(), diskPath.trimmedLocalPpath());
     }
 
@@ -90,6 +88,6 @@ public class DiskSearcher implements Searcher {
         return diskPath.localPath();
     }
 
-    private record DiskPath(Integer similarity, String localPath, String trimmedLocalPpath) {
+    private record DiskPath(Integer distance, String localPath, String trimmedLocalPpath) {
     }
 }

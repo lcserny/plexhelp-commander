@@ -23,6 +23,10 @@ public class LocalFileService {
         Files.delete(path.path());
     }
 
+    public boolean exists(LocalPath path) {
+        return Files.exists(path.path());
+    }
+
     public void deleteDirectory(LocalPath folder) throws IOException {
         Files.walkFileTree(folder.path(), new SimpleFileVisitor<>() {
             @Override

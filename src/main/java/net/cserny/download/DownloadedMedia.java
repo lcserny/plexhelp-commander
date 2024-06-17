@@ -21,4 +21,6 @@ public class DownloadedMedia {
     private long fileSize;
     @Field("date_downloaded")
     private Instant dateDownloaded;
+    @Field("tried_automove")
+    private boolean triedAutoMove;
 }
