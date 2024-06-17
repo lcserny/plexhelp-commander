@@ -3,6 +3,7 @@ package net.cserny.move;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import net.cserny.AbstractInMemoryFileService;
+import net.cserny.MongoTestConfiguration;
 import net.cserny.filesystem.FilesystemProperties;
 import net.cserny.filesystem.LocalFileService;
 import net.cserny.rename.MediaFileType;
@@ -13,9 +14,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
+import org.springframework.boot.test.autoconfigure.data.mongo.AutoConfigureDataMongo;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.ContextConfiguration;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 
 import java.io.IOException;
@@ -28,7 +31,10 @@ import static org.hamcrest.CoreMatchers.is;
         "server.command.name=test-server",
         "server.command.listen-cron=disabled",
         "search.video-min-size-bytes=5",
-        "search.exclude-paths[0]=Excluded Folder 1"
+        "search.exclude-paths[0]=Excluded Folder 1",
+        "automove.enabled=false",
+        "automove.initial-delay-ms=5000",
+        "automove.cron-ms=10000"
 }, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ContextConfiguration(classes = {
         MediaMoveController.class,
@@ -36,9 +42,12 @@ import static org.hamcrest.CoreMatchers.is;
         SubtitleMover.class,
         FilesystemProperties.class,
         MoveProperties.class,
-        LocalFileService.class
+        LocalFileService.class,
+        MongoTestConfiguration.class,
 })
-@EnableAutoConfiguration(exclude = MongoAutoConfiguration.class)
+@EnableAutoConfiguration
+@AutoConfigureDataMongo
+@Testcontainers
 public class MediaMoveControllerTest extends AbstractInMemoryFileService {
 
     private final static String BASE_URI = "http://localhost";
