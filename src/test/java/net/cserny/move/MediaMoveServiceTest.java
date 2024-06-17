@@ -1,6 +1,7 @@
 package net.cserny.move;
 
 import net.cserny.AbstractInMemoryFileService;
+import net.cserny.MongoTestConfiguration;
 import net.cserny.filesystem.FilesystemProperties;
 import net.cserny.filesystem.LocalFileService;
 import net.cserny.rename.MediaFileType;
@@ -11,8 +12,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
+import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 
 import java.io.IOException;
@@ -21,20 +24,16 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest({
-        "server.command.name=test-server",
-        "server.command.listen-cron=disabled",
-        "search.video-min-size-bytes=5",
-        "search.exclude-paths[0]=Excluded Folder 1"
-})
 @ContextConfiguration(classes = {
         MediaMoveService.class,
         SubtitleMover.class,
         FilesystemProperties.class,
         MoveProperties.class,
-        LocalFileService.class
+        LocalFileService.class,
+        MongoTestConfiguration.class,
 })
-@EnableAutoConfiguration(exclude = MongoAutoConfiguration.class)
+@DataMongoTest
+@Testcontainers
 public class MediaMoveServiceTest extends AbstractInMemoryFileService {
 
     @Autowired
