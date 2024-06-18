@@ -20,6 +20,9 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
@@ -57,8 +60,14 @@ public class AutoMoveMediaService {
     @Autowired
     private AutoMoveProperties properties;
 
+    private final ExecutorService threadpool;
+
+    public AutoMoveMediaService() {
+        this.threadpool = Executors.newVirtualThreadPerTaskExecutor();
+    }
+
     @Scheduled(initialDelayString = "${automove.initial-delay-ms}", fixedDelayString = "${automove.cron-ms}")
-    public void autoMoveMedia() {
+    public void autoMoveMedia() throws InterruptedException {
         log.info("Checking download cache to automatically move media files");
 
         List<DownloadedMedia> medias = downloadedMediaRepository.retrieveForAutoMove(false, properties.getLimit());
@@ -69,37 +78,48 @@ public class AutoMoveMediaService {
 
         log.info("Trying to automatically move {} media file", medias.size());
 
+        List<Callable<Void>> mediaProcesses = new ArrayList<>();
         for (DownloadedMedia media : medias) {
-            LocalPath path = fileService.toLocalPath(filesystemProperties.getDownloadsPath(), media.getFileName());
-            if (!fileService.exists(path)) {
-                log.info("Path doesn't exist: {}, skipping...", path);
-                continue;
-            }
+            mediaProcesses.add(() -> {
+                try {
+                    LocalPath path = fileService.toLocalPath(filesystemProperties.getDownloadsPath(), media.getFileName());
+                    if (!fileService.exists(path)) {
+                        log.info("Path doesn't exist: {}, skipping...", path);
+                        return null;
+                    }
 
-            List<MediaFileGroup> groups = searchService.generateMediaFileGroups(List.of(path.path()));
-            if (groups.isEmpty()) {
-                log.info("No media groups generated, skipping...");
-                continue;
-            }
+                    List<MediaFileGroup> groups = searchService.generateMediaFileGroups(List.of(path.path()));
+                    if (groups.isEmpty()) {
+                        log.info("No media groups generated, skipping...");
+                        return null;
+                    }
 
-            MediaFileGroup group = groups.getFirst();
-            NameYear nameYear = normalizer.normalize(group.name());
+                    MediaFileGroup group = groups.getFirst();
+                    NameYear nameYear = normalizer.normalize(group.name());
 
-            Map<Triple<MediaDescription, MediaFileType, MediaRenameOrigin>, Integer> sortedMap = processOptions(group, nameYear);
-            if (sortedMap.isEmpty()) {
-                log.info("No options were similar enough to automove media");
-                continue;
-            }
+                    Map<Triple<MediaDescription, MediaFileType, MediaRenameOrigin>, Integer> sortedMap = processOptions(group, nameYear);
+                    if (sortedMap.isEmpty()) {
+                        log.info("No options were similar enough to automove media");
+                        return null;
+                    }
 
-            Triple<MediaDescription, MediaFileType, MediaRenameOrigin> option = sortedMap.keySet().stream().findFirst().get();
-            log.info("Using first option to move media {}", media);
+                    Triple<MediaDescription, MediaFileType, MediaRenameOrigin> option = sortedMap.keySet().stream().findFirst().get();
+                    log.info("Using first option to move media {}", media);
 
-            String movedName = moveMedia(option, group);
+                    String movedName = moveMedia(option, group);
+                    saveAutoMove(media, movedName, sortedMap.get(option), option);
+                } catch (Exception e) {
+                    log.error("Error occurred in virtual thread", e);
+                }
 
-            saveAutoMove(media, movedName, sortedMap.get(option), option);
+                return null;
+            });
         }
 
+        threadpool.invokeAll(mediaProcesses);
         updateDownloadedMedia(medias);
+
+        log.info("Finished checking download cache to automatically move media files");
     }
 
     // TODO: maybe another cron just cleans dirs:
