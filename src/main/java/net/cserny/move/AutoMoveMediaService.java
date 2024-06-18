@@ -62,8 +62,6 @@ public class AutoMoveMediaService {
         log.info("Checking download cache to automatically move media files");
 
         List<DownloadedMedia> medias = downloadedMediaRepository.retrieveForAutoMove(false, properties.getLimit());
-        updateDownloadedMedia(medias);
-
         if (medias.isEmpty()) {
             log.info("No media found to auto move");
             return;
@@ -100,6 +98,8 @@ public class AutoMoveMediaService {
 
             saveAutoMove(media, movedName, sortedMap.get(option), option);
         }
+
+        updateDownloadedMedia(medias);
     }
 
     // TODO: maybe another cron just cleans dirs:
