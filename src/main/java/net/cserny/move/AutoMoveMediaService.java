@@ -96,8 +96,9 @@ public class AutoMoveMediaService {
     }
 
     private Callable<Void> createCallable(DownloadedMedia media) {
+        Span nextSpan = this.tracer.nextSpan();
+
         return () -> {
-            Span nextSpan = this.tracer.nextSpan();
             try (SpanInScope ignored = this.tracer.withSpan(nextSpan.start())) {
                 LocalPath path = fileService.toLocalPath(filesystemProperties.getDownloadsPath(), media.getFileName());
                 if (!fileService.exists(path)) {
