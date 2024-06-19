@@ -96,10 +96,9 @@ public class AutoMoveMediaService {
     }
 
     private Callable<Void> createCallable(DownloadedMedia media) {
-        Span mainSpan = this.tracer.nextSpan();
-
         return () -> {
-            try (SpanInScope ignored = this.tracer.withSpan(mainSpan.start())) {
+            Span nextSpan = this.tracer.nextSpan();
+            try (SpanInScope ignored = this.tracer.withSpan(nextSpan.start())) {
                 LocalPath path = fileService.toLocalPath(filesystemProperties.getDownloadsPath(), media.getFileName());
                 if (!fileService.exists(path)) {
                     log.info("Path doesn't exist: {}, skipping...", path);
@@ -129,7 +128,7 @@ public class AutoMoveMediaService {
             } catch (Exception e) {
                 log.error("Error occurred in virtual thread", e);
             } finally {
-                mainSpan.end();
+                nextSpan.end();
             }
 
             return null;
@@ -165,7 +164,7 @@ public class AutoMoveMediaService {
 
     private String moveMedia(Triple<MediaDescription, MediaFileType, MediaRenameOrigin> option, MediaFileGroup group) {
         MediaDescription desc = option.getLeft();
-        String movedName = desc.title() + (desc.date().isEmpty() ? "" : format(" (%s)", desc.date()));
+        String movedName = desc.title() + (desc.date() != null && !desc.date().isEmpty() ? format(" (%s)", desc.date()) : "");
         MediaFileGroup resultGroup = new MediaFileGroup(group.path(), movedName, group.videos());
         moveService.moveMedia(resultGroup, option.getMiddle());
         return movedName;
