@@ -122,7 +122,7 @@ public class AutoMoveMediaService {
                 }
 
                 Triple<MediaDescription, MediaFileType, MediaRenameOrigin> option = sortedMap.keySet().stream().findFirst().get();
-                log.info("Using first option to move media {}", media);
+                log.info("Using first option to move media {}", option);
 
                 String movedName = moveMedia(option, group);
                 saveAutoMove(media, movedName, sortedMap.get(option), option);
