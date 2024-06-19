@@ -157,7 +157,6 @@ public class AutoMoveMediaService {
         MediaDescription desc = option.getLeft();
         String movedName = desc.title() + (desc.date().isEmpty() ? "" : format(" (%s)", desc.date()));
         MediaFileGroup resultGroup = new MediaFileGroup(group.path(), movedName, group.videos());
-        log.warn("Moving {}", resultGroup);
         moveService.moveMedia(resultGroup, option.getMiddle());
         return movedName;
     }
