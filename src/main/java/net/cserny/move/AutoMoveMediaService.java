@@ -1,5 +1,8 @@
 package net.cserny.move;
 
+import io.micrometer.tracing.Span;
+import io.micrometer.tracing.Tracer;
+import io.micrometer.tracing.Tracer.SpanInScope;
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.download.DownloadedMedia;
 import net.cserny.download.DownloadedMediaRepository;
@@ -58,6 +61,9 @@ public class AutoMoveMediaService {
     private FilesystemProperties filesystemProperties;
 
     @Autowired
+    private Tracer tracer;
+
+    @Autowired
     private AutoMoveProperties properties;
 
     private final ExecutorService threadpool;
@@ -90,8 +96,10 @@ public class AutoMoveMediaService {
     }
 
     private Callable<Void> createCallable(DownloadedMedia media) {
+        Span mainSpan = this.tracer.nextSpan();
+
         return () -> {
-            try {
+            try (SpanInScope ignored = this.tracer.withSpan(mainSpan.start())) {
                 LocalPath path = fileService.toLocalPath(filesystemProperties.getDownloadsPath(), media.getFileName());
                 if (!fileService.exists(path)) {
                     log.info("Path doesn't exist: {}, skipping...", path);
@@ -120,6 +128,8 @@ public class AutoMoveMediaService {
                 saveAutoMove(media, movedName, sortedMap.get(option), option);
             } catch (Exception e) {
                 log.error("Error occurred in virtual thread", e);
+            } finally {
+                mainSpan.end();
             }
 
             return null;
