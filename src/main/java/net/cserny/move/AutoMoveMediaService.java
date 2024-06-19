@@ -80,40 +80,7 @@ public class AutoMoveMediaService {
 
         List<Callable<Void>> mediaProcesses = new ArrayList<>();
         for (DownloadedMedia media : medias) {
-            mediaProcesses.add(() -> {
-                try {
-                    LocalPath path = fileService.toLocalPath(filesystemProperties.getDownloadsPath(), media.getFileName());
-                    if (!fileService.exists(path)) {
-                        log.info("Path doesn't exist: {}, skipping...", path);
-                        return null;
-                    }
-
-                    List<MediaFileGroup> groups = searchService.generateMediaFileGroups(List.of(path.path()));
-                    if (groups.isEmpty()) {
-                        log.info("No media groups generated, skipping...");
-                        return null;
-                    }
-
-                    MediaFileGroup group = groups.getFirst();
-                    NameYear nameYear = normalizer.normalize(group.name());
-
-                    Map<Triple<MediaDescription, MediaFileType, MediaRenameOrigin>, Integer> sortedMap = processOptions(group, nameYear);
-                    if (sortedMap.isEmpty()) {
-                        log.info("No options were similar enough to automove media");
-                        return null;
-                    }
-
-                    Triple<MediaDescription, MediaFileType, MediaRenameOrigin> option = sortedMap.keySet().stream().findFirst().get();
-                    log.info("Using first option to move media {}", media);
-
-                    String movedName = moveMedia(option, group);
-                    saveAutoMove(media, movedName, sortedMap.get(option), option);
-                } catch (Exception e) {
-                    log.error("Error occurred in virtual thread", e);
-                }
-
-                return null;
-            });
+            mediaProcesses.add(createCallable(media));
         }
 
         threadpool.invokeAll(mediaProcesses);
@@ -122,8 +89,42 @@ public class AutoMoveMediaService {
         log.info("Finished checking download cache to automatically move media files");
     }
 
-    // TODO: maybe another cron just cleans dirs:
-    //  - check in automoved_media table and try to clean dir somehow???
+    private Callable<Void> createCallable(DownloadedMedia media) {
+        return () -> {
+            try {
+                LocalPath path = fileService.toLocalPath(filesystemProperties.getDownloadsPath(), media.getFileName());
+                if (!fileService.exists(path)) {
+                    log.info("Path doesn't exist: {}, skipping...", path);
+                    return null;
+                }
+
+                List<MediaFileGroup> groups = searchService.generateMediaFileGroups(List.of(path.path()));
+                if (groups.isEmpty()) {
+                    log.info("No media groups generated, skipping...");
+                    return null;
+                }
+
+                MediaFileGroup group = groups.getFirst();
+                NameYear nameYear = normalizer.normalize(group.name());
+
+                Map<Triple<MediaDescription, MediaFileType, MediaRenameOrigin>, Integer> sortedMap = processOptions(group, nameYear);
+                if (sortedMap.isEmpty()) {
+                    log.info("No options were similar enough to automove media");
+                    return null;
+                }
+
+                Triple<MediaDescription, MediaFileType, MediaRenameOrigin> option = sortedMap.keySet().stream().findFirst().get();
+                log.info("Using first option to move media {}", media);
+
+                String movedName = moveMedia(option, group);
+                saveAutoMove(media, movedName, sortedMap.get(option), option);
+            } catch (Exception e) {
+                log.error("Error occurred in virtual thread", e);
+            }
+
+            return null;
+        };
+    }
 
     private Map<Triple<MediaDescription, MediaFileType, MediaRenameOrigin>, Integer> processOptions(MediaFileGroup group, NameYear nameYear) {
         Map<Triple<MediaDescription, MediaFileType, MediaRenameOrigin>, Integer> optionsMap = new HashMap<>();
@@ -155,9 +156,9 @@ public class AutoMoveMediaService {
     private String moveMedia(Triple<MediaDescription, MediaFileType, MediaRenameOrigin> option, MediaFileGroup group) {
         MediaDescription desc = option.getLeft();
         String movedName = desc.title() + (desc.date().isEmpty() ? "" : format(" (%s)", desc.date()));
-        MediaFileGroup resultGroup = new MediaFileGroup( group.path(), movedName, group.videos());
+        MediaFileGroup resultGroup = new MediaFileGroup(group.path(), movedName, group.videos());
         log.warn("Moving {}", resultGroup);
-        moveService.moveMedia(resultGroup, option.getMiddle(), false);
+        moveService.moveMedia(resultGroup, option.getMiddle());
         return movedName;
     }
 

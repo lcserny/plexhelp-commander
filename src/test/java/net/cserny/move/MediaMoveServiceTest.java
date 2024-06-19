@@ -6,6 +6,8 @@ import net.cserny.filesystem.FilesystemProperties;
 import net.cserny.filesystem.LocalFileService;
 import net.cserny.rename.MediaFileType;
 import net.cserny.search.MediaFileGroup;
+import net.cserny.search.MediaIdentificationService;
+import net.cserny.search.SearchProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,6 +33,8 @@ import static org.junit.jupiter.api.Assertions.*;
         MoveProperties.class,
         LocalFileService.class,
         MongoTestConfiguration.class,
+        MediaIdentificationService.class,
+        SearchProperties.class
 })
 @DataMongoTest
 @Testcontainers

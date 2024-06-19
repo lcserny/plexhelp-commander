@@ -31,7 +31,8 @@ import static org.hamcrest.CoreMatchers.is;
         MediaSearchService.class,
         FilesystemProperties.class,
         SearchProperties.class,
-        LocalFileService.class
+        LocalFileService.class,
+        MediaIdentificationService.class
 })
 @EnableAutoConfiguration(exclude = MongoAutoConfiguration.class)
 public class MediaSearchControllerTest extends AbstractInMemoryFileService {

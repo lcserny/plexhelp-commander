@@ -7,11 +7,14 @@ import net.cserny.filesystem.LocalFileService;
 import net.cserny.filesystem.LocalPath;
 import net.cserny.rename.MediaFileType;
 import net.cserny.search.MediaFileGroup;
+import net.cserny.search.MediaIdentificationService;
+import net.cserny.search.SearchProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,10 +33,16 @@ public class MediaMoveService {
     SubtitleMover subtitleMover;
 
     @Autowired
+    SearchProperties searchConfig;
+
+    @Autowired
     FilesystemProperties filesystemConfig;
 
     @Autowired
     MoveProperties moveConfig;
+
+    @Autowired
+    MediaIdentificationService identificationService;
 
     @PostConstruct
     public void init() {
@@ -45,10 +54,6 @@ public class MediaMoveService {
     }
 
     public List<MediaMoveError> moveMedia(MediaFileGroup fileGroup, MediaFileType type) {
-        return moveMedia(fileGroup, type, true);
-    }
-
-    public List<MediaMoveError> moveMedia(MediaFileGroup fileGroup, MediaFileType type, boolean cleanDir) {
         List<MediaMoveError> errors = new ArrayList<>();
 
         if (movieExists(fileGroup.name(), type)) {
@@ -79,7 +84,7 @@ public class MediaMoveService {
         SubsMoveOperation subsMoveOperation = new SubsMoveOperation(subsSrc, subsDest, type);
         errors.addAll(subtitleMover.moveSubs(subsMoveOperation));
 
-        if (cleanDir && errors.isEmpty()) {
+        if (errors.isEmpty()) {
             try {
                 log.info("Cleaning source media folders {}", fileGroup.path());
                 cleanSourceMediaDir(fileGroup.path());
@@ -107,6 +112,13 @@ public class MediaMoveService {
                 log.info("Clean source media dir aborted, restricted folder, {}", restrictedPath);
                 return;
             }
+        }
+
+        List<Path> files = fileService.walk(removePath, searchConfig.getMaxDepth());
+        List<Path> allVideos = files.stream().filter(identificationService::isMedia).toList();
+        if (!allVideos.isEmpty()) {
+            log.info("Clean source media dir aborted, there are still other media in this dir");
+            return;
         }
 
         fileService.deleteDirectory(removePath);

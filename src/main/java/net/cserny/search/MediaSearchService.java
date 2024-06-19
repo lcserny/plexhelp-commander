@@ -7,12 +7,9 @@ import net.cserny.filesystem.LocalPath;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
-import org.springframework.http.MediaTypeFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
@@ -29,15 +26,16 @@ public class MediaSearchService {
     @Autowired
     SearchProperties searchConfig;
 
+    @Autowired
+    MediaIdentificationService identificationService;
+
     public List<MediaFileGroup> findMedia() {
         LocalPath walkPath = fileService.toLocalPath(filesystemConfig.getDownloadsPath());
         try {
             List<Path> files = fileService.walk(walkPath, searchConfig.getMaxDepth());
 
             List<Path> allVideos = files.stream()
-                    .filter(this::excludeConfiguredPaths)
-                    .filter(this::excludeNonVideosByContentType)
-                    .filter(this::excludeNonVideosBySize)
+                    .filter(identificationService::isMedia)
                     .sorted()
                     .toList();
 
@@ -89,51 +87,5 @@ public class MediaSearchService {
         log.info("Generated media file groups: {}", mediaFileGroups);
 
         return mediaFileGroups;
-    }
-
-    private boolean excludeConfiguredPaths(Path path) {
-        for (String excludePath : searchConfig.getExcludePaths()) {
-            if (path.toAbsolutePath().toString().contains(excludePath)) {
-                log.info("Excluding based on path: " + path.toString());
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private boolean excludeNonVideosByContentType(Path path) {
-        Optional<MediaType> mimeTypeOptional = MediaTypeFactory.getMediaType(path.toString());
-        if (!mimeTypeOptional.isPresent()) {
-            log.warn("Could not get content type of file " + path);
-            return false;
-        }
-
-        String mimeType = mimeTypeOptional.get().toString();
-        for (String allowedType : searchConfig.getVideoMimeTypes()) {
-            if (allowedType.equals(mimeType)) {
-                return true;
-            }
-        }
-
-        var result = mimeType != null && mimeType.startsWith("video/");
-        if (!result) {
-            log.info("Excluding based on mime: " + path.toString() + " - " + mimeType);
-        }
-
-        return result;
-    }
-
-    private boolean excludeNonVideosBySize(Path path) {
-        try {
-            long size = Files.size(path);
-            var result = size >= searchConfig.getVideoMinSizeBytes();
-            if (!result) {
-                log.info("Excluding based on size: " + path.toString() + " - " + size);
-            }
-            return result;
-        } catch (IOException e) {
-            log.warn("Could not get size of file " + path, e);
-            return false;
-        }
     }
 }

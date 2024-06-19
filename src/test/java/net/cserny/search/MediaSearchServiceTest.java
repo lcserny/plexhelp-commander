@@ -26,7 +26,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         MediaSearchService.class,
         FilesystemProperties.class,
         SearchProperties.class,
-        LocalFileService.class
+        LocalFileService.class,
+        MediaIdentificationService.class
 })
 @EnableAutoConfiguration(exclude = MongoAutoConfiguration.class)
 public class MediaSearchServiceTest extends AbstractInMemoryFileService {
