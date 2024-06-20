@@ -41,6 +41,11 @@ class NameNormalizerTest {
     }
 
     @Test
+    void checkNameWithYear() {
+        checkNormalizedFormatted("Beetlejuice.1988.XviD", "Beetlejuice (1988)");
+    }
+
+    @Test
     @DisplayName("Check replace of & with 'and' works correctly")
     void checkReplaceOfAndWithOriginName() {
         checkNormalizedFormatted("myMovie & me", "MyMovie And Me");

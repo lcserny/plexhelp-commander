@@ -6,7 +6,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public record MediaDescription(String posterUrl, String title, String date, String description, List<String> cast) {
+public record MediaDescription(String posterUrl, String title, String date, String description, List<String> cast)
+        implements Comparable<MediaDescription> {
 
     private static final Pattern titleRegex = Pattern
             .compile("^\\s*(?<name>[a-zA-Z0-9-\\s]+)\\s\\((?<date>(\\d{4})(-\\d{1,2}-\\d{1,2})?)\\)$");
@@ -27,5 +28,11 @@ public record MediaDescription(String posterUrl, String title, String date, Stri
                             null, parsedTitle, date, null, new ArrayList<>());
                 })
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public int compareTo(MediaDescription o) {
+        // irrelevant comparator just to be able to sort
+        return toString().compareTo(o.toString());
     }
 }

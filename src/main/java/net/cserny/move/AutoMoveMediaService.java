@@ -156,11 +156,29 @@ public class AutoMoveMediaService {
         Map<Triple<MediaDescription, MediaFileType, MediaRenameOrigin>, Integer> sortedMap = optionsMap.entrySet().stream()
                 .filter(entry -> entry.getValue() >= properties.getSimilarityAccepted())
                 .sorted(Entry.comparingByValue(Comparator.reverseOrder()))
+                .sorted(this.movieBiasedComparator(nameYear))
                 .collect(Collectors.toMap(Entry::getKey, Entry::getValue,
                         (e1, e2) -> e1, LinkedHashMap::new));
 
         log.info("Sorted options map by similarity: {}", sortedMap);
         return sortedMap;
+    }
+
+    // if year was present in initial name, then its most probably a movie
+    private Comparator<Map.Entry<Triple<MediaDescription, MediaFileType, MediaRenameOrigin>, Integer>> movieBiasedComparator(NameYear nameYear) {
+        return (o1, o2) -> {
+            if (nameYear.year() != null) {
+                if (o1.getKey().getMiddle() == MediaFileType.MOVIE) {
+                    return o2.getKey().getMiddle() == MediaFileType.MOVIE ? 0 : -1;
+                }
+                if (o2.getKey().getMiddle() == MediaFileType.MOVIE) {
+                    return 1;
+                }
+                return o1.getKey().getMiddle().compareTo(o2.getKey().getMiddle());
+            }
+
+            return o1.getKey().compareTo(o2.getKey());
+        };
     }
 
     private String moveMedia(Triple<MediaDescription, MediaFileType, MediaRenameOrigin> option, MediaFileGroup group) {
