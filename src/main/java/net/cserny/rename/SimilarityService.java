@@ -2,7 +2,6 @@ package net.cserny.rename;
 
 import org.apache.commons.text.similarity.LevenshteinDistance;
 
-// TODO add tests
 public class SimilarityService {
 
     private static final LevenshteinDistance levenshteinDistance = new LevenshteinDistance();
