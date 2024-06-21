@@ -83,6 +83,32 @@ class AutoMoveMediaServiceTest extends AbstractInMemoryFileService {
         verifyAutoMovedMedia(savedMedia);
     }
 
+    @Test
+    @DisplayName("media dir is cleaned if no other media in it")
+    void automoveCleansDir() throws IOException, InterruptedException {
+        String name = "Superman";
+        String video = "video.mp4";
+        createMedia(name, video, 6L);
+
+        service.autoMoveMedia();
+
+        assertFalse(Files.exists(fileService.toLocalPath(filesystemConfig.getDownloadsPath(), name).path()));
+    }
+
+    @Test
+    @DisplayName("media dir is not cleaned if other media in it")
+    void automoveDoesNotCleanDir() throws IOException, InterruptedException {
+        String name = "Superman";
+        String video = "video.mp4";
+        String video2 = "video2.mp4";
+        createMedia(name, video, 6L);
+        createFile(filesystemConfig.getDownloadsPath() + "/" + name + "/" + video2, (int) 6L);
+
+        service.autoMoveMedia();
+
+        assertTrue(Files.exists(fileService.toLocalPath(filesystemConfig.getDownloadsPath(), name).path()));
+    }
+
     private void verifyAutoMovedMedia(DownloadedMedia savedMedia) {
         AutoMoveMedia autoMoveMedia = new AutoMoveMedia();
         autoMoveMedia.setFileName(savedMedia.getFileName());
