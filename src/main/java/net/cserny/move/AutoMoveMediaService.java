@@ -30,7 +30,6 @@ import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
-// TODO: add tests
 @Slf4j
 @Service
 @ConditionalOnProperty(prefix = "automove", name = "enabled", havingValue = "true")
@@ -156,7 +155,7 @@ public class AutoMoveMediaService {
         Map<Triple<MediaDescription, MediaFileType, MediaRenameOrigin>, Integer> sortedMap = optionsMap.entrySet().stream()
                 .filter(entry -> entry.getValue() >= properties.getSimilarityAccepted())
                 .sorted(Entry.comparingByValue(Comparator.reverseOrder()))
-                .sorted(this.movieBiasedComparator(nameYear))
+                .sorted(this.movieYearBiasedMediaComparator(nameYear))
                 .collect(Collectors.toMap(Entry::getKey, Entry::getValue,
                         (e1, e2) -> e1, LinkedHashMap::new));
 
@@ -165,7 +164,7 @@ public class AutoMoveMediaService {
     }
 
     // if year was present in initial name, then its most probably a movie
-    private Comparator<Map.Entry<Triple<MediaDescription, MediaFileType, MediaRenameOrigin>, Integer>> movieBiasedComparator(NameYear nameYear) {
+    private Comparator<Map.Entry<Triple<MediaDescription, MediaFileType, MediaRenameOrigin>, Integer>> movieYearBiasedMediaComparator(NameYear nameYear) {
         return (o1, o2) -> {
             if (nameYear.year() != null) {
                 if (o1.getKey().getMiddle() == MediaFileType.MOVIE) {
@@ -174,10 +173,15 @@ public class AutoMoveMediaService {
                 if (o2.getKey().getMiddle() == MediaFileType.MOVIE) {
                     return 1;
                 }
-                return o1.getKey().getMiddle().compareTo(o2.getKey().getMiddle());
+            } else {
+                if (o1.getKey().getMiddle() == MediaFileType.TV) {
+                    return o2.getKey().getMiddle() == MediaFileType.TV ? 0 : -1;
+                }
+                if (o2.getKey().getMiddle() == MediaFileType.TV) {
+                    return 1;
+                }
             }
-
-            return o1.getKey().compareTo(o2.getKey());
+            return o1.getKey().getMiddle().compareTo(o2.getKey().getMiddle());
         };
     }
 
