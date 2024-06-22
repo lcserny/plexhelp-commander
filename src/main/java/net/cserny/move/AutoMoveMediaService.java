@@ -13,7 +13,6 @@ import net.cserny.rename.*;
 import net.cserny.rename.NameNormalizer.NameYear;
 import net.cserny.search.MediaFileGroup;
 import net.cserny.search.MediaSearchService;
-import org.apache.commons.lang3.tuple.Triple;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -22,13 +21,14 @@ import org.springframework.stereotype.Service;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.*;
-import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
+import static java.util.Comparator.comparing;
+import static java.util.Comparator.reverseOrder;
 
 @Slf4j
 @Service
@@ -114,17 +114,17 @@ public class AutoMoveMediaService {
                 MediaFileGroup group = groups.getFirst();
                 NameYear nameYear = normalizer.normalize(group.name());
 
-                Map<Triple<MediaDescription, MediaFileType, MediaRenameOrigin>, Integer> sortedMap = processOptions(group, nameYear);
-                if (sortedMap.isEmpty()) {
+                Optional<AutoMoveOption> autoMoveOptional = processOptions(group, nameYear);
+                if (autoMoveOptional.isEmpty()) {
                     log.info("No options were similar enough to automove media");
                     return null;
                 }
 
-                Triple<MediaDescription, MediaFileType, MediaRenameOrigin> option = sortedMap.keySet().stream().findFirst().get();
+                AutoMoveOption option = autoMoveOptional.get();
                 log.info("Using first option to move media {}", option);
 
                 String movedName = moveMedia(option, group);
-                saveAutoMove(media, movedName, sortedMap.get(option), option);
+                saveAutoMove(media, movedName, option);
             } catch (Exception e) {
                 log.error("Error occurred in virtual thread", e);
             } finally {
@@ -135,61 +135,60 @@ public class AutoMoveMediaService {
         };
     }
 
-    private Map<Triple<MediaDescription, MediaFileType, MediaRenameOrigin>, Integer> processOptions(MediaFileGroup group, NameYear nameYear) {
-        Map<Triple<MediaDescription, MediaFileType, MediaRenameOrigin>, Integer> optionsMap = new HashMap<>();
+    private Optional<AutoMoveOption> processOptions(MediaFileGroup group, NameYear nameYear) {
+        List<AutoMoveOption> allOptions = new ArrayList<>();
 
         log.info("Producing movie options");
         RenamedMediaOptions movieOptions = renameService.produceNames(group.name(), MediaFileType.MOVIE);
         movieOptions.mediaDescriptions().forEach(mediaDescription -> {
-            updateOptionsMap(optionsMap, mediaDescription, MediaFileType.MOVIE, movieOptions.origin(), nameYear.name());
+            updateOptions(allOptions, mediaDescription, MediaFileType.MOVIE, movieOptions.origin(), nameYear.name());
         });
 
         log.info("Producing TV options");
         RenamedMediaOptions tvOptions = renameService.produceNames(group.name(), MediaFileType.TV);
         tvOptions.mediaDescriptions().forEach(mediaDescription -> {
-            updateOptionsMap(optionsMap, mediaDescription, MediaFileType.TV, tvOptions.origin(), nameYear.name());
+            updateOptions(allOptions, mediaDescription, MediaFileType.TV, tvOptions.origin(), nameYear.name());
         });
 
-        log.info("Options parsed: {}", optionsMap);
+        log.info("Options parsed: {}", allOptions);
 
-        Map<Triple<MediaDescription, MediaFileType, MediaRenameOrigin>, Integer> sortedMap = optionsMap.entrySet().stream()
-                .filter(entry -> entry.getValue() >= properties.getSimilarityAccepted())
-                .sorted(Entry.comparingByValue(Comparator.reverseOrder()))
-                .sorted(this.movieYearBiasedMediaComparator(nameYear))
-                .collect(Collectors.toMap(Entry::getKey, Entry::getValue,
-                        (e1, e2) -> e1, LinkedHashMap::new));
+        List<AutoMoveOption> sortedOptions = allOptions.stream()
+                .filter(o -> o.similarity() >= properties.getSimilarityAccepted())
+                .sorted(comparing(AutoMoveOption::similarity, reverseOrder())
+                        .thenComparing(movieYearBiasedMediaComparator(nameYear)))
+                .collect(Collectors.toCollection(LinkedList::new));
 
-        log.info("Sorted options map by similarity: {}", sortedMap);
-        return sortedMap;
+        log.info("Sorted options map by similarity: {}", sortedOptions);
+        return sortedOptions.stream().findFirst();
     }
 
     // if year was present in initial name, then its most probably a movie
-    private Comparator<Map.Entry<Triple<MediaDescription, MediaFileType, MediaRenameOrigin>, Integer>> movieYearBiasedMediaComparator(NameYear nameYear) {
+    private Comparator<AutoMoveOption> movieYearBiasedMediaComparator(NameYear nameYear) {
         return (o1, o2) -> {
             if (nameYear.year() != null) {
-                if (o1.getKey().getMiddle() == MediaFileType.MOVIE) {
-                    return o2.getKey().getMiddle() == MediaFileType.MOVIE ? 0 : -1;
+                if (o1.type() == MediaFileType.MOVIE) {
+                    return o2.type() == MediaFileType.MOVIE ? 0 : -1;
                 }
-                if (o2.getKey().getMiddle() == MediaFileType.MOVIE) {
+                if (o2.type() == MediaFileType.MOVIE) {
                     return 1;
                 }
             } else {
-                if (o1.getKey().getMiddle() == MediaFileType.TV) {
-                    return o2.getKey().getMiddle() == MediaFileType.TV ? 0 : -1;
+                if (o1.type() == MediaFileType.TV) {
+                    return o2.type() == MediaFileType.TV ? 0 : -1;
                 }
-                if (o2.getKey().getMiddle() == MediaFileType.TV) {
+                if (o2.type() == MediaFileType.TV) {
                     return 1;
                 }
             }
-            return o1.getKey().getMiddle().compareTo(o2.getKey().getMiddle());
+            return 0;
         };
     }
 
-    private String moveMedia(Triple<MediaDescription, MediaFileType, MediaRenameOrigin> option, MediaFileGroup group) {
-        MediaDescription desc = option.getLeft();
+    private String moveMedia(AutoMoveOption option, MediaFileGroup group) {
+        MediaDescription desc = option.desc();
         String movedName = desc.title() + (desc.date() != null && !desc.date().isEmpty() ? format(" (%s)", desc.date()) : "");
         MediaFileGroup resultGroup = new MediaFileGroup(group.path(), movedName, group.videos());
-        moveService.moveMedia(resultGroup, option.getMiddle());
+        moveService.moveMedia(resultGroup, option.type());
         return movedName;
     }
 
@@ -198,23 +197,24 @@ public class AutoMoveMediaService {
         downloadedMediaRepository.saveAll(medias);
     }
 
-    private void saveAutoMove(DownloadedMedia media, String movedName, Integer similarityPercent,
-                              Triple<MediaDescription, MediaFileType, MediaRenameOrigin> option) {
+    private void saveAutoMove(DownloadedMedia media, String movedName, AutoMoveOption option) {
         AutoMoveMedia autoMoveMedia = new AutoMoveMedia();
         autoMoveMedia.setFileName(media.getFileName());
         autoMoveMedia.setMovedName(movedName);
         autoMoveMedia.setMoveDate(Instant.now(Clock.systemUTC()));
-        autoMoveMedia.setSimilarityPercent(similarityPercent);
-        autoMoveMedia.setOrigin(option.getRight());
-        autoMoveMedia.setType(option.getMiddle());
+        autoMoveMedia.setSimilarityPercent(option.similarity());
+        autoMoveMedia.setOrigin(option.origin());
+        autoMoveMedia.setType(option.type());
         autoMoveMediaRepository.save(autoMoveMedia);
     }
 
-    private void updateOptionsMap(Map<Triple<MediaDescription, MediaFileType, MediaRenameOrigin>, Integer> optionsMap,
-                                  MediaDescription description, MediaFileType type, MediaRenameOrigin origin, String compare) {
+    private void updateOptions(List<AutoMoveOption> options, MediaDescription description, MediaFileType type, MediaRenameOrigin origin, String compare) {
         String source = description.title();
         int distance = SimilarityService.getDistance(source, compare);
         int percent = SimilarityService.getSimilarityPercent(distance, compare.length());
-        optionsMap.put(Triple.of(description, type, origin), percent);
+        options.add(new AutoMoveOption(description, type, origin, percent));
+    }
+
+    private record AutoMoveOption(MediaDescription desc, MediaFileType type, MediaRenameOrigin origin, int similarity) {
     }
 }

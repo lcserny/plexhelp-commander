@@ -6,6 +6,9 @@ import net.cserny.TestConfig;
 import net.cserny.download.DownloadedMedia;
 import net.cserny.download.DownloadedMediaRepository;
 import net.cserny.filesystem.FilesystemProperties;
+import net.cserny.rename.MediaFileType;
+import net.cserny.rename.OnlineCacheItem;
+import net.cserny.rename.OnlineCacheRepository;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -42,6 +45,9 @@ class AutoMoveMediaServiceTest extends AbstractInMemoryFileService {
 
     @Autowired
     AutoMoveMediaRepository autoMoveMediaRepository;
+
+    @Autowired
+    OnlineCacheRepository onlineCacheRepository;
 
     @Autowired
     FilesystemProperties filesystemConfig;
@@ -108,6 +114,38 @@ class AutoMoveMediaServiceTest extends AbstractInMemoryFileService {
 
         assertTrue(Files.exists(fileService.toLocalPath(filesystemConfig.getDownloadsPath(), name).path()));
     }
+
+    @Test
+    @DisplayName("sorting options found before move should choose by similarity first, then yearBiasedMovie")
+    void sortingIsDoneCorrectly() throws IOException, InterruptedException {
+        int searchYear = 2001;
+        String searchName = "Lord Of The Rings";
+
+        String name = "Lord of the Rings.2001";
+        String video = "video.mp4";
+        DownloadedMedia media = createMedia(name, video, 6L);
+
+        OnlineCacheItem cacheItem1 = new OnlineCacheItem();
+        cacheItem1.setSearchName(searchName);
+        cacheItem1.setSearchYear(searchYear);
+        cacheItem1.setTitle(searchName);
+        cacheItem1.setMediaType(MediaFileType.TV);
+        onlineCacheRepository.save(cacheItem1);
+
+        String unsimilarName = searchName + "a";
+        OnlineCacheItem cacheItem2 = new OnlineCacheItem();
+        cacheItem2.setSearchName(searchName);
+        cacheItem2.setSearchYear(searchYear);
+        cacheItem2.setTitle(unsimilarName);
+        cacheItem2.setMediaType(MediaFileType.MOVIE);
+        onlineCacheRepository.save(cacheItem2);
+
+        service.autoMoveMedia();
+
+        assertTrue(Files.exists(fileService.toLocalPath(filesystemConfig.getTvPath(), searchName, video).path()));
+        assertFalse(Files.exists(fileService.toLocalPath(filesystemConfig.getMoviesPath(), format("%s (%d)", unsimilarName, searchYear), video).path()));
+    }
+
 
     private void verifyAutoMovedMedia(DownloadedMedia savedMedia) {
         AutoMoveMedia autoMoveMedia = new AutoMoveMedia();
