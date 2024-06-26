@@ -68,7 +68,8 @@ public class MediaMoveService {
 
         for (String video : fileGroup.videos()) {
             LocalPath srcPath = fileService.toLocalPath(fileGroup.path(), video);
-            LocalPath destPath = fileService.toLocalPath(destRoot, fileGroup.name(), video);
+            String videoNameOnly = fileService.toLocalPath(video).path().getFileName().toString();
+            LocalPath destPath = fileService.toLocalPath(destRoot, fileGroup.name(), videoNameOnly);
 
             try {
                 log.info("Moving video {} to {}", srcPath, destPath);

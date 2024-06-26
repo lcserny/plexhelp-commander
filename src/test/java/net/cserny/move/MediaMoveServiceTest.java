@@ -16,6 +16,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
@@ -24,8 +25,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
 
+import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.*;
 
+@ActiveProfiles("test")
 @ContextConfiguration(classes = {
         MediaMoveService.class,
         SubtitleMover.class,
@@ -107,5 +110,23 @@ public class MediaMoveServiceTest extends AbstractInMemoryFileService {
         assertFalse(Files.exists(fileService.toLocalPath(path, movie).path()));
         assertTrue(Files.exists(fileService.toLocalPath(filesystemConfig.getMoviesPath(), name, movie).path()));
         assertTrue(Files.exists(fileService.toLocalPath(filesystemConfig.getDownloadsPath(), randomFile).path()));
+    }
+
+    @Test
+    @DisplayName("TV show with subdir, is moved without subdir")
+    public void moveTvShowWithoutSubdir() throws IOException {
+        String name = "House of the Dragon S02E01 1080p REPACK AMZN WEB-DL DDP5 1 H 264-NTb[TGx]";
+        String subdir = "House.of.the.Dragon.S02E01.1080p.REPACK.AMZN.WEB-DL.DDP5.1.H.264-NTb";
+        String path = format("%s/%s", filesystemConfig.getDownloadsPath(), name);
+        String videoFile = "House.of.the.Dragon.S02E01.1080p.REPACK.AMZN.WEB-DL.DDP5.1.H.264-NTb.mkv";
+        String tv = format("%s/%s", subdir, videoFile);
+        createFile(path + "/" + tv, 6);
+
+        MediaFileGroup fileGroup = new MediaFileGroup(path, name, List.of(tv));
+        List<MediaMoveError> errors = service.moveMedia(fileGroup, MediaFileType.TV);
+
+        assertEquals(0, errors.size());
+        assertFalse(Files.exists(fileService.toLocalPath(path, tv).path()));
+        assertTrue(Files.exists(fileService.toLocalPath(filesystemConfig.getTvPath(), name, videoFile).path()));
     }
 }
