@@ -84,7 +84,15 @@ public class AutoMoveMediaService {
 
         List<Callable<Void>> mediaProcesses = new ArrayList<>();
         for (DownloadedMedia media : medias) {
-            mediaProcesses.add(createCallable(media));
+            Span nextSpan = this.tracer.nextSpan();
+            mediaProcesses.add(() -> {
+                try (SpanInScope ignored = this.tracer.withSpan(nextSpan.start())) {
+                    processMedia(media);
+                } finally {
+                    nextSpan.end();
+                }
+                return null;
+            });
         }
 
         threadpool.invokeAll(mediaProcesses);
@@ -93,50 +101,51 @@ public class AutoMoveMediaService {
         log.info("Finished checking download cache to automatically move media files");
     }
 
-    private Callable<Void> createCallable(DownloadedMedia media) {
-        Span nextSpan = this.tracer.nextSpan();
-
-        return () -> {
-            try (SpanInScope ignored = this.tracer.withSpan(nextSpan.start())) {
-                LocalPath path = fileService.toLocalPath(filesystemProperties.getDownloadsPath(), media.getFileName());
-                if (!fileService.exists(path)) {
-                    log.info("Path doesn't exist: {}, skipping...", path);
-                    return null;
-                }
-
-                List<MediaFileGroup> groups = searchService.generateMediaFileGroups(List.of(path.path()));
-                if (groups.isEmpty()) {
-                    log.info("No media groups generated, skipping...");
-                    return null;
-                }
-
-                MediaFileGroup group = groups.getFirst();
-                NameYear nameYear = normalizer.normalize(group.name());
-
-                Optional<AutoMoveOption> autoMoveOptional = processOptions(group, nameYear);
-                if (autoMoveOptional.isEmpty()) {
-                    log.info("No options were similar enough to automove media");
-                    return null;
-                }
-
-                AutoMoveOption option = autoMoveOptional.get();
-                log.info("Using first option to move media {}", option);
-
-                String movedName = moveMedia(option, group);
-                saveAutoMove(media, movedName, option);
-            } catch (Exception e) {
-                log.error("Error occurred in virtual thread", e);
-            } finally {
-                nextSpan.end();
+    private void processMedia(DownloadedMedia media) {
+        try {
+            LocalPath path = fileService.toLocalPath(filesystemProperties.getDownloadsPath(), media.getFileName());
+            if (!fileService.exists(path)) {
+                log.info("Path doesn't exist: {}, skipping...", path);
+                return;
             }
 
-            return null;
-        };
+            List<MediaFileGroup> groups = searchService.generateMediaFileGroups(List.of(path.path()));
+            if (groups.isEmpty()) {
+                log.info("No media groups generated, skipping...");
+                return;
+            }
+
+            MediaFileGroup group = groups.getFirst();
+            NameYear nameYear = normalizer.normalize(group.name());
+
+            Optional<AutoMoveOption> autoMoveOptional = processOptions(group, nameYear);
+            if (autoMoveOptional.isEmpty()) {
+                log.info("No options were similar enough to automove media");
+                return;
+            }
+
+            AutoMoveOption option = autoMoveOptional.get();
+            log.info("Using first option to move media {}", option);
+
+            String movedName = moveMedia(option, group);
+            saveAutoMove(media, movedName, option);
+        } catch (Exception e) {
+            log.error("Error occurred in virtual thread", e);
+        }
     }
 
     private Optional<AutoMoveOption> processOptions(MediaFileGroup group, NameYear nameYear) throws InterruptedException, ExecutionException {
-        Future<List<AutoMoveOption>> movieAutoMoveOptionsFuture = threadpool.submit(produceOptions(group.name(), MediaFileType.MOVIE, nameYear.name()));
-        Future<List<AutoMoveOption>> tvAutoMoveOptionsFuture = threadpool.submit(produceOptions(group.name(), MediaFileType.TV, nameYear.name()));
+        Span currentSpan = this.tracer.currentSpan();
+        Future<List<AutoMoveOption>> movieAutoMoveOptionsFuture = threadpool.submit(() -> {
+            try (SpanInScope ignored = this.tracer.withSpan(currentSpan)) {
+                return produceOptions(group.name(), MediaFileType.MOVIE, nameYear.name());
+            }
+        });
+        Future<List<AutoMoveOption>> tvAutoMoveOptionsFuture = threadpool.submit(() -> {
+            try (SpanInScope ignored = this.tracer.withSpan(currentSpan)) {
+                return produceOptions(group.name(), MediaFileType.TV, nameYear.name());
+            }
+        });
 
         List<AutoMoveOption> allOptions = Stream.concat(movieAutoMoveOptionsFuture.get().stream(), tvAutoMoveOptionsFuture.get().stream()).toList();
 
@@ -198,27 +207,22 @@ public class AutoMoveMediaService {
         autoMoveMediaRepository.save(autoMoveMedia);
     }
 
-    private Callable<List<AutoMoveOption>> produceOptions(String groupName, MediaFileType type, String compare) {
-        Span nextSpan = this.tracer.nextSpan();
-        return () -> {
-            try (SpanInScope ignored = this.tracer.withSpan(nextSpan.start())) {
-                log.info("Producing {} options", type);
-                RenamedMediaOptions options = renameService.produceNames(groupName, type);
-                return options.mediaDescriptions().stream()
-                        .map(description -> {
-                            String source = description.title();
-                            int distance = SimilarityService.getDistance(source, compare);
-                            int percent = SimilarityService.getSimilarityPercent(distance, compare.length());
-                            return new AutoMoveOption(description, type, options.origin(), percent);
-                        })
-                        .toList();
-            } catch (Exception e) {
-                log.error("Error occurred in virtual thread", e);
-                return Collections.emptyList();
-            } finally {
-                nextSpan.end();
-            }
-        };
+    private List<AutoMoveOption> produceOptions(String groupName, MediaFileType type, String compare) {
+        try {
+            log.info("Producing {} options", type);
+            RenamedMediaOptions options = renameService.produceNames(groupName, type);
+            return options.mediaDescriptions().stream()
+                    .map(description -> {
+                        String source = description.title();
+                        int distance = SimilarityService.getDistance(source, compare);
+                        int percent = SimilarityService.getSimilarityPercent(distance, compare.length());
+                        return new AutoMoveOption(description, type, options.origin(), percent);
+                    })
+                    .toList();
+        } catch (Exception e) {
+            log.error("Error occurred in virtual thread", e);
+            return Collections.emptyList();
+        }
     }
 
     private record AutoMoveOption(MediaDescription desc, MediaFileType type, MediaRenameOrigin origin, int similarity) {
