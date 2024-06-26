@@ -21,10 +21,9 @@ import org.springframework.stereotype.Service;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.lang.String.format;
 import static java.util.Comparator.comparing;
@@ -135,20 +134,11 @@ public class AutoMoveMediaService {
         };
     }
 
-    private Optional<AutoMoveOption> processOptions(MediaFileGroup group, NameYear nameYear) {
-        List<AutoMoveOption> allOptions = new ArrayList<>();
+    private Optional<AutoMoveOption> processOptions(MediaFileGroup group, NameYear nameYear) throws InterruptedException, ExecutionException {
+        Future<List<AutoMoveOption>> movieAutoMoveOptionsFuture = threadpool.submit(produceOptions(group.name(), MediaFileType.MOVIE, nameYear.name()));
+        Future<List<AutoMoveOption>> tvAutoMoveOptionsFuture = threadpool.submit(produceOptions(group.name(), MediaFileType.TV, nameYear.name()));
 
-        log.info("Producing movie options");
-        RenamedMediaOptions movieOptions = renameService.produceNames(group.name(), MediaFileType.MOVIE);
-        movieOptions.mediaDescriptions().forEach(mediaDescription -> {
-            updateOptions(allOptions, mediaDescription, MediaFileType.MOVIE, movieOptions.origin(), nameYear.name());
-        });
-
-        log.info("Producing TV options");
-        RenamedMediaOptions tvOptions = renameService.produceNames(group.name(), MediaFileType.TV);
-        tvOptions.mediaDescriptions().forEach(mediaDescription -> {
-            updateOptions(allOptions, mediaDescription, MediaFileType.TV, tvOptions.origin(), nameYear.name());
-        });
+        List<AutoMoveOption> allOptions = Stream.concat(movieAutoMoveOptionsFuture.get().stream(), tvAutoMoveOptionsFuture.get().stream()).toList();
 
         log.info("Options parsed: {}", allOptions);
 
@@ -208,11 +198,27 @@ public class AutoMoveMediaService {
         autoMoveMediaRepository.save(autoMoveMedia);
     }
 
-    private void updateOptions(List<AutoMoveOption> options, MediaDescription description, MediaFileType type, MediaRenameOrigin origin, String compare) {
-        String source = description.title();
-        int distance = SimilarityService.getDistance(source, compare);
-        int percent = SimilarityService.getSimilarityPercent(distance, compare.length());
-        options.add(new AutoMoveOption(description, type, origin, percent));
+    private Callable<List<AutoMoveOption>> produceOptions(String groupName, MediaFileType type, String compare) {
+        Span nextSpan = this.tracer.nextSpan();
+        return () -> {
+            try (SpanInScope ignored = this.tracer.withSpan(nextSpan.start())) {
+                log.info("Producing {} options", type);
+                RenamedMediaOptions options = renameService.produceNames(groupName, type);
+                return options.mediaDescriptions().stream()
+                        .map(description -> {
+                            String source = description.title();
+                            int distance = SimilarityService.getDistance(source, compare);
+                            int percent = SimilarityService.getSimilarityPercent(distance, compare.length());
+                            return new AutoMoveOption(description, type, options.origin(), percent);
+                        })
+                        .toList();
+            } catch (Exception e) {
+                log.error("Error occurred in virtual thread", e);
+                return Collections.emptyList();
+            } finally {
+                nextSpan.end();
+            }
+        };
     }
 
     private record AutoMoveOption(MediaDescription desc, MediaFileType type, MediaRenameOrigin origin, int similarity) {
