@@ -152,6 +152,7 @@ public class AutoMoveMediaService {
         log.info("Options parsed: {}", allOptions);
 
         List<AutoMoveOption> sortedOptions = allOptions.stream()
+                .filter(o -> o.origin != MediaRenameOrigin.NAME)
                 .filter(o -> o.similarity() >= properties.getSimilarityAccepted())
                 .sorted(comparing(AutoMoveOption::similarity, reverseOrder())
                         .thenComparing(movieYearBiasedMediaComparator(nameYear)))
