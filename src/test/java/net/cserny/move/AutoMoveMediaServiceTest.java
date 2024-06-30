@@ -22,10 +22,18 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.text.DateFormat;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoField;
+import java.util.Date;
 
 import static java.lang.String.format;
+import static java.time.ZoneOffset.UTC;
+import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ActiveProfiles("test")
@@ -62,15 +70,19 @@ class AutoMoveMediaServiceTest extends AbstractInMemoryFileService {
     @Test
     @DisplayName("if media has year in name, media is moved to movies")
     void automoveMovie() throws IOException, InterruptedException {
-        int year = 1988;
+        LocalDateTime now = LocalDateTime.now();
+        int year = now.getYear();
         String name = "Beetlejuice";
         String video = "video.mp4";
+        String title = format("%s (%s)", name, now.format(ISO_LOCAL_DATE));
         DownloadedMedia media = createMedia(name + "." + year, video, 6L);
+
+        saveToOnlineCache(name, year, name, now.toInstant(UTC), MediaFileType.MOVIE);
 
         service.autoMoveMedia();
 
         assertTrue(Files.exists(
-                fileService.toLocalPath(filesystemConfig.getMoviesPath(), format("%s (%d)", name, year), video).path()));
+                fileService.toLocalPath(filesystemConfig.getMoviesPath(), title, video).path()));
         DownloadedMedia savedMedia = verifyDownloadedMedia(media);
         verifyAutoMovedMedia(savedMedia);
     }
@@ -81,6 +93,8 @@ class AutoMoveMediaServiceTest extends AbstractInMemoryFileService {
         String name = "Beetlejuice";
         String video = "video.mp4";
         DownloadedMedia media = createMedia(name, video, 6L);
+
+        saveToOnlineCache(name, null, name, null, MediaFileType.TV);
 
         service.autoMoveMedia();
 
@@ -95,6 +109,8 @@ class AutoMoveMediaServiceTest extends AbstractInMemoryFileService {
         String name = "Superman";
         String video = "video.mp4";
         createMedia(name, video, 6L);
+
+        saveToOnlineCache(name, null, name, null, MediaFileType.MOVIE);
 
         service.autoMoveMedia();
 
@@ -120,32 +136,32 @@ class AutoMoveMediaServiceTest extends AbstractInMemoryFileService {
     void sortingIsDoneCorrectly() throws IOException, InterruptedException {
         int searchYear = 2001;
         String searchName = "Lord Of The Rings";
+        LocalDateTime ldt = LocalDateTime.of(searchYear, 1, 1, 1, 1);
 
         String name = "Lord of the Rings.2001";
         String video = "video.mp4";
-        DownloadedMedia media = createMedia(name, video, 6L);
+        createMedia(name, video, 6L);
 
-        OnlineCacheItem cacheItem1 = new OnlineCacheItem();
-        cacheItem1.setSearchName(searchName);
-        cacheItem1.setSearchYear(searchYear);
-        cacheItem1.setTitle(searchName);
-        cacheItem1.setMediaType(MediaFileType.TV);
-        onlineCacheRepository.save(cacheItem1);
+        saveToOnlineCache(searchName, searchYear, searchName, null, MediaFileType.TV);
 
         String unsimilarName = searchName + "a";
-        OnlineCacheItem cacheItem2 = new OnlineCacheItem();
-        cacheItem2.setSearchName(searchName);
-        cacheItem2.setSearchYear(searchYear);
-        cacheItem2.setTitle(unsimilarName);
-        cacheItem2.setMediaType(MediaFileType.MOVIE);
-        onlineCacheRepository.save(cacheItem2);
+        saveToOnlineCache(searchName, searchYear, unsimilarName, ldt.toInstant(UTC), MediaFileType.MOVIE);
 
         service.autoMoveMedia();
 
         assertTrue(Files.exists(fileService.toLocalPath(filesystemConfig.getTvPath(), searchName, video).path()));
-        assertFalse(Files.exists(fileService.toLocalPath(filesystemConfig.getMoviesPath(), format("%s (%d)", unsimilarName, searchYear), video).path()));
+        assertFalse(Files.exists(fileService.toLocalPath(filesystemConfig.getMoviesPath(), format("%s (%s)", unsimilarName, ldt.format(ISO_LOCAL_DATE)), video).path()));
     }
 
+    private OnlineCacheItem saveToOnlineCache(String searchName, Integer searchYear, String title, Instant date, MediaFileType type) {
+        OnlineCacheItem cacheItem = new OnlineCacheItem();
+        cacheItem.setSearchName(searchName);
+        cacheItem.setSearchYear(searchYear);
+        cacheItem.setTitle(title);
+        cacheItem.setDate(date);
+        cacheItem.setMediaType(type);
+        return onlineCacheRepository.save(cacheItem);
+    }
 
     private void verifyAutoMovedMedia(DownloadedMedia savedMedia) {
         AutoMoveMedia autoMoveMedia = new AutoMoveMedia();
