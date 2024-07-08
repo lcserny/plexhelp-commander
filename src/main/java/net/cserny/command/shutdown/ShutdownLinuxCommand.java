@@ -1,26 +1,30 @@
-package net.cserny.command.restart;
+package net.cserny.command.shutdown;
 
 import net.cserny.command.Command;
 import net.cserny.command.CommandResponse;
+import net.cserny.command.LinuxEnvConditional;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Component
-public class RestartCommand implements Command {
+@Conditional(LinuxEnvConditional.class)
+public class ShutdownLinuxCommand implements Command {
 
-    public static final String NAME = "reboot";
+    public static final String NAME = "shutdown";
 
     @Override
     public CommandResponse execute(String[] params) {
         List<String> paramsList = new ArrayList<>();
         paramsList.add(NAME);
-
-        String os = System.getProperty("os.name");
-        if (os.contains("win")) {
-            throw new RuntimeException("Reboot command not available for Windows OS");
-        } 
+        if (params == null || params.length == 0) {
+            paramsList.add("now");
+        } else {
+            Collections.addAll(paramsList, params);
+        }
 
         try {
             Runtime runtime = Runtime.getRuntime();
