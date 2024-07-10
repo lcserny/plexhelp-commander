@@ -10,11 +10,15 @@ import java.util.Objects;
 @Slf4j
 public class WindowsEnvConditional implements Condition {
     public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
+        log.info("Checking if Windows");
+
         String wsl = context.getEnvironment().getProperty("server.command.wsl");
         if (Boolean.parseBoolean(wsl)) {
             log.info("wsl is true, returning true");
             return true;
         }
+
+        log.info("Wsl not detected");
 
         return Objects.requireNonNull(context.getEnvironment().getProperty("os.name")).contains("Win");
     }
