@@ -1,5 +1,6 @@
 package net.cserny.command.shutdown;
 
+import lombok.extern.slf4j.Slf4j;
 import net.cserny.command.Command;
 import net.cserny.command.CommandResponse;
 import net.cserny.command.ServerCommandProperties;
@@ -12,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+@Slf4j
 @Component
 @Conditional(WindowsEnvConditional.class)
 public class ShutdownWinCommand implements Command {
@@ -43,7 +45,9 @@ public class ShutdownWinCommand implements Command {
 
     private String getCommand() {
         if (properties.isWsl() && properties.getWslOverrides().containsKey(NAME)) {
-            return properties.getWslOverrides().get(NAME);
+            String override = properties.getWslOverrides().get(NAME);
+            log.info("Using WSL override {}", override);
+            return override;
         }
         return NAME;
     }
