@@ -1,23 +1,21 @@
-package net.cserny.command.restart;
+package net.cserny.command.shutdown;
 
+import lombok.extern.slf4j.Slf4j;
 import net.cserny.command.Command;
 import net.cserny.command.CommandResponse;
 import net.cserny.command.ServerCommandProperties;
-import net.cserny.command.WindowsEnvConditional;
-import net.cserny.command.shutdown.ShutdownWinCommand;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-// TODO: impl seconds
+@Slf4j
 @Component
-@Conditional(WindowsEnvConditional.class)
-public class RestartWinCommand implements Command {
+public class ShutdownCommand implements Command {
 
-    public static final String NAME = "reboot";
+    public static final String NAME = "shutdown";
 
     @Autowired
     private ServerCommandProperties properties;
@@ -26,9 +24,13 @@ public class RestartWinCommand implements Command {
     public CommandResponse execute(String[] params) {
         List<String> paramsList = new ArrayList<>();
         paramsList.add(getCommand());
-        paramsList.add("-r");
-        paramsList.add("-t");
-        paramsList.add("0");
+
+        if (params == null || params.length == 0) {
+            paramsList.add("-s");
+        } else {
+            Collections.addAll(paramsList, params);
+        }
+
         try {
             Runtime runtime = Runtime.getRuntime();
             runtime.exec(paramsList.toArray(new String[0]));
@@ -40,10 +42,12 @@ public class RestartWinCommand implements Command {
     }
 
     private String getCommand() {
-        if (properties.isWsl() && properties.getWslOverrides().containsKey(ShutdownWinCommand.NAME)) {
-            return properties.getWslOverrides().get(ShutdownWinCommand.NAME);
+        if (properties.isWsl() && properties.getWslOverrides().containsKey(NAME)) {
+            String override = properties.getWslOverrides().get(NAME);
+            log.info("Using WSL override {}", override);
+            return override;
         }
-        return ShutdownWinCommand.NAME;
+        return NAME;
     }
 
     @Override
