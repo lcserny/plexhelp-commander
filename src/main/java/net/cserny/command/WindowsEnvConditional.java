@@ -4,12 +4,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Condition;
 import org.springframework.context.annotation.ConditionContext;
 import org.springframework.core.type.AnnotatedTypeMetadata;
+import org.springframework.lang.NonNull;
 
 import java.util.Objects;
 
 @Slf4j
 public class WindowsEnvConditional implements Condition {
-    public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
+    public boolean matches(ConditionContext context, @NonNull AnnotatedTypeMetadata metadata) {
         log.info("Checking if Windows");
 
         String wsl = context.getEnvironment().getProperty("server.command.wsl");
