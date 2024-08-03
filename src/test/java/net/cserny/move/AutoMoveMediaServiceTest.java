@@ -3,6 +3,7 @@ package net.cserny.move;
 import net.cserny.AbstractInMemoryFileService;
 import net.cserny.MongoTestConfiguration;
 import net.cserny.TestConfig;
+import net.cserny.VirtualExecutor;
 import net.cserny.download.DownloadedMedia;
 import net.cserny.download.DownloadedMediaRepository;
 import net.cserny.filesystem.FilesystemProperties;
@@ -35,6 +36,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ContextConfiguration(classes = {
         MongoTestConfiguration.class,
         TestConfig.class,
+        VirtualExecutor.class
 })
 @DataMongoTest
 @Testcontainers

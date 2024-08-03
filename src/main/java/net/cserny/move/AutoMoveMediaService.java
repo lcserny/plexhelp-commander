@@ -4,6 +4,7 @@ import io.micrometer.tracing.Span;
 import io.micrometer.tracing.Tracer;
 import io.micrometer.tracing.Tracer.SpanInScope;
 import lombok.extern.slf4j.Slf4j;
+import net.cserny.VirtualExecutor;
 import net.cserny.download.DownloadedMedia;
 import net.cserny.download.DownloadedMediaRepository;
 import net.cserny.filesystem.FilesystemProperties;
@@ -21,7 +22,9 @@ import org.springframework.stereotype.Service;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -64,11 +67,8 @@ public class AutoMoveMediaService {
     @Autowired
     private AutoMoveProperties properties;
 
-    private final ExecutorService threadpool;
-
-    public AutoMoveMediaService() {
-        this.threadpool = Executors.newVirtualThreadPerTaskExecutor();
-    }
+    @Autowired
+    private VirtualExecutor threadpool;
 
     @Scheduled(initialDelayString = "${automove.initial-delay-ms}", fixedDelayString = "${automove.cron-ms}")
     public void autoMoveMedia() throws InterruptedException {
@@ -95,7 +95,7 @@ public class AutoMoveMediaService {
             });
         }
 
-        threadpool.invokeAll(mediaProcesses);
+        threadpool.execute(mediaProcesses);
         updateDownloadedMedia(medias);
 
         log.info("Finished checking download cache to automatically move media files");
@@ -136,12 +136,12 @@ public class AutoMoveMediaService {
 
     private Optional<AutoMoveOption> processOptions(MediaFileGroup group, NameYear nameYear) throws InterruptedException, ExecutionException {
         Span currentSpan = this.tracer.currentSpan();
-        Future<List<AutoMoveOption>> movieAutoMoveOptionsFuture = threadpool.submit(() -> {
+        Future<List<AutoMoveOption>> movieAutoMoveOptionsFuture = threadpool.execute(() -> {
             try (SpanInScope ignored = this.tracer.withSpan(currentSpan)) {
                 return produceOptions(group.name(), MediaFileType.MOVIE, nameYear.name());
             }
         });
-        Future<List<AutoMoveOption>> tvAutoMoveOptionsFuture = threadpool.submit(() -> {
+        Future<List<AutoMoveOption>> tvAutoMoveOptionsFuture = threadpool.execute(() -> {
             try (SpanInScope ignored = this.tracer.withSpan(currentSpan)) {
                 return produceOptions(group.name(), MediaFileType.TV, nameYear.name());
             }
