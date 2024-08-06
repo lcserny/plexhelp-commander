@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static java.lang.String.format;
+
 @Service
 @Slf4j
 public class LocalCommandService {
@@ -20,7 +22,7 @@ public class LocalCommandService {
                     log.info("Executing command: {} with params {}", command.name(), params);
                     return command.execute(params);
                 } catch (Exception e) {
-                    log.warn("Error occurred executing command {}: {}", name, e.getMessage());
+                    log.warn(format("Error occurred executing command: %s", name), e);
                     return new CommandResponse(CommandResponse.Status.FAILED);
                 }
             }

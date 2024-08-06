@@ -4,6 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import net.cserny.command.Command;
 import net.cserny.command.CommandResponse;
 import net.cserny.command.ServerCommandProperties;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -18,27 +20,60 @@ public class ShutdownCommand implements Command {
     public static final String NAME = "shutdown";
 
     @Autowired
-    private ServerCommandProperties properties;
+    ServerCommandProperties properties;
 
     @Override
-    public CommandResponse execute(String[] params) {
-        List<String> paramsList = new ArrayList<>();
-        paramsList.add(getCommand());
+    public CommandResponse execute(String[] inParams) {
+        validate();
 
-        if (params == null || params.length == 0) {
-            paramsList.add("-s");
-        } else {
-            Collections.addAll(paramsList, params);
-        }
+        List<String> outParams = new ArrayList<>();
+        outParams.add(getCommand());
+        appendParams(outParams, inParams);
 
         try {
             Runtime runtime = Runtime.getRuntime();
-            runtime.exec(paramsList.toArray(new String[0]));
+            runtime.exec(outParams.toArray(new String[0]));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
         return CommandResponse.EMPTY;
+    }
+
+    private void validate() {
+        if (!SystemUtils.IS_OS_WINDOWS && !SystemUtils.IS_OS_LINUX) {
+            throw new RuntimeException("Unsupported operating system: " + SystemUtils.OS_NAME);
+        }
+    }
+
+    private void appendParams(List<String> outParams, String[] inParams) {
+        if (SystemUtils.IS_OS_WINDOWS || properties.isWsl()) {
+            appendWindowsParams(outParams, inParams);
+        } else if (SystemUtils.IS_OS_LINUX) {
+            appendLinuxParams(outParams, inParams);
+        }
+    }
+
+    private void appendLinuxParams(List<String> outParams, String[] inParams) {
+        if (inParams.length == 0) {
+            outParams.add("now");
+        } else if (inParams.length == 1 && StringUtils.isNumeric(inParams[0])) {
+            outParams.add("+" + Integer.parseInt(inParams[0]));
+        } else {
+            Collections.addAll(outParams, inParams);
+        }
+    }
+
+    private void appendWindowsParams(List<String> outParams, String[] inParams) {
+        if (inParams.length == 0) {
+            outParams.add("-s");
+        } else if (inParams.length == 1 && StringUtils.isNumeric(inParams[0])) {
+            outParams.add("-s");
+            outParams.add("-t");
+            outParams.add(String.valueOf(60 * Integer.parseInt(inParams[0])));
+        } else {
+            Collections.addAll(outParams, inParams);
+        }
     }
 
     private String getCommand() {
