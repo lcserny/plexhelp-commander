@@ -111,7 +111,8 @@ components:
         params:
           type: array
           items:
-            $ref: '#/components/schemas/Param'
+            type: string
+          nullable: true
     CommandResponse:
       type: object
       properties:
@@ -216,13 +217,6 @@ components:
           type: integer
         date:
           $ref: '#/components/schemas/Date'
-    Param:
-      type: object
-      properties:
-        key:
-          type: string
-        value:
-          type: string
     RenamedMediaOptions:
       type: object
       properties:
