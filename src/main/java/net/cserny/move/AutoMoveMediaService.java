@@ -1,8 +1,5 @@
 package net.cserny.move;
 
-import io.micrometer.tracing.Span;
-import io.micrometer.tracing.Tracer;
-import io.micrometer.tracing.Tracer.SpanInScope;
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.VirtualExecutor;
 import net.cserny.download.DownloadedMedia;
@@ -23,8 +20,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -62,16 +57,13 @@ public class AutoMoveMediaService {
     private FilesystemProperties filesystemProperties;
 
     @Autowired
-    private Tracer tracer;
-
-    @Autowired
     private AutoMoveProperties properties;
 
     @Autowired
     private VirtualExecutor threadpool;
 
     @Scheduled(initialDelayString = "${automove.initial-delay-ms}", fixedDelayString = "${automove.cron-ms}")
-    public void autoMoveMedia() throws InterruptedException {
+    public void autoMoveMedia() {
         log.info("Checking download cache to automatically move media files");
 
         List<DownloadedMedia> medias = downloadedMediaRepository.retrieveForAutoMove(false, properties.getLimit());
@@ -81,21 +73,11 @@ public class AutoMoveMediaService {
         }
 
         log.info("Trying to automatically move {} media file", medias.size());
+        threadpool.executeWithNewSpans(medias.stream().<Callable<Void>>map(m -> () -> {
+            processMedia(m);
+            return null;
+        }));
 
-        List<Callable<Void>> mediaProcesses = new ArrayList<>();
-        for (DownloadedMedia media : medias) {
-            Span nextSpan = this.tracer.nextSpan();
-            mediaProcesses.add(() -> {
-                try (SpanInScope ignored = this.tracer.withSpan(nextSpan.start())) {
-                    processMedia(media);
-                } finally {
-                    nextSpan.end();
-                }
-                return null;
-            });
-        }
-
-        threadpool.execute(mediaProcesses);
         updateDownloadedMedia(medias);
 
         log.info("Finished checking download cache to automatically move media files");
@@ -134,20 +116,12 @@ public class AutoMoveMediaService {
         }
     }
 
-    private Optional<AutoMoveOption> processOptions(MediaFileGroup group, NameYear nameYear) throws InterruptedException, ExecutionException {
-        Span currentSpan = this.tracer.currentSpan();
-        Future<List<AutoMoveOption>> movieAutoMoveOptionsFuture = threadpool.execute(() -> {
-            try (SpanInScope ignored = this.tracer.withSpan(currentSpan)) {
-                return produceOptions(group.name(), MediaFileType.MOVIE, nameYear.name());
-            }
-        });
-        Future<List<AutoMoveOption>> tvAutoMoveOptionsFuture = threadpool.execute(() -> {
-            try (SpanInScope ignored = this.tracer.withSpan(currentSpan)) {
-                return produceOptions(group.name(), MediaFileType.TV, nameYear.name());
-            }
-        });
-
-        List<AutoMoveOption> allOptions = Stream.concat(movieAutoMoveOptionsFuture.get().stream(), tvAutoMoveOptionsFuture.get().stream()).toList();
+    private Optional<AutoMoveOption> processOptions(MediaFileGroup group, NameYear nameYear) {
+        List<List<AutoMoveOption>> listOfAllOptions = this.threadpool.executeWithCurrentSpan(Stream.of(
+                () -> produceOptions(group.name(), MediaFileType.MOVIE, nameYear.name()),
+                () -> produceOptions(group.name(), MediaFileType.TV, nameYear.name())
+        ));
+        List<AutoMoveOption> allOptions = listOfAllOptions.stream().flatMap(List::stream).toList();
 
         log.info("Options parsed: {}", allOptions);
 
