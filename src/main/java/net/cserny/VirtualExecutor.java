@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.stream.Stream;
@@ -24,14 +23,6 @@ public class VirtualExecutor {
     public void init() {
         this.threadPool = Executors.newVirtualThreadPerTaskExecutor();
     }
-
-//    public <T> Future<T> execute(Callable<T> task) {
-//        return this.threadPool.submit(task);
-//    }
-//
-//    public <T> List<Future<T>> execute(Collection<? extends Callable<T>> tasks) throws InterruptedException {
-//        return this.threadPool.invokeAll(tasks);
-//    }
 
     public <T> List<T> executeWithCurrentSpan(Stream<Callable<T>> tasks) {
         Span currentSpan = this.tracer.currentSpan();
