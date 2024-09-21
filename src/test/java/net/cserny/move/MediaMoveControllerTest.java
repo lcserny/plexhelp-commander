@@ -19,6 +19,7 @@ import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.data.mongo.AutoConfigureDataMongo;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
@@ -38,6 +39,7 @@ import static org.hamcrest.CoreMatchers.is;
         "automove.initial-delay-ms=5000",
         "automove.cron-ms=10000"
 }, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("test")
 @ContextConfiguration(classes = {
         MediaMoveController.class,
         MediaMoveService.class,

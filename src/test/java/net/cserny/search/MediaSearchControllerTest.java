@@ -13,6 +13,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.io.IOException;
@@ -26,6 +27,7 @@ import static org.hamcrest.CoreMatchers.is;
         "search.video-min-size-bytes=5",
         "search.exclude-paths[0]=Excluded Folder 1"
 }, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("test")
 @ContextConfiguration(classes = {
         MediaSearchController.class,
         MediaSearchService.class,
