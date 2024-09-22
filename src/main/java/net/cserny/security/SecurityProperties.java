@@ -25,7 +25,7 @@ public class SecurityProperties {
     public static class PublicKeyProperties {
 
         private String path;
-        private String algo;
+        private KnownAlgorithms.RSAAlgorithms algo;
     }
 
     @Getter
@@ -33,6 +33,6 @@ public class SecurityProperties {
     public static class SecretProperties {
 
         private String hash;
-        private String algo;
+        private KnownAlgorithms.HMACAlgorithms algo;
     }
 }

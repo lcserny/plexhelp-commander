@@ -1,61 +1,102 @@
 package net.cserny.security;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtParser;
-import io.jsonwebtoken.JwtParserBuilder;
-import io.jsonwebtoken.Jwts;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import lombok.extern.slf4j.Slf4j;
+import org.bouncycastle.util.io.pem.PemObject;
+import org.bouncycastle.util.io.pem.PemReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.crypto.SecretKey;
-import java.security.PublicKey;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.interfaces.RSAPublicKey;
+import java.security.spec.EncodedKeySpec;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static net.cserny.security.KnownAlgorithms.RSA_FAMILY;
 
 @Slf4j
 @Component
 public class JwtUtil {
 
-    private final JwtParser parser;
+    private final JWTVerifier verifier;
 
     @Autowired
-    public JwtUtil(PemUtils pemUtils) {
-        JwtParserBuilder parser = Jwts.parser();
+    public JwtUtil(SecurityProperties properties) throws IOException {
+        this.verifier = JWT.require(this.initAlgorithm(properties))
+                .ignoreIssuedAt()
+                .build();
+    }
 
-        switch (pemUtils.getVerificationKey()) {
-            case SecretKey secretKey -> parser.verifyWith(secretKey);
-            case PublicKey publicKey -> parser.verifyWith(publicKey);
-            default -> throw new IllegalStateException("Unexpected type: " + pemUtils.getVerificationKey());
+    private Algorithm initAlgorithm(SecurityProperties properties) throws IOException {
+        return switch (properties.getType()) {
+            case KEYS -> this.getRSAAlgorithm(properties);
+            case SECRET -> this.getHMACAlgorithm(properties);
+        };
+    }
+
+    private Algorithm getRSAAlgorithm(SecurityProperties properties) throws IOException {
+        byte[] bytes = parsePEMFile(new File(properties.getPublicKey().getPath()));
+        return switch (properties.getPublicKey().getAlgo()) {
+            case RSA256 -> Algorithm.RSA256(getPublicKey(bytes, RSA_FAMILY));
+            case RSA384 -> Algorithm.RSA384(getPublicKey(bytes, RSA_FAMILY));
+            case RSA512 -> Algorithm.RSA512(getPublicKey(bytes, RSA_FAMILY));
+        };
+    }
+
+    private Algorithm getHMACAlgorithm(SecurityProperties properties) {
+        return switch (properties.getSecret().getAlgo()) {
+            case HMAC256 -> Algorithm.HMAC256(properties.getSecret().getHash());
+            case HMAC384 -> Algorithm.HMAC384(properties.getSecret().getHash());
+            case HMAC512 -> Algorithm.HMAC512(properties.getSecret().getHash());
+        };
+    }
+
+    private byte[] parsePEMFile(File pemFile) throws IOException {
+        if (!pemFile.isFile() || !pemFile.exists()) {
+            throw new FileNotFoundException(String.format("The file '%s' doesn't exist.", pemFile.getAbsolutePath()));
+        }
+        try (PemReader reader = new PemReader(new FileReader(pemFile))) {
+            PemObject pemObject = reader.readPemObject();
+            return pemObject.getContent();
+        }
+    }
+
+    private RSAPublicKey getPublicKey(byte[] keyBytes, String algorithm) {
+        RSAPublicKey publicKey = null;
+        try {
+            KeyFactory kf = KeyFactory.getInstance(algorithm);
+            EncodedKeySpec keySpec = new X509EncodedKeySpec(keyBytes);
+            publicKey = (RSAPublicKey) kf.generatePublic(keySpec);
+        } catch (NoSuchAlgorithmException e) {
+            log.error("Could not reconstruct the public key, the given algorithm could not be found.");
+        } catch (InvalidKeySpecException e) {
+            log.error("Could not reconstruct the public key");
         }
 
-        this.parser = parser.build();
-
+        return publicKey;
     }
 
     public String extractUsername(String token) {
-        return extractClaim(token, Claims::getSubject);
-    }
-
-    public Set<String> extractAudience(String token) {
-        return extractClaim(token, Claims::getAudience);
-    }
-
-    public String extractIssuer(String token) {
-        return extractClaim(token, Claims::getIssuer);
+        return this.extractClaims(token).getSubject();
     }
 
     public Date extractExpiration(String token) {
-        return extractClaim(token, Claims::getExpiration);
-    }
-
-    public Date extractIssuedAt(String token) {
-        return extractClaim(token, Claims::getIssuedAt);
+        return this.extractClaims(token).getExpiresAt();
     }
 
     public Set<UserRole> extractRoles(String token) {
-        List<String> roles = extractClaim(token, claims -> claims.get(UserRole.KEY, ArrayList.class));
+        List<String> roles = this.extractClaims(token).getClaim(UserRole.KEY).asList(String.class);
         return roles.stream()
                 .map(UserRole::fromString)
                 .filter(Objects::nonNull)
@@ -63,20 +104,15 @@ public class JwtUtil {
     }
 
     public Set<UserPerm> extractPermissions(String token) {
-        List<String> perms = extractClaim(token, claims -> claims.get(UserPerm.KEY, ArrayList.class));
+        List<String> perms = this.extractClaims(token).getClaim(UserPerm.KEY).asList(String.class);
         return perms.stream()
                 .map(UserPerm::fromString)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
     }
 
-    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = extractAllClaims(token);
-        return claimsResolver.apply(claims);
-    }
-
-    private Claims extractAllClaims(String token) {
-        return this.parser.parseSignedClaims(token).getPayload();
+    private DecodedJWT extractClaims(String token) {
+        return this.verifier.verify(token);
     }
 
     public Boolean isTokenExpired(String token) {

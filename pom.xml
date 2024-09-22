@@ -21,7 +21,7 @@
         <commons-text.version>1.10.0</commons-text.version>
         <macker-plugin.version>1.0.2</macker-plugin.version>
         <logback-log.version>0.1.6</logback-log.version>
-        <jwt.version>0.12.6</jwt.version>
+        <java-jwt.version>4.4.0</java-jwt.version>
         <bouncycastle.version>1.78.1</bouncycastle.version>
         <openapi-plugin.version>7.8.0</openapi-plugin.version>
     </properties>
@@ -80,19 +80,9 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-api</artifactId>
-            <version>${jwt.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-impl</artifactId>
-            <version>${jwt.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-jackson</artifactId>
-            <version>${jwt.version}</version>
+            <groupId>com.auth0</groupId>
+            <artifactId>java-jwt</artifactId>
+            <version>${java-jwt.version}</version>
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
