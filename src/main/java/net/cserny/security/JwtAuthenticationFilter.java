@@ -1,9 +1,12 @@
 package net.cserny.security;
 
+import com.auth0.jwt.interfaces.DecodedJWT;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,6 +20,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
@@ -29,18 +33,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         final String authorizationHeader = request.getHeader("Authorization");
 
+        DecodedJWT jwt = null;
         String username = null;
-        String token = null;
 
         if (StringUtils.hasText(authorizationHeader) && authorizationHeader.startsWith("Bearer ")) {
-            token = authorizationHeader.substring(7);
-            username = jwtUtil.extractUsername(token);
+            String token = authorizationHeader.substring(7);
+            try {
+                jwt = jwtUtil.verify(token);
+                username = jwtUtil.extractUsername(jwt);
+            } catch (Exception e) {
+                log.error("JWT token error: '{}' {}", token, e.getMessage());
+                response.setStatus(HttpStatus.UNAUTHORIZED.value());
+            }
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            if (!jwtUtil.isTokenExpired(token)) {
-                Set<GrantedAuthority> userRoles = convertToGrantedAuthorities(jwtUtil.extractRoles(token));
-                Set<GrantedAuthority> userPerms = convertToGrantedAuthorities(jwtUtil.extractPermissions(token));
+            if (!jwtUtil.isTokenExpired(jwt)) {
+                Set<GrantedAuthority> userRoles = convertToGrantedAuthorities(jwtUtil.extractRoles(jwt));
+                Set<GrantedAuthority> userPerms = convertToGrantedAuthorities(jwtUtil.extractPermissions(jwt));
 
                 PreAuthenticatedAuthenticationToken authentication = new PreAuthenticatedAuthenticationToken(
                     username, null, Stream.concat(userRoles.stream(), userPerms.stream()).collect(Collectors.toSet()));

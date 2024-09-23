@@ -33,9 +33,7 @@ public class JwtUtil {
 
     @Autowired
     public JwtUtil(SecurityProperties properties) throws IOException {
-        this.verifier = JWT.require(this.initAlgorithm(properties))
-                .ignoreIssuedAt()
-                .build();
+        this.verifier = JWT.require(this.initAlgorithm(properties)).build();
     }
 
     private Algorithm initAlgorithm(SecurityProperties properties) throws IOException {
@@ -87,35 +85,35 @@ public class JwtUtil {
         return publicKey;
     }
 
-    public String extractUsername(String token) {
-        return this.extractClaims(token).getSubject();
+    public String extractUsername(DecodedJWT jwt) {
+        return jwt.getSubject();
     }
 
-    public Date extractExpiration(String token) {
-        return this.extractClaims(token).getExpiresAt();
+    public Date extractExpiration(DecodedJWT jwt) {
+        return jwt.getExpiresAt();
     }
 
-    public Set<UserRole> extractRoles(String token) {
-        List<String> roles = this.extractClaims(token).getClaim(UserRole.KEY).asList(String.class);
+    public Set<UserRole> extractRoles(DecodedJWT jwt) {
+        List<String> roles = jwt.getClaim(UserRole.KEY).asList(String.class);
         return roles.stream()
                 .map(UserRole::fromString)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
     }
 
-    public Set<UserPerm> extractPermissions(String token) {
-        List<String> perms = this.extractClaims(token).getClaim(UserPerm.KEY).asList(String.class);
+    public Set<UserPerm> extractPermissions(DecodedJWT jwt) {
+        List<String> perms = jwt.getClaim(UserPerm.KEY).asList(String.class);
         return perms.stream()
                 .map(UserPerm::fromString)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
     }
 
-    private DecodedJWT extractClaims(String token) {
+    public DecodedJWT verify(String token) {
         return this.verifier.verify(token);
     }
 
-    public Boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
+    public Boolean isTokenExpired(DecodedJWT jwt) {
+        return extractExpiration(jwt).before(new Date());
     }
 }
