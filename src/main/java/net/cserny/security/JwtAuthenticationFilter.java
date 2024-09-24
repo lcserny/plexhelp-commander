@@ -20,6 +20,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.lang.String.format;
+
 @Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
@@ -42,13 +44,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 jwt = jwtUtil.verify(token);
                 username = jwtUtil.extractUsername(jwt);
             } catch (Exception e) {
-                log.error("JWT token error: '{}' {}", token, e.getMessage());
+                log.error(format("JWT token error: '%s'", token), e);
                 response.setStatus(HttpStatus.UNAUTHORIZED.value());
             }
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            if (!jwtUtil.isTokenExpired(jwt)) {
+            if (!jwtUtil.validate(username, jwt)) {
                 Set<GrantedAuthority> userRoles = convertToGrantedAuthorities(jwtUtil.extractRoles(jwt));
                 Set<GrantedAuthority> userPerms = convertToGrantedAuthorities(jwtUtil.extractPermissions(jwt));
 

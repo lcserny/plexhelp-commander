@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -29,10 +30,15 @@ import static net.cserny.security.KnownAlgorithms.RSA_FAMILY;
 @Component
 public class JwtUtil {
 
+    @Value("${spring.application.name}")
+    private String appName;
+
+    private final String issuer;
     private final JWTVerifier verifier;
 
     @Autowired
     public JwtUtil(SecurityProperties properties) throws IOException {
+        this.issuer = properties.getIssuer();
         this.verifier = JWT.require(this.initAlgorithm(properties)).build();
     }
 
@@ -93,6 +99,14 @@ public class JwtUtil {
         return jwt.getExpiresAt();
     }
 
+    public List<String> extractAudience(DecodedJWT jwt) {
+        return jwt.getAudience();
+    }
+
+    public String extractIssuer(DecodedJWT jwt) {
+        return jwt.getIssuer();
+    }
+
     public Set<UserRole> extractRoles(DecodedJWT jwt) {
         List<String> roles = jwt.getClaim(UserRole.KEY).asList(String.class);
         return roles.stream()
@@ -113,7 +127,19 @@ public class JwtUtil {
         return this.verifier.verify(token);
     }
 
-    public Boolean isTokenExpired(DecodedJWT jwt) {
-        return extractExpiration(jwt).before(new Date());
+    public Boolean validate(String username, DecodedJWT jwt) {
+        String currentIssuer = this.extractIssuer(jwt);
+        if (!currentIssuer.equals(this.issuer)) {
+            log.warn("User with id '{}' did not provide correct issuer, it provided: '{}'", username, currentIssuer);
+            return false;
+        }
+
+        List<String> currentAudience = this.extractAudience(jwt);
+        if (!currentAudience.contains(this.appName)) {
+            log.warn("Token for User with id '{}' did not come from correct application, audience provided: '{}'", username, currentAudience);
+            return false;
+        }
+
+        return this.extractExpiration(jwt).before(new Date());
     }
 }

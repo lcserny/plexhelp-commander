@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Configuration;
 public class SecurityProperties {
 
     private PemType type;
+    private String issuer;
     private PublicKeyProperties publicKey;
     private SecretProperties secret;
 
