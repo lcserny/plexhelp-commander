@@ -10,7 +10,7 @@ import org.testcontainers.junit.jupiter.Container;
 public class MongoTestConfiguration {
 
     @Container
-    public static MongoDBContainer container = new MongoDBContainer("mongo:5.0");
+    public static MongoDBContainer container = new MongoDBContainer("mongo:7.0");
 
     static {
         container.start();
