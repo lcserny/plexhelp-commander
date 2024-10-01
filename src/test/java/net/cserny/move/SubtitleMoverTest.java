@@ -1,6 +1,6 @@
 package net.cserny.move;
 
-import net.cserny.AbstractInMemoryFileService;
+import net.cserny.filesystem.AbstractInMemoryFileService;
 import net.cserny.MongoTestConfiguration;
 import net.cserny.filesystem.FilesystemProperties;
 import net.cserny.filesystem.LocalFileService;
@@ -10,10 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
 

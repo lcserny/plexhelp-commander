@@ -2,7 +2,7 @@ package net.cserny.rename;
 
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-import net.cserny.AbstractInMemoryFileService;
+import net.cserny.filesystem.AbstractInMemoryFileService;
 import net.cserny.MongoTestConfiguration;
 import net.cserny.filesystem.FilesystemProperties;
 import net.cserny.filesystem.LocalFileService;

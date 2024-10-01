@@ -40,10 +40,10 @@ public class SubtitleMover {
 
         List<MediaMoveError> errors = new ArrayList<>();
 
-        List<Path> subs;
+        List<LocalPath> subs;
         try {
             subs = fileService.walk(operation.subsSrc(), moveConfig.getSubsMaxDepth(), WalkOptions.ONLY_FILES)
-                    .stream()
+                    .stream().parallel()
                     .filter(this::filterBySubExtension)
                     .toList();
         } catch (IOException e) {
@@ -67,12 +67,12 @@ public class SubtitleMover {
         return errors;
     }
 
-    private List<MediaMoveError> moveTvSubs(SubsMoveOperation operation, List<Path> subs) {
+    private List<MediaMoveError> moveTvSubs(SubsMoveOperation operation, List<LocalPath> subs) {
         List<MediaMoveError> errors = new ArrayList<>();
 
-        for (Path sub : subs) {
-            String subName = sub.getFileName().toString();
-            for (Path segment : sub) {
+        for (LocalPath sub : subs) {
+            String subName = sub.path().getFileName().toString();
+            for (Path segment : sub.path()) {
                 String segmentStr = segment.toString();
                 if (segmentStr.matches(episodeSegmentRegex.pattern())) {
                     subName = segmentStr + "." + subName;
@@ -95,12 +95,12 @@ public class SubtitleMover {
         return errors;
     }
 
-    private List<MediaMoveError> moveMovieSubs(SubsMoveOperation operation, List<Path> subs) {
+    private List<MediaMoveError> moveMovieSubs(SubsMoveOperation operation, List<LocalPath> subs) {
         List<MediaMoveError> errors = new ArrayList<>();
 
-        for (Path sub : subs) {
+        for (LocalPath sub : subs) {
             LocalPath subSrc = fileService.toLocalPath(sub.toString());
-            String subFilename = sub.getFileName().toString();
+            String subFilename = sub.path().getFileName().toString();
             LocalPath subDest = fileService.toLocalPath(operation.subsDest().path().toString(), subFilename);
 
             try {
@@ -115,8 +115,8 @@ public class SubtitleMover {
         return errors;
     }
 
-    private boolean filterBySubExtension(Path subPath) {
-        String filename = subPath.getFileName().toString();
+    private boolean filterBySubExtension(LocalPath subPath) {
+        String filename = subPath.path().getFileName().toString();
         String ext = filename.substring(filename.lastIndexOf("."));
 
         for (String subsExtension : moveConfig.getSubsExt()) {

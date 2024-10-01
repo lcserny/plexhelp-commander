@@ -45,16 +45,16 @@ public class DiskSearcher implements Searcher {
         List<String> nameVariants = new ArrayList<>();
 
         try {
-            List<Path> paths = localFileService.walk(mediaPath, renameConfig.getMaxDepth(), ONLY_DIRECTORIES);
+            List<LocalPath> paths = localFileService.walk(mediaPath, renameConfig.getMaxDepth(), ONLY_DIRECTORIES);
 
-           nameVariants = paths.stream()
-                    .filter(path -> !mediaPath.path().equals(path))
-                    .map(this::convertAndtrimReleaseDate)
+           nameVariants = paths.stream().parallel()
+                    .filter(path -> !mediaPath.equals(path))
+                    .map(this::convertAndTrimReleaseDate)
                     .map(diskPath -> parseDistance(diskPath, nameYear.name()))
                     .filter(diskPath -> excludeNotSimilarPaths(diskPath, nameYear.name()))
                     .sorted(Comparator.comparing(DiskPath::distance))
                     .map(this::chooseCorrectPath)
-                    .collect(Collectors.toList());
+                    .toList();
         } catch (IOException e) {
             log.warn("Could not walk path " + mediaPath.path(), e);
         }
@@ -62,8 +62,8 @@ public class DiskSearcher implements Searcher {
         return new RenamedMediaOptions(MediaRenameOrigin.DISK, generateDescFrom(nameVariants));
     }
 
-    private DiskPath convertAndtrimReleaseDate(Path path) {
-        String folder = path.getFileName().toString();
+    private DiskPath convertAndTrimReleaseDate(LocalPath path) {
+        String folder = path.path().getFileName().toString();
         String trimmedLocalPath = folder.replaceAll(releaseDateRegex.pattern(), "");
         return new DiskPath(null, folder, trimmedLocalPath);
     }

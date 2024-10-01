@@ -13,8 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,12 +42,16 @@ public class MediaMoveService {
     @Autowired
     MediaIdentificationService identificationService;
 
+    @Autowired
+    VideosParser videosParser;
+
     @PostConstruct
     public void init() {
         this.importantFolders = List.of(
-                filesystemConfig.getDownloadsPath(),
-                filesystemConfig.getMoviesPath(),
-                filesystemConfig.getTvPath());
+            filesystemConfig.getDownloadsPath(),
+            filesystemConfig.getMoviesPath(),
+            filesystemConfig.getTvPath()
+        );
         log.info("Important folders: {}", this.importantFolders);
     }
 
@@ -66,7 +68,11 @@ public class MediaMoveService {
             case TV -> filesystemConfig.getTvPath();
         };
 
-        for (String video : fileGroup.videos()) {
+        ParsedVideos parsedVideos = videosParser.parse(fileGroup, type);
+        List<String> videos = parsedVideos.videos();
+        List<LocalPath> deletableVideos = parsedVideos.deletableVideos();
+
+        for (String video : videos) {
             LocalPath srcPath = fileService.toLocalPath(fileGroup.path(), video);
             String videoNameOnly = fileService.toLocalPath(video).path().getFileName().toString();
             LocalPath destPath = fileService.toLocalPath(destRoot, fileGroup.name(), videoNameOnly);
@@ -88,7 +94,7 @@ public class MediaMoveService {
         if (errors.isEmpty()) {
             try {
                 log.info("Cleaning source media folders {}", fileGroup.path());
-                cleanSourceMediaDir(fileGroup.path());
+                cleanSourceMediaDir(fileGroup, deletableVideos);
             } catch (IOException e) {
                 log.warn("Could not clean source media folder", e);
                 errors.add(new MediaMoveError(fileGroup.path(), e.getMessage()));
@@ -98,11 +104,11 @@ public class MediaMoveService {
         return errors;
     }
 
-    private void cleanSourceMediaDir(String path) throws IOException {
-        LocalPath removePath = fileService.toLocalPath(path);
+    private void cleanSourceMediaDir(MediaFileGroup mediaFileGroup, List<LocalPath> deletableVideos) throws IOException {
+        LocalPath removePath = fileService.toLocalPath(mediaFileGroup.path());
 
         for (String folder : importantFolders) {
-            if (path.equals(folder)) {
+            if (mediaFileGroup.path().equals(folder)) {
                 log.info("Clean source media dir aborted, important folder, {}", folder);
                 return;
             }
@@ -115,8 +121,11 @@ public class MediaMoveService {
             }
         }
 
-        List<Path> files = fileService.walk(removePath, searchConfig.getMaxDepth());
-        List<Path> allVideos = files.stream().filter(identificationService::isMedia).toList();
+        List<LocalPath> files = fileService.walk(removePath, searchConfig.getMaxDepth());
+        List<LocalPath> allVideos = files.stream()
+                .filter(identificationService::isMedia)
+                .filter(p -> !deletableVideos.contains(p))
+                .toList();
         if (!allVideos.isEmpty()) {
             log.info("Clean source media dir aborted, there are still other media in this dir");
             return;
@@ -128,7 +137,7 @@ public class MediaMoveService {
     private boolean movieExists(String movieName, MediaFileType type) {
         if (type == MediaFileType.MOVIE) {
             LocalPath moviePath = fileService.toLocalPath(filesystemConfig.getMoviesPath(), movieName);
-            return Files.exists(moviePath.path()) && Files.isDirectory(moviePath.path());
+            return fileService.exists(moviePath) && moviePath.attributes().isDirectory();
         }
         return false;
     }

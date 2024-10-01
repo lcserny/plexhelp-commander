@@ -1,5 +1,9 @@
 package net.cserny.filesystem;
 
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+import net.cserny.LRUCache;
+import net.cserny.search.NoAttributes;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -7,16 +11,55 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@Slf4j
 @Service
 public class LocalFileService {
 
-    public FileSystem fileSystem = FileSystems.getDefault();
+    private static final int CACHE_LIMIT = 1000;
+
+    @Getter
+    private final LRUCache<String, BasicFileAttributes> fileAttrCache = new LRUCache<>(CACHE_LIMIT);
+
+    protected FileSystem fileSystem = FileSystems.getDefault();
+
+    public LocalPath toLocalPath(BasicFileAttributes attributes, String root, String... segments) {
+        Path path = fileSystem.getPath(root, segments);
+        return toLocalPath(path, attributes);
+    }
 
     public LocalPath toLocalPath(String root, String... segments) {
-        return new LocalPath(fileSystem.getPath(root, segments));
+        Path path = fileSystem.getPath(root, segments);
+        return toLocalPath(path, null);
+    }
+
+    public LocalPath toLocalPath(Path path) {
+        return toLocalPath(path, null);
+    }
+
+    public LocalPath toLocalPath(Path path, BasicFileAttributes attr) {
+        String key = path.toAbsolutePath().toString();
+
+        if (attr == null) {
+            attr = fileAttrCache.get(key);
+            if (attr == null) {
+                attr = getRealAttributes(path);
+            }
+        }
+
+        fileAttrCache.put(key, attr);
+
+        return new LocalPath(path, attr);
+    }
+
+    private BasicFileAttributes getRealAttributes(Path path) {
+        try {
+            return Files.readAttributes(path, BasicFileAttributes.class);
+        } catch (IOException e) {
+            log.warn("Could not determine attributes of file: {}", path.toAbsolutePath());
+            return new NoAttributes();
+        }
     }
 
     public void delete(LocalPath path) throws IOException {
@@ -50,12 +93,12 @@ public class LocalFileService {
         Files.move(source.path(), dest.path());
     }
 
-    public List<Path> walk(LocalPath path, int maxDepthFromPath) throws IOException {
+    public List<LocalPath> walk(LocalPath path, int maxDepthFromPath) throws IOException {
         return walk(path, maxDepthFromPath, WalkOptions.ONLY_FILES);
     }
 
-    public List<Path> walk(LocalPath path, int maxDepthFromPath, WalkOptions options) throws IOException {
-        if (!Files.isDirectory(path.path())) {
+    public List<LocalPath> walk(LocalPath path, int maxDepthFromPath, WalkOptions options) throws IOException {
+        if (!path.attributes().isDirectory()) {
             throw new NotDirectoryException(path.path().toString());
         }
 
@@ -63,22 +106,24 @@ public class LocalFileService {
             throw new IllegalArgumentException("Max depth passed cannot be lower than 1");
         }
 
-        Predicate<Path> optionsPredicate = switch (options) {
-            case ONLY_DIRECTORIES -> Files::isDirectory;
-            case ONLY_FILES -> Files::isRegularFile;
-        };
-
-        List<Path> files;
         try (Stream<Path> walkStream = Files.walk(path.path(), maxDepthFromPath, FileVisitOption.FOLLOW_LINKS)) {
-            files = walkStream.filter(optionsPredicate)
-                    .collect(Collectors.toList());
+            return walkStream.parallel()
+                    .map(this::toLocalPath)
+                    .filter(localPath -> options.getFilter().test(localPath))
+                    .toList();
         }
-
-        return files;
     }
 
+    @Getter
     public enum WalkOptions {
-        ONLY_DIRECTORIES,
-        ONLY_FILES;
+
+        ONLY_DIRECTORIES(lp -> lp.attributes().isDirectory()),
+        ONLY_FILES(lp -> lp.attributes().isRegularFile());
+
+        private final Predicate<LocalPath> filter;
+
+        WalkOptions(Predicate<LocalPath> filter) {
+            this.filter = filter;
+        }
     }
 }

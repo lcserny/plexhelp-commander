@@ -2,7 +2,7 @@ package net.cserny.move;
 
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-import net.cserny.AbstractInMemoryFileService;
+import net.cserny.filesystem.AbstractInMemoryFileService;
 import net.cserny.MongoTestConfiguration;
 import net.cserny.filesystem.FilesystemProperties;
 import net.cserny.filesystem.LocalFileService;
@@ -15,7 +15,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.data.mongo.AutoConfigureDataMongo;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
@@ -49,7 +48,8 @@ import static org.hamcrest.CoreMatchers.is;
         LocalFileService.class,
         MongoTestConfiguration.class,
         MediaIdentificationService.class,
-        SearchProperties.class
+        SearchProperties.class,
+        DefaultVideosParser.class
 })
 @EnableAutoConfiguration
 @AutoConfigureDataMongo
@@ -81,7 +81,7 @@ public class MediaMoveControllerTest extends AbstractInMemoryFileService {
         String name = "MY Movee";
         String video = "file.mp4";
 
-        createFile(path + "/" + video, 6);
+        createFile(6, path + "/" + video);
 
         MediaFileGroup fileGroup = new MediaFileGroup(path, name, List.of(video));
         MediaMoveRequest request = new MediaMoveRequest(fileGroup, MediaFileType.MOVIE);

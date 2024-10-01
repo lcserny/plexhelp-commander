@@ -1,6 +1,6 @@
 package net.cserny.move;
 
-import net.cserny.AbstractInMemoryFileService;
+import net.cserny.filesystem.AbstractInMemoryFileService;
 import net.cserny.MongoTestConfiguration;
 import net.cserny.TestConfig;
 import net.cserny.VirtualExecutor;
@@ -121,7 +121,7 @@ class AutoMoveMediaServiceTest extends AbstractInMemoryFileService {
         String video = "video.mp4";
         String video2 = "video2.mp4";
         createMedia(name, video, 6L);
-        createFile(filesystemConfig.getDownloadsPath() + "/" + name + "/" + video2, (int) 6L);
+        createFile(6, filesystemConfig.getDownloadsPath() + "/" + name + "/" + video2);
 
         service.autoMoveMedia();
 
@@ -177,7 +177,7 @@ class AutoMoveMediaServiceTest extends AbstractInMemoryFileService {
     }
 
     private DownloadedMedia createMedia(String initialName, String videoFile, long size) throws IOException {
-        createFile(filesystemConfig.getDownloadsPath() + "/" + initialName + "/" + videoFile, (int) size);
+        createFile((int) size, filesystemConfig.getDownloadsPath() + "/" + initialName + "/" + videoFile);
 
         DownloadedMedia downloadedMedia = new DownloadedMedia();
         downloadedMedia.setFileName(initialName + "/" + videoFile);

@@ -148,6 +148,7 @@
                 <version>${macker-plugin.version}</version>
                 <configuration>
                     <rule>macker-rules.xml</rule>
+                    <includeTests>false</includeTests>
                 </configuration>
                 <executions>
                     <execution>

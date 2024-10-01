@@ -32,9 +32,9 @@ public class MediaSearchService {
     public List<MediaFileGroup> findMedia() {
         LocalPath walkPath = fileService.toLocalPath(filesystemConfig.getDownloadsPath());
         try {
-            List<Path> files = fileService.walk(walkPath, searchConfig.getMaxDepth());
+            List<LocalPath> files = fileService.walk(walkPath, searchConfig.getMaxDepth());
 
-            List<Path> allVideos = files.stream()
+            List<LocalPath> allVideos = files.stream()
                     .filter(identificationService::isMedia)
                     .sorted()
                     .toList();
@@ -46,7 +46,7 @@ public class MediaSearchService {
         }
     }
 
-    public List<MediaFileGroup> generateMediaFileGroups(List<Path> allVideos) {
+    public List<MediaFileGroup> generateMediaFileGroups(List<LocalPath> allVideos) {
         List<MediaFileGroup> mediaFileGroups = new ArrayList<>();
 
         Path downloadsPath = fileService.toLocalPath(filesystemConfig.getDownloadsPath()).path();
@@ -54,7 +54,8 @@ public class MediaSearchService {
 
         Map<Pair<String, String>, List<String>> tmpMap = new TreeMap<>();
 
-        for (Path videoPath : allVideos) {
+        for (LocalPath localPath : allVideos) {
+            Path videoPath = localPath.path();
             int videoPathSegments = videoPath.getNameCount();
 
             Path name = videoPath.subpath(downloadsPathSegments, downloadsPathSegments + 1);

@@ -91,7 +91,7 @@ public class AutoMoveMediaService {
                 return;
             }
 
-            List<MediaFileGroup> groups = searchService.generateMediaFileGroups(List.of(path.path()));
+            List<MediaFileGroup> groups = searchService.generateMediaFileGroups(List.of(path));
             if (groups.isEmpty()) {
                 log.info("No media groups generated, skipping...");
                 return;

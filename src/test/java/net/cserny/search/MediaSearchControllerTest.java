@@ -2,7 +2,7 @@ package net.cserny.search;
 
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-import net.cserny.AbstractInMemoryFileService;
+import net.cserny.filesystem.AbstractInMemoryFileService;
 import net.cserny.filesystem.FilesystemProperties;
 import net.cserny.filesystem.LocalFileService;
 import org.junit.jupiter.api.BeforeEach;
@@ -61,19 +61,19 @@ public class MediaSearchControllerTest extends AbstractInMemoryFileService {
     public void checkSearchFindsCorrectMedia() throws IOException {
         String downloadPath = filesystemConfig.getDownloadsPath();
         String video1 = downloadPath + "/video1.mp4";
-        createFile(video1, 6);
+        createFile(6, video1);
         String video2 = downloadPath + "/" + searchConfig.getExcludePaths().get(0) + "/video2.mp4";
-        createFile(video2, 6);
+        createFile(6, video2);
         String video3 = downloadPath + "/video3.mp4";
-        createFile(video3, 6);
+        createFile(6, video3);
         String video4 = downloadPath + "/video4.mp4";
-        createFile(video4, 1);
+        createFile(1, video4);
         String video5 = downloadPath + "/some tvShow/video3.mp4";
-        createFile(video5, 6);
+        createFile(6, video5);
         String video6 = downloadPath + "/some tvShow/video1.mp4";
-        createFile(video6, 6);
+        createFile(6, video6);
         String video7 = downloadPath + "/some tvShow/video5.mp4";
-        createFile(video7, 6);
+        createFile(6, video7);
 
         given()
                 .contentType(ContentType.JSON)
