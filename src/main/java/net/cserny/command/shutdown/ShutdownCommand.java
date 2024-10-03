@@ -27,8 +27,10 @@ public class ShutdownCommand extends AbstractShutdownCommand {
     protected void appendWindowsParams(List<String> outParams, String[] inParams) {
         if (inParams.length == 0) {
             outParams.add("-s");
+            outParams.add("-f");
         } else if (inParams.length == 1 && StringUtils.isNumeric(inParams[0])) {
             outParams.add("-s");
+            outParams.add("-f");
             outParams.add("-t");
             outParams.add(String.valueOf(60 * Integer.parseInt(inParams[0])));
         } else {
