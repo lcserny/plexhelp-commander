@@ -101,6 +101,56 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/MediaFileGroup'
+  /api/v1/magnets:
+    post:
+      tags:
+        - Torrent Magnet Resource
+      operationId: addMagnet
+      requestBody:
+        content:
+          text/plain:
+            schema:
+              type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MagnetData'
+    get:
+      tags:
+        - Torrent Magnet Resource
+      operationId: getAll
+      parameters:
+        - name: page
+          in: query
+          description: The page number to retrieve
+          required: false
+          schema:
+            type: integer
+            format: int64
+        - name: size
+          in: query
+          description: The number of items per page
+          required: false
+          schema:
+            type: integer
+            format: int64
+        - name: sort
+          in: query
+          description: The sort order
+          required: false
+          schema:
+            type: string
+            example: property,property(,ASC|DESC)
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedMagnets'
 components:
   schemas:
     CommandRequest:
@@ -232,3 +282,37 @@ components:
       - NOT_FOUND
       - FAILED
       type: string
+    MagnetData:
+      type: object
+      properties:
+        name:
+          type: string
+        hash:
+          type: string
+        url:
+          type: string
+        dateAdded:
+          type: string
+          format: date-time
+        downloaded:
+          type: boolean
+        dateDownloaded:
+          type: string
+          format: date-time
+      required:
+        - name
+        - hash
+        - url
+        - dateAdded
+    PaginatedMagnets:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/MagnetData'
+        totalElements:
+          type: integer
+          format: int64
+        last:
+          type: boolean

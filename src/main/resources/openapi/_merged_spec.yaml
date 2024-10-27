@@ -1,0 +1,29 @@
+---
+servers:
+- url: "http://localhost:8080"
+openapi: "3.0.3"
+paths:
+  /api/v1/media-renames:
+    $ref: "./spec.yml#/paths/~1api~1v1~1media-renames"
+  /api/v1/commands:
+    $ref: "./spec.yml#/paths/~1api~1v1~1commands"
+  /security/users:
+    $ref: "./auth-spec.yml#/paths/~1security~1users"
+  /api/v1/media-downloads:
+    $ref: "./spec.yml#/paths/~1api~1v1~1media-downloads"
+  /api/v1/magnets:
+    $ref: "./spec.yml#/paths/~1api~1v1~1magnets"
+  /api/v1/media-moves:
+    $ref: "./spec.yml#/paths/~1api~1v1~1media-moves"
+  /security/authenticate/logout:
+    $ref: "./auth-spec.yml#/paths/~1security~1authenticate~1logout"
+  /security/authenticate/refresh:
+    $ref: "./auth-spec.yml#/paths/~1security~1authenticate~1refresh"
+  /api/v1/media-searches:
+    $ref: "./spec.yml#/paths/~1api~1v1~1media-searches"
+  /security/authenticate:
+    $ref: "./auth-spec.yml#/paths/~1security~1authenticate"
+info:
+  title: "merged spec"
+  description: "merged spec"
+  version: "1.0.0"

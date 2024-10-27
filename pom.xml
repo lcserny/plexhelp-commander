@@ -23,7 +23,9 @@
         <logback-log.version>0.1.6</logback-log.version>
         <java-jwt.version>4.4.0</java-jwt.version>
         <bouncycastle.version>1.78.1</bouncycastle.version>
-        <openapi-plugin.version>7.8.0</openapi-plugin.version>
+        <openapi-plugin.version>7.9.0</openapi-plugin.version>
+        <mapstruct.version>1.6.2</mapstruct.version>
+        <mapstruct-lombok.version>0.2.0</mapstruct-lombok.version>
     </properties>
 
     <dependencies>
@@ -67,7 +69,12 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <optional>true</optional>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok-mapstruct-binding</artifactId>
+            <version>${mapstruct-lombok.version}</version>
         </dependency>
         <dependency>
             <groupId>io.micrometer</groupId>
@@ -88,6 +95,11 @@
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk18on</artifactId>
             <version>${bouncycastle.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>${mapstruct.version}</version>
         </dependency>
 
         <dependency>
@@ -169,18 +181,46 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/auth-spec.yml</inputSpec>
+                            <inputSpecRootDirectory>${project.basedir}/src/main/resources/openapi</inputSpecRootDirectory>
                             <generatorName>java</generatorName>
                             <configOptions>
                                 <sourceFolder>src/main/java</sourceFolder>
+                                <openApiNullable>false</openApiNullable>
+                                <generateTests>false</generateTests>
                             </configOptions>
                             <generateSupportingFiles>false</generateSupportingFiles>
                             <generateApis>false</generateApis>
+                            <generateModelTests>false</generateModelTests>
                             <modelPackage>net.cserny.generated</modelPackage>
                             <library>restclient</library>
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.mapstruct</groupId>
+                            <artifactId>mapstruct-processor</artifactId>
+                            <version>${mapstruct.version}</version>
+                        </path>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok-mapstruct-binding</artifactId>
+                            <version>${mapstruct-lombok.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
             </plugin>
         </plugins>
     </build>
