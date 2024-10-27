@@ -316,3 +316,7 @@ components:
           format: int64
         last:
           type: boolean
+      required:
+        - content
+        - totalElements
+        - last
