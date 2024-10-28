@@ -15,6 +15,7 @@ import java.util.List;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -41,7 +42,7 @@ class MagnetServiceTest {
 
         when(this.repositoryMock.findAll(any(Pageable.class))).thenReturn(magnetsPage);
 
-        Page<MagnetData> returnedPage = this.service.getAll(mock(Pageable.class));
+        Page<MagnetData> returnedPage = this.service.getAll(mock(Pageable.class), nullable(String.class));
 
         assertEquals(1, returnedPage.getTotalPages());
         assertEquals(1, returnedPage.getTotalElements());

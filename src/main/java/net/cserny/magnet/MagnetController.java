@@ -30,8 +30,8 @@ public class MagnetController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public PagedModel<MagnetData> getAll(Pageable pageable) {
+    public PagedModel<MagnetData> getAll(Pageable pageable, @RequestParam(value = "name", required = false) String name) {
         log.info("Received getAll request for page {} with size {}", pageable.getPageNumber(), pageable.getPageSize());
-        return new PagedModel<>(this.service.getAll(pageable));
+        return new PagedModel<>(this.service.getAll(pageable, name));
     }
 }

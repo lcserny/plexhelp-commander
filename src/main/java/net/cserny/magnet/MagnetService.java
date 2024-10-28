@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -77,8 +78,14 @@ public class MagnetService {
         }
     }
 
-    public Page<MagnetData> getAll(Pageable pageable) {
-        Page<Magnet> all = this.repository.findAll(pageable);
+    public Page<MagnetData> getAll(Pageable pageable, String name) {
+        Page<Magnet> all;
+        if (name == null) {
+            all = this.repository.findAll(pageable);
+        } else {
+            all = this.repository.findAllByNamePattern(name, pageable);
+        }
+
         log.info("Retrieved paginated magnets from the database");
         return all.map(DataMapper.INSTANCE::magnetToMagnetData);
     }
