@@ -32,6 +32,8 @@ public class MagnetService {
     }
 
     public MagnetData addMagnet(String magnetLink) {
+        validateMagnetLink(magnetLink);
+
         String sid = this.restClient.generateSid();
         this.restClient.addMagnet(sid, magnetLink);
 
@@ -63,6 +65,16 @@ public class MagnetService {
         log.info("Saved magnet in database");
 
         return DataMapper.INSTANCE.magnetToMagnetData(saved);
+    }
+
+    private void validateMagnetLink(String magnetLink) {
+        if (magnetLink == null || magnetLink.startsWith("magnet:?")) {
+            throw new IllegalArgumentException("Magnet link provided is not valid");
+        }
+
+        if (!magnetLink.contains("xt=") || !magnetLink.contains("dn=")) {
+            throw new IllegalArgumentException("Magnet link provided does not contain needed fields");
+        }
     }
 
     public Page<MagnetData> getAll(Pageable pageable) {

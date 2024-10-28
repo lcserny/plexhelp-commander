@@ -2,12 +2,16 @@ package net.cserny;
 
 import net.cserny.rename.TmdbWrapper;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.time.Duration;
 
 @Configuration
 @EnableWebMvc
@@ -21,6 +25,12 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 })
 public class WebConfig implements WebMvcConfigurer {
 
+    @Value("${http.client.connection.timeout.ms}")
+    private int connectionTimeoutMs;
+
+    @Value("${http.client.read.timeout.ms}")
+    private int readTimeoutMs;
+
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/api/**")
@@ -31,7 +41,10 @@ public class WebConfig implements WebMvcConfigurer {
     }
 
     @Bean
-    public RestTemplate restTemplate() {
-        return new RestTemplate();
+    public RestTemplate restTemplate(RestTemplateBuilder restTemplateBuilder) {
+        return restTemplateBuilder
+                .setConnectTimeout(Duration.ofMillis(this.connectionTimeoutMs))
+                .setReadTimeout(Duration.ofMillis(this.readTimeoutMs))
+                .build();
     }
 }
