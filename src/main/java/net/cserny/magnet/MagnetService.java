@@ -68,7 +68,7 @@ public class MagnetService {
     }
 
     private void validateMagnetLink(String magnetLink) {
-        if (magnetLink == null || magnetLink.startsWith("magnet:?")) {
+        if (magnetLink == null || !magnetLink.startsWith("magnet:?")) {
             throw new IllegalArgumentException("Magnet link provided is not valid");
         }
 
