@@ -311,12 +311,26 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/MagnetData'
-        totalElements:
-          type: integer
-          format: int64
-        last:
-          type: boolean
+        page:
+          type: object
+          properties:
+            size:
+              type: integer
+              format: int64
+            number:
+              type: integer
+              format: int64
+            totalElements:
+              type: integer
+              format: int64
+            totalPages:
+              type: integer
+              format: int64
+          required:
+            - size
+            - number
+            - totalElements
+            - totalPages
       required:
         - content
-        - totalElements
-        - last
+        - page
