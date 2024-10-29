@@ -21,7 +21,8 @@ import java.time.Duration;
         TmdbWrapper.Movie.class,
         TmdbWrapper.Tv.class,
         TmdbWrapper.Credits.class,
-        TmdbWrapper.Person.class
+        TmdbWrapper.Person.class,
+        DataMapperImpl.class
 })
 public class WebConfig implements WebMvcConfigurer {
 
