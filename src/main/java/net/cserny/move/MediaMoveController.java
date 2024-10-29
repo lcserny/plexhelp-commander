@@ -21,7 +21,6 @@ public class MediaMoveController {
 
     @PostMapping
     public List<MediaMoveError> moveMedia(@RequestBody MediaMoveRequest moveRequest) {
-        log.info("Received moveMedia request with payload {}", moveRequest);
         return service.moveMedia(moveRequest.fileGroup(), moveRequest.type());
     }
 }

@@ -19,7 +19,6 @@ public class MediaRenameController {
 
     @PostMapping
     public RenamedMediaOptions produceRenames(@RequestBody MediaRenameRequest request) {
-        log.info("Received produceRenames request for payload {}", request);
         return service.produceNames(request.name(), request.type());
     }
 }

@@ -20,7 +20,6 @@ public class MediaSearchController {
 
     @GetMapping
     public List<MediaFileGroup> searchMedia() {
-        log.info("Received searchMedia request");
         return service.findMedia();
     }
 }

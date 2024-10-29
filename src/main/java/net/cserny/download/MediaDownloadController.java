@@ -22,7 +22,6 @@ public class MediaDownloadController {
 
     @GetMapping
     public List<DownloadedMedia> downloadsCompleted(@RequestParam int year, @RequestParam int month, @RequestParam int day) {
-        log.info("Received downloadsCompleted request for year {}, month {} and day {}", year, month, day);
         return service.retrieveAllFromDate(LocalDate.of(year, month, day));
     }
 }

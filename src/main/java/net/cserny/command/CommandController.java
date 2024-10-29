@@ -19,7 +19,6 @@ public class CommandController {
 
     @PostMapping
     public CommandResponse executeCommand(@RequestBody CommandRequest commandRequest) {
-        log.info("Received commandRequest request with payload {}", commandRequest);
         return localCommandService.execute(commandRequest.name(), commandRequest.params());
     }
 }
