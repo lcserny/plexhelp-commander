@@ -14,6 +14,7 @@ public class Magnet {
 
     @Id
     private ObjectId id;
+    @Indexed(name = "name_idx")
     private String name;
     @Indexed(name = "hash_idx")
     private String hash;
