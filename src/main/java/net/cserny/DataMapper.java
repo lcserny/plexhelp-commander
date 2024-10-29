@@ -9,7 +9,7 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface DataMapper {
 
     DataMapper INSTANCE = Mappers.getMapper(DataMapper.class);
