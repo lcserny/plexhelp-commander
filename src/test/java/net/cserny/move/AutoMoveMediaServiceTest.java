@@ -7,7 +7,7 @@ import net.cserny.VirtualExecutor;
 import net.cserny.download.DownloadedMedia;
 import net.cserny.download.DownloadedMediaRepository;
 import net.cserny.filesystem.FilesystemProperties;
-import net.cserny.rename.MediaFileType;
+import net.cserny.generated.MediaFileType;
 import net.cserny.rename.OnlineCacheItem;
 import net.cserny.rename.OnlineCacheRepository;
 import org.jetbrains.annotations.NotNull;
@@ -156,7 +156,7 @@ class AutoMoveMediaServiceTest extends AbstractInMemoryFileService {
         cacheItem.setSearchYear(searchYear);
         cacheItem.setTitle(title);
         cacheItem.setDate(date);
-        cacheItem.setMediaType(type);
+        cacheItem.setMediaType(type.getValue());
         return onlineCacheRepository.save(cacheItem);
     }
 

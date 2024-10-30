@@ -1,5 +1,8 @@
 package net.cserny.rename;
 
+import net.cserny.generated.MediaDescriptionData;
+
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -12,7 +15,7 @@ public record MediaDescription(String posterUrl, String title, String date, Stri
     private static final Pattern titleRegex = Pattern
             .compile("^\\s*(?<name>[a-zA-Z0-9-\\s]+)\\s\\((?<date>(\\d{4})(-\\d{1,2}-\\d{1,2})?)\\)$");
 
-    public static List<MediaDescription> generateDescFrom(List<String> titles) {
+    public static List<MediaDescriptionData> generateDescFrom(List<String> titles) {
         return titles.stream()
                 .map(title -> {
                     String parsedTitle = title;
@@ -24,8 +27,10 @@ public record MediaDescription(String posterUrl, String title, String date, Stri
                         date = matcher.group("date");
                     }
 
-                    return new MediaDescription(
-                            null, parsedTitle, date, null, new ArrayList<>());
+                    return new MediaDescriptionData()
+                            .title(parsedTitle)
+                            .date(date)
+                            .cast(new ArrayList<>());
                 })
                 .collect(Collectors.toList());
     }

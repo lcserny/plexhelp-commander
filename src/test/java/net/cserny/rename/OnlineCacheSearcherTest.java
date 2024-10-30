@@ -1,6 +1,8 @@
 package net.cserny.rename;
 
 import net.cserny.MongoTestConfiguration;
+import net.cserny.generated.MediaFileType;
+import net.cserny.generated.RenamedMediaOptions;
 import net.cserny.rename.NameNormalizer.NameYear;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -37,21 +39,21 @@ public class OnlineCacheSearcherTest {
         OnlineCacheItem item1 = new OnlineCacheItem();
         item1.setSearchName(nameYear.name());
         item1.setSearchYear(nameYear.year());
-        item1.setMediaType(MediaFileType.MOVIE);
+        item1.setMediaType(MediaFileType.MOVIE.getValue());
         item1.setDescription(desc);
 
         OnlineCacheItem item2 = new OnlineCacheItem();
         item2.setSearchName(nameYear.name());
         item2.setSearchYear(nameYear.year());
-        item2.setMediaType(MediaFileType.TV);
+        item2.setMediaType(MediaFileType.TV.getValue());
         item2.setDescription(desc);
 
         repository.saveAll(List.of(item1, item2));
 
         RenamedMediaOptions options = searcher.search(nameYear, MediaFileType.MOVIE);
 
-        assertEquals(1, options.mediaDescriptions().size());
-        assertEquals(desc, options.mediaDescriptions().get(0).description());
+        assertEquals(1, options.getMediaDescriptions().size());
+        assertEquals(desc, options.getMediaDescriptions().getFirst().getDescription());
     }
 
     @Test
@@ -63,19 +65,19 @@ public class OnlineCacheSearcherTest {
         OnlineCacheItem item1 = new OnlineCacheItem();
         item1.setSearchName(nameYear.name());
         item1.setSearchYear(nameYear.year());
-        item1.setMediaType(MediaFileType.MOVIE);
+        item1.setMediaType(MediaFileType.MOVIE.getValue());
         item1.setDescription(desc);
 
         OnlineCacheItem item2 = new OnlineCacheItem();
         item2.setSearchName(nameYear.name());
         item2.setSearchYear(2022);
-        item2.setMediaType(MediaFileType.MOVIE);
+        item2.setMediaType(MediaFileType.MOVIE.getValue());
         item2.setDescription(desc);
 
         repository.saveAll(List.of(item1, item2));
 
         RenamedMediaOptions options = searcher.search(nameYear, MediaFileType.MOVIE);
 
-        assertEquals(2, options.mediaDescriptions().size());
+        assertEquals(2, options.getMediaDescriptions().size());
     }
 }

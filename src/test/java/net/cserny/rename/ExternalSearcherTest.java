@@ -1,6 +1,9 @@
 package net.cserny.rename;
 
 import net.cserny.MongoTestConfiguration;
+import net.cserny.generated.MediaFileType;
+import net.cserny.generated.MediaRenameOrigin;
+import net.cserny.generated.RenamedMediaOptions;
 import net.cserny.rename.NameNormalizer.NameYear;
 import net.cserny.rename.TmdbWrapper.Credits;
 import net.cserny.rename.TmdbWrapper.Movie;
@@ -60,13 +63,13 @@ class ExternalSearcherTest {
 
         RenamedMediaOptions options = searcher.search(movie, MediaFileType.MOVIE);
 
-        assertEquals(MediaRenameOrigin.EXTERNAL, options.origin());
-        assertEquals(1, options.mediaDescriptions().size());
-        assertEquals(title, options.mediaDescriptions().get(0).title());
+        assertEquals(MediaRenameOrigin.EXTERNAL, options.getOrigin());
+        assertEquals(1, options.getMediaDescriptions().size());
+        assertEquals(title, options.getMediaDescriptions().getFirst().getTitle());
 
-        List<OnlineCacheItem> onlineCacheItems = repository.findByNameYearAndType(movie.name(), movie.year(), MediaFileType.MOVIE);
+        List<OnlineCacheItem> onlineCacheItems = repository.findByNameYearAndType(movie.name(), movie.year(), MediaFileType.MOVIE.getValue());
         assertEquals(1, onlineCacheItems.size());
-        assertEquals(title, onlineCacheItems.get(0).getTitle());
+        assertEquals(title, onlineCacheItems.getFirst().getTitle());
     }
 
     @Test
@@ -89,13 +92,13 @@ class ExternalSearcherTest {
 
         RenamedMediaOptions options = searcher.search(tvShow, MediaFileType.TV);
 
-        assertEquals(MediaRenameOrigin.EXTERNAL, options.origin());
-        assertEquals(1, options.mediaDescriptions().size());
-        assertEquals(title, options.mediaDescriptions().get(0).title());
+        assertEquals(MediaRenameOrigin.EXTERNAL, options.getOrigin());
+        assertEquals(1, options.getMediaDescriptions().size());
+        assertEquals(title, options.getMediaDescriptions().getFirst().getTitle());
 
-        List<OnlineCacheItem> onlineCacheItems = repository.findByNameYearAndType(tvShow.name(), tvShow.year(), MediaFileType.TV);
+        List<OnlineCacheItem> onlineCacheItems = repository.findByNameYearAndType(tvShow.name(), tvShow.year(), MediaFileType.TV.getValue());
         assertEquals(1, onlineCacheItems.size());
-        assertEquals(title, onlineCacheItems.get(0).getTitle());
+        assertEquals(title, onlineCacheItems.getFirst().getTitle());
     }
 
     private Movie createMovie(int id, String title) {

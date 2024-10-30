@@ -5,6 +5,7 @@ import net.cserny.filesystem.FilesystemProperties;
 import net.cserny.filesystem.LocalFileService;
 import net.cserny.filesystem.LocalPath;
 
+import net.cserny.generated.MediaFileGroup;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -81,7 +82,7 @@ public class MediaSearchService {
         for (Map.Entry<Pair<String, String>, List<String>> entry : tmpMap.entrySet()) {
             Pair<String, String> key = entry.getKey();
             List<String> value = entry.getValue();
-            MediaFileGroup mediaFileGroup = new MediaFileGroup(key.getLeft(), key.getRight(), value);
+            MediaFileGroup mediaFileGroup = new MediaFileGroup().path(key.getLeft()).name(key.getRight()).videos(value);
             mediaFileGroups.add(mediaFileGroup);
         }
 

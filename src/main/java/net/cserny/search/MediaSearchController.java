@@ -1,6 +1,7 @@
 package net.cserny.search;
 
 import lombok.extern.slf4j.Slf4j;
+import net.cserny.generated.MediaFileGroup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;

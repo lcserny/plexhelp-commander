@@ -3,6 +3,7 @@ package net.cserny.command;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 
+import net.cserny.generated.CommandRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -39,7 +40,7 @@ public class CommandControllerTest {
     @Test
     @DisplayName("Check that the endpoint can run a command through service")
     public void testCanExecuteLocalCommand() {
-        CommandRequest request = new CommandRequest(TestCommand.TEST_COMMAND, null);
+        CommandRequest request = new CommandRequest().name(TestCommand.TEST_COMMAND);
         
         given()
                 .contentType(ContentType.JSON)

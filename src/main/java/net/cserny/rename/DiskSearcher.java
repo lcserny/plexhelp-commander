@@ -4,18 +4,19 @@ import lombok.extern.slf4j.Slf4j;
 import net.cserny.filesystem.FilesystemProperties;
 import net.cserny.filesystem.LocalFileService;
 import net.cserny.filesystem.LocalPath;
+import net.cserny.generated.MediaFileType;
+import net.cserny.generated.MediaRenameOrigin;
+import net.cserny.generated.RenamedMediaOptions;
 import net.cserny.rename.NameNormalizer.NameYear;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import static net.cserny.filesystem.LocalFileService.WalkOptions.ONLY_DIRECTORIES;
 import static net.cserny.rename.MediaDescription.generateDescFrom;
@@ -59,7 +60,7 @@ public class DiskSearcher implements Searcher {
             log.warn("Could not walk path " + mediaPath.path(), e);
         }
 
-        return new RenamedMediaOptions(MediaRenameOrigin.DISK, generateDescFrom(nameVariants));
+        return new RenamedMediaOptions().origin(MediaRenameOrigin.DISK).mediaDescriptions(generateDescFrom(nameVariants));
     }
 
     private DiskPath convertAndTrimReleaseDate(LocalPath path) {

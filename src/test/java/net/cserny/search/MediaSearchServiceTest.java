@@ -3,6 +3,7 @@ package net.cserny.search;
 import net.cserny.filesystem.AbstractInMemoryFileService;
 import net.cserny.filesystem.FilesystemProperties;
 import net.cserny.filesystem.LocalFileService;
+import net.cserny.generated.MediaFileGroup;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,7 +83,7 @@ public class MediaSearchServiceTest extends AbstractInMemoryFileService {
         String downloadPath = filesystemConfig.getDownloadsPath();
         String video1 = downloadPath + "/video1.mp4";
         createFile(6, video1);
-        String video2 = downloadPath + "/" + searchConfig.getExcludePaths().get(0) + "/video2.mp4";
+        String video2 = downloadPath + "/" + searchConfig.getExcludePaths().getFirst() + "/video2.mp4";
         createFile(6, video2);
         String video3 = downloadPath + "/video3.mp4";
         createFile(6, video3);
@@ -98,12 +99,12 @@ public class MediaSearchServiceTest extends AbstractInMemoryFileService {
         List<MediaFileGroup> media = service.findMedia();
 
         assertEquals(3, media.size());
-        assertEquals(downloadPath, media.get(0).path());
-        assertEquals("video1", media.get(0).name());
-        assertEquals(downloadPath + "/some tvShow", media.get(2).path());
-        assertEquals("some tvShow", media.get(2).name());
-        assertEquals("video1.mp4", media.get(2).videos().get(0));
-        assertEquals("video3.mp4", media.get(2).videos().get(1));
-        assertEquals("video5.mp4", media.get(2).videos().get(2));
+        assertEquals(downloadPath, media.get(0).getPath());
+        assertEquals("video1", media.get(0).getName());
+        assertEquals(downloadPath + "/some tvShow", media.get(2).getPath());
+        assertEquals("some tvShow", media.get(2).getName());
+        assertEquals("video1.mp4", media.get(2).getVideos().get(0));
+        assertEquals("video3.mp4", media.get(2).getVideos().get(1));
+        assertEquals("video5.mp4", media.get(2).getVideos().get(2));
     }
 }

@@ -6,8 +6,9 @@ import net.cserny.filesystem.AbstractInMemoryFileService;
 import net.cserny.MongoTestConfiguration;
 import net.cserny.filesystem.FilesystemProperties;
 import net.cserny.filesystem.LocalFileService;
-import net.cserny.rename.MediaFileType;
-import net.cserny.search.MediaFileGroup;
+import net.cserny.generated.MediaFileGroup;
+import net.cserny.generated.MediaFileType;
+import net.cserny.generated.MediaMoveRequest;
 import net.cserny.search.MediaIdentificationService;
 import net.cserny.search.SearchProperties;
 import org.junit.jupiter.api.BeforeEach;
@@ -83,8 +84,8 @@ public class MediaMoveControllerTest extends AbstractInMemoryFileService {
 
         createFile(6, path + "/" + video);
 
-        MediaFileGroup fileGroup = new MediaFileGroup(path, name, List.of(video));
-        MediaMoveRequest request = new MediaMoveRequest(fileGroup, MediaFileType.MOVIE);
+        MediaFileGroup fileGroup = new MediaFileGroup().path(path).name(name).videos(List.of(video));
+        MediaMoveRequest request = new MediaMoveRequest().fileGroup(fileGroup).type(MediaFileType.MOVIE);
 
         given()
                 .contentType(ContentType.JSON)

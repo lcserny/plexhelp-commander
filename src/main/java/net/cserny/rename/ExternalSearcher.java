@@ -1,6 +1,10 @@
 package net.cserny.rename;
 
 import lombok.extern.slf4j.Slf4j;
+import net.cserny.DataMapper;
+import net.cserny.generated.MediaFileType;
+import net.cserny.generated.MediaRenameOrigin;
+import net.cserny.generated.RenamedMediaOptions;
 import net.cserny.rename.NameNormalizer.NameYear;
 import net.cserny.rename.TmdbWrapper.Credits;
 import net.cserny.rename.TmdbWrapper.Movie;
@@ -46,7 +50,8 @@ public class ExternalSearcher implements Searcher {
         log.info("Saving media found to cache {}", items);
         repository.saveAll(items);
 
-        return new RenamedMediaOptions(MediaRenameOrigin.EXTERNAL, mediaFound);
+        return new RenamedMediaOptions().origin(MediaRenameOrigin.EXTERNAL)
+                .mediaDescriptions(mediaFound.stream().map(DataMapper.INSTANCE::descriptionToDescriptionData).toList());
     }
 
     private OnlineCacheItem convert(NameYear nameYear, MediaDescription description, MediaFileType mediaType) {
@@ -58,7 +63,7 @@ public class ExternalSearcher implements Searcher {
         item.setDate(StringUtils.isBlank(description.date()) ? null : LocalDate.parse(description.date()).atStartOfDay(ZoneOffset.UTC).toInstant());
         item.setDescription(description.description());
         item.setCast(description.cast());
-        item.setMediaType(mediaType);
+        item.setMediaType(mediaType.getValue());
         return item;
     }
 

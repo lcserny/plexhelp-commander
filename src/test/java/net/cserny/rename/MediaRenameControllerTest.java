@@ -6,6 +6,9 @@ import net.cserny.filesystem.AbstractInMemoryFileService;
 import net.cserny.MongoTestConfiguration;
 import net.cserny.filesystem.FilesystemProperties;
 import net.cserny.filesystem.LocalFileService;
+import net.cserny.generated.MediaFileType;
+import net.cserny.generated.MediaRenameOrigin;
+import net.cserny.generated.MediaRenameRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -68,7 +71,7 @@ class MediaRenameControllerTest extends AbstractInMemoryFileService {
     @Test
     @DisplayName("Check that the endpoint can produce media rename options")
     public void testCanProduceMediaRenameOptions() {
-        MediaRenameRequest request = new MediaRenameRequest("My Movie (2022)", MediaFileType.MOVIE);
+        MediaRenameRequest request = new MediaRenameRequest().name("My Movie (2022)").type(MediaFileType.MOVIE);
 
         given()
                 .contentType(ContentType.JSON)
@@ -76,7 +79,7 @@ class MediaRenameControllerTest extends AbstractInMemoryFileService {
                 .when().post("/api/v1/media-renames")
                 .then()
                 .statusCode(200)
-                .body("origin", is(MediaRenameOrigin.NAME.toString()))
+                .body("origin", is(MediaRenameOrigin.NAME.getValue()))
                 .body("mediaDescriptions[0].title", is("My Movie"))
                 .body("mediaDescriptions[0].date", is("2022"));
     }

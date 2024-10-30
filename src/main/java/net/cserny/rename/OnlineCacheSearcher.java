@@ -1,6 +1,10 @@
 package net.cserny.rename;
 
 import lombok.extern.slf4j.Slf4j;
+import net.cserny.DataMapper;
+import net.cserny.generated.MediaFileType;
+import net.cserny.generated.MediaRenameOrigin;
+import net.cserny.generated.RenamedMediaOptions;
 import net.cserny.rename.NameNormalizer.NameYear;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
@@ -26,16 +30,17 @@ public class OnlineCacheSearcher implements Searcher {
         List<OnlineCacheItem> items;
         if (nameYear.year() == null) {
             log.warn("No year specified, searching cache only by name {}", nameYear.name());
-            items = repository.findByNameAndType(nameYear.name(), type);
+            items = repository.findByNameAndType(nameYear.name(), type.getValue());
         } else {
-            items = repository.findByNameYearAndType(nameYear.name(), nameYear.year(), type);
+            items = repository.findByNameYearAndType(nameYear.name(), nameYear.year(), type.getValue());
         }
 
         List<MediaDescription> mediaDescriptions = items.stream()
                 .map(this::convert)
                 .collect(Collectors.toList());
 
-        return new RenamedMediaOptions(MediaRenameOrigin.CACHE, mediaDescriptions);
+        return new RenamedMediaOptions().origin(MediaRenameOrigin.CACHE)
+                .mediaDescriptions(mediaDescriptions.stream().map(DataMapper.INSTANCE::descriptionToDescriptionData).toList());
     }
 
     private MediaDescription convert(OnlineCacheItem item) {

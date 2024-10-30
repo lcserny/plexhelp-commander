@@ -1,6 +1,8 @@
 package net.cserny.command;
 
 import lombok.extern.slf4j.Slf4j;
+import net.cserny.generated.CommandResponse;
+import net.cserny.generated.Status;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,10 +25,10 @@ public class LocalCommandService {
                     return command.execute(params);
                 } catch (Exception e) {
                     log.warn(format("Error occurred executing command: %s", name), e);
-                    return new CommandResponse(CommandResponse.Status.FAILED);
+                    return new CommandResponse().status(Status.FAILED);
                 }
             }
         }
-        return new CommandResponse(CommandResponse.Status.NOT_FOUND);
+        return new CommandResponse().status(Status.NOT_FOUND);
     }
 }

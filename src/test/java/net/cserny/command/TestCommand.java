@@ -1,5 +1,6 @@
 package net.cserny.command;
 
+import net.cserny.generated.CommandResponse;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -12,7 +13,7 @@ public class TestCommand implements Command {
     @Override
     public CommandResponse execute(String[] params) {
         executed = true;
-        return CommandResponse.EMPTY;
+        return Command.EMPTY;
     }
 
     @Override

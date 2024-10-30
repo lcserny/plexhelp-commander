@@ -2,6 +2,7 @@ package net.cserny.command;
 
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.command.shutdown.ShutdownCommand;
+import net.cserny.generated.CommandResponse;
 import org.apache.commons.lang3.SystemUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -29,7 +30,7 @@ public abstract class AbstractShutdownCommand implements Command {
             throw new RuntimeException(e);
         }
 
-        return CommandResponse.EMPTY;
+        return Command.EMPTY;
     }
 
     private void validate() {

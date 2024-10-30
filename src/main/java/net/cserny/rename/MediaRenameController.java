@@ -1,6 +1,8 @@
 package net.cserny.rename;
 
 import lombok.extern.slf4j.Slf4j;
+import net.cserny.generated.MediaRenameRequest;
+import net.cserny.generated.RenamedMediaOptions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,6 +21,6 @@ public class MediaRenameController {
 
     @PostMapping
     public RenamedMediaOptions produceRenames(@RequestBody MediaRenameRequest request) {
-        return service.produceNames(request.name(), request.type());
+        return service.produceNames(request.getName(), request.getType());
     }
 }

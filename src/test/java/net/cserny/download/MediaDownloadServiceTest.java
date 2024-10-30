@@ -1,5 +1,6 @@
 package net.cserny.download;
 
+import net.cserny.generated.DownloadedMediaData;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,12 +54,12 @@ public class MediaDownloadServiceTest {
 
         repository.saveAll(Arrays.asList(media, media2));
 
-        List<DownloadedMedia> list = service.retrieveAllFromDate(date.toLocalDate());
+        List<DownloadedMediaData> list = service.retrieveAllFromDate(date.toLocalDate());
 
         assertNotNull(list);
         assertEquals(1, list.size());
-        assertEquals(name, list.get(0).getFileName());
-        assertEquals(size, list.get(0).getFileSize());
-        assertEquals(media1Date, list.get(0).getDateDownloaded());
+        assertEquals(name, list.getFirst().getFileName());
+        assertEquals(size, list.getFirst().getFileSize());
+        assertEquals(media1Date.atOffset(ZoneOffset.UTC), list.getFirst().getDateDownloaded());
     }
 }

@@ -4,8 +4,9 @@ import net.cserny.filesystem.AbstractInMemoryFileService;
 import net.cserny.MongoTestConfiguration;
 import net.cserny.filesystem.FilesystemProperties;
 import net.cserny.filesystem.LocalFileService;
-import net.cserny.rename.MediaFileType;
-import net.cserny.search.MediaFileGroup;
+import net.cserny.generated.MediaFileGroup;
+import net.cserny.generated.MediaFileType;
+import net.cserny.generated.MediaMoveError;
 import net.cserny.search.MediaIdentificationService;
 import net.cserny.search.SearchProperties;
 import org.junit.jupiter.api.BeforeEach;
@@ -65,7 +66,7 @@ public class MediaMoveServiceTest extends AbstractInMemoryFileService {
         createDirectories(filesystemConfig.getMoviesPath() + "/" + name);
         createFile(6, path + "/" + movie);
 
-        MediaFileGroup fileGroup = new MediaFileGroup(path, name, List.of(movie));
+        MediaFileGroup fileGroup = new MediaFileGroup().path(path).name(name).videos(List.of(movie));
         List<MediaMoveError> errors = service.moveMedia(fileGroup, MediaFileType.MOVIE);
 
         assertEquals(1, errors.size());
@@ -82,7 +83,7 @@ public class MediaMoveServiceTest extends AbstractInMemoryFileService {
         createDirectories(filesystemConfig.getTvPath() + "/" + name);
         createFile(6, path + "/" + show);
 
-        MediaFileGroup fileGroup = new MediaFileGroup(path, name, List.of(show));
+        MediaFileGroup fileGroup = new MediaFileGroup().path(path).name(name).videos(List.of(show));
         List<MediaMoveError> errors = service.moveMedia(fileGroup, MediaFileType.TV);
 
         assertEquals(0, errors.size());
@@ -102,7 +103,7 @@ public class MediaMoveServiceTest extends AbstractInMemoryFileService {
 
         createFile(6, path + "/" + movie);
 
-        MediaFileGroup fileGroup = new MediaFileGroup(path, name, List.of(movie));
+        MediaFileGroup fileGroup = new MediaFileGroup().path(path).name(name).videos(List.of(movie));
         List<MediaMoveError> errors = service.moveMedia(fileGroup, MediaFileType.MOVIE);
 
         assertEquals(0, errors.size());
@@ -121,7 +122,7 @@ public class MediaMoveServiceTest extends AbstractInMemoryFileService {
         String tv = format("%s/%s", subdir, videoFile);
         createFile(6, path + "/" + tv);
 
-        MediaFileGroup fileGroup = new MediaFileGroup(path, name, List.of(tv));
+        MediaFileGroup fileGroup = new MediaFileGroup().path(path).name(name).videos(List.of(tv));
         List<MediaMoveError> errors = service.moveMedia(fileGroup, MediaFileType.TV);
 
         assertEquals(0, errors.size());
@@ -139,8 +140,10 @@ public class MediaMoveServiceTest extends AbstractInMemoryFileService {
         createFile(6, filesystemConfig.getDownloadsPath(), name, sampleFile);
         createFile(10, filesystemConfig.getDownloadsPath(), name, movieFile);
 
-        MediaFileGroup fileGroup = new MediaFileGroup(format("%s/%s", filesystemConfig.getDownloadsPath(), name), name,
-                List.of(sampleFile, movieFile));
+        MediaFileGroup fileGroup = new MediaFileGroup()
+                .path(format("%s/%s", filesystemConfig.getDownloadsPath(), name))
+                .name(name)
+                .videos(List.of(sampleFile, movieFile));
         List<MediaMoveError> errors = service.moveMedia(fileGroup, MediaFileType.MOVIE);
 
         assertEquals(0, errors.size());

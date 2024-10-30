@@ -7,9 +7,9 @@ import net.cserny.download.DownloadedMediaRepository;
 import net.cserny.filesystem.FilesystemProperties;
 import net.cserny.filesystem.LocalFileService;
 import net.cserny.filesystem.LocalPath;
+import net.cserny.generated.*;
 import net.cserny.rename.*;
 import net.cserny.rename.NameNormalizer.NameYear;
-import net.cserny.search.MediaFileGroup;
 import net.cserny.search.MediaSearchService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -98,7 +98,7 @@ public class AutoMoveMediaService {
             }
 
             MediaFileGroup group = groups.getFirst();
-            NameYear nameYear = normalizer.normalize(group.name());
+            NameYear nameYear = normalizer.normalize(group.getName());
 
             Optional<AutoMoveOption> autoMoveOptional = processOptions(group, nameYear);
             if (autoMoveOptional.isEmpty()) {
@@ -118,8 +118,8 @@ public class AutoMoveMediaService {
 
     private Optional<AutoMoveOption> processOptions(MediaFileGroup group, NameYear nameYear) {
         List<List<AutoMoveOption>> listOfAllOptions = this.threadpool.executeWithCurrentSpan(Stream.of(
-                () -> produceOptions(group.name(), MediaFileType.MOVIE, nameYear.name()),
-                () -> produceOptions(group.name(), MediaFileType.TV, nameYear.name())
+                () -> produceOptions(group.getName(), MediaFileType.MOVIE, nameYear.name()),
+                () -> produceOptions(group.getName(), MediaFileType.TV, nameYear.name())
         ));
         List<AutoMoveOption> allOptions = listOfAllOptions.stream().flatMap(List::stream).toList();
 
@@ -159,9 +159,9 @@ public class AutoMoveMediaService {
     }
 
     private String moveMedia(AutoMoveOption option, MediaFileGroup group) {
-        MediaDescription desc = option.desc();
-        String movedName = desc.title() + (desc.date() != null && !desc.date().isEmpty() ? format(" (%s)", desc.date()) : "");
-        MediaFileGroup resultGroup = new MediaFileGroup(group.path(), movedName, group.videos());
+        MediaDescriptionData desc = option.desc();
+        String movedName = desc.getTitle() + (desc.getDate() != null && !desc.getDate().isEmpty() ? format(" (%s)", desc.getDate()) : "");
+        MediaFileGroup resultGroup = new MediaFileGroup().path(group.getPath()).name(movedName).videos(group.getVideos());
         moveService.moveMedia(resultGroup, option.type());
         return movedName;
     }
@@ -177,8 +177,8 @@ public class AutoMoveMediaService {
         autoMoveMedia.setMovedName(movedName);
         autoMoveMedia.setMoveDate(Instant.now(Clock.systemUTC()));
         autoMoveMedia.setSimilarityPercent(option.similarity());
-        autoMoveMedia.setOrigin(option.origin());
-        autoMoveMedia.setType(option.type());
+        autoMoveMedia.setOrigin(option.origin().getValue());
+        autoMoveMedia.setType(option.type().getValue());
         autoMoveMediaRepository.save(autoMoveMedia);
     }
 
@@ -186,12 +186,12 @@ public class AutoMoveMediaService {
         try {
             log.info("Producing {} options", type);
             RenamedMediaOptions options = renameService.produceNames(groupName, type);
-            return options.mediaDescriptions().stream()
+            return options.getMediaDescriptions().stream()
                     .map(description -> {
-                        String source = description.title();
+                        String source = description.getTitle();
                         int distance = SimilarityService.getDistance(source, compare);
                         int percent = SimilarityService.getSimilarityPercent(distance, compare.length());
-                        return new AutoMoveOption(description, type, options.origin(), percent);
+                        return new AutoMoveOption(description, type, options.getOrigin(), percent);
                     })
                     .toList();
         } catch (Exception e) {
@@ -200,6 +200,6 @@ public class AutoMoveMediaService {
         }
     }
 
-    private record AutoMoveOption(MediaDescription desc, MediaFileType type, MediaRenameOrigin origin, int similarity) {
+    private record AutoMoveOption(MediaDescriptionData desc, MediaFileType type, MediaRenameOrigin origin, int similarity) {
     }
 }

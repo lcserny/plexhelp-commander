@@ -1,6 +1,8 @@
 package net.cserny.command;
 
 import lombok.extern.slf4j.Slf4j;
+import net.cserny.generated.CommandRequest;
+import net.cserny.generated.CommandResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,6 +21,10 @@ public class CommandController {
 
     @PostMapping
     public CommandResponse executeCommand(@RequestBody CommandRequest commandRequest) {
-        return localCommandService.execute(commandRequest.name(), commandRequest.params());
+        String[] params = null;
+        if (commandRequest.getParams() != null) {
+            params = commandRequest.getParams().toArray(new String[0]);
+        }
+        return localCommandService.execute(commandRequest.getName(), params);
     }
 }

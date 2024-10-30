@@ -50,7 +50,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/DownloadedMedia'
+                  $ref: '#/components/schemas/DownloadedMediaData'
   /api/v1/media-moves:
     post:
       tags:
@@ -168,31 +168,21 @@ components:
       properties:
         status:
           $ref: '#/components/schemas/Status'
-    Date:
-      format: date
-      type: string
-      example: 2022-03-10
-    DownloadedMedia:
+    DownloadedMediaData:
       type: object
       properties:
         id:
-          $ref: '#/components/schemas/ObjectId'
+          type: string
         fileName:
           type: string
         fileSize:
           format: int64
           type: integer
         dateDownloaded:
-          $ref: '#/components/schemas/LocalDateTime'
-    LocalDate:
-      format: date
-      type: string
-      example: 2022-03-10
-    LocalDateTime:
-      format: date-time
-      type: string
-      example: 2022-03-10T12:15:50
-    MediaDescription:
+          format: date-time
+          type: string
+          example: 2022-03-10T12:15:50
+    MediaDescriptionData:
       type: object
       properties:
         posterUrl:
@@ -200,7 +190,8 @@ components:
         title:
           type: string
         date:
-          $ref: '#/components/schemas/LocalDate'
+          type: string
+          example: 2022 or 2022-10-02
         description:
           type: string
         cast:
@@ -212,12 +203,23 @@ components:
       properties:
         path:
           type: string
+          description: The absolute parent source path of the videos list
         name:
           type: string
+          description: The name of the target subfolder that will be created in the media destination dir
         videos:
           type: array
+          description: The videos names list (gets merged with path above), can contain subpaths as well
           items:
             type: string
+        season:
+          format: int32
+          type: integer
+          description: Optional season to use for the subfolder in case of TV series.
+      required:
+        - path
+        - name
+        - videos
     MediaFileType:
       enum:
       - MOVIE
@@ -237,6 +239,9 @@ components:
           $ref: '#/components/schemas/MediaFileGroup'
         type:
           $ref: '#/components/schemas/MediaFileType'
+      required:
+        - fileGroup
+        - type
     MediaRenameOrigin:
       enum:
       - DISK
@@ -251,22 +256,6 @@ components:
           type: string
         type:
           $ref: '#/components/schemas/MediaFileType'
-    ObjectId:
-      type: object
-      properties:
-        timestamp:
-          format: int32
-          type: integer
-        counter:
-          format: int32
-          type: integer
-        randomValue1:
-          format: int32
-          type: integer
-        randomValue2:
-          type: integer
-        date:
-          $ref: '#/components/schemas/Date'
     RenamedMediaOptions:
       type: object
       properties:
@@ -275,7 +264,7 @@ components:
         mediaDescriptions:
           type: array
           items:
-            $ref: '#/components/schemas/MediaDescription'
+            $ref: '#/components/schemas/MediaDescriptionData'
     Status:
       enum:
       - SUCCESS

@@ -26,5 +26,5 @@ public class OnlineCacheItem {
     private String description;
     private List<String> cast;
     @Indexed(name = "mediaType_idx")
-    private MediaFileType mediaType;
+    private String mediaType;
 }

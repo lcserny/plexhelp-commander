@@ -1,6 +1,8 @@
 package net.cserny.move;
 
 import lombok.extern.slf4j.Slf4j;
+import net.cserny.generated.MediaMoveError;
+import net.cserny.generated.MediaMoveRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,6 +23,6 @@ public class MediaMoveController {
 
     @PostMapping
     public List<MediaMoveError> moveMedia(@RequestBody MediaMoveRequest moveRequest) {
-        return service.moveMedia(moveRequest.fileGroup(), moveRequest.type());
+        return service.moveMedia(moveRequest.getFileGroup(), moveRequest.getType());
     }
 }

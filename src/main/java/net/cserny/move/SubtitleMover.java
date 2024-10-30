@@ -5,6 +5,7 @@ import net.cserny.filesystem.FilesystemProperties;
 import net.cserny.filesystem.LocalFileService;
 import net.cserny.filesystem.LocalFileService.WalkOptions;
 import net.cserny.filesystem.LocalPath;
+import net.cserny.generated.MediaMoveError;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -48,7 +49,7 @@ public class SubtitleMover {
                     .toList();
         } catch (IOException e) {
             log.warn("Could not walk subs path", e);
-            errors.add(new MediaMoveError(operation.subsSrc().path().toString(), e.getMessage()));
+            errors.add(new MediaMoveError().mediaPath(operation.subsSrc().path().toString()).error(e.getMessage()));
             return errors;
         }
 
@@ -88,7 +89,7 @@ public class SubtitleMover {
                 fileService.move(subSrc, subDest);
             } catch (IOException e) {
                 log.warn("Could not move sub", e);
-                errors.add(new MediaMoveError(subSrc.path().toString(), e.getMessage()));
+                errors.add(new MediaMoveError().mediaPath(subSrc.path().toString()).error(e.getMessage()));
             }
         }
 
@@ -108,7 +109,7 @@ public class SubtitleMover {
                 fileService.move(subSrc, subDest);
             } catch (IOException e) {
                 log.warn("Could not move sub", e);
-                errors.add(new MediaMoveError(subSrc.path().toString(), e.getMessage()));
+                errors.add(new MediaMoveError().mediaPath(subSrc.path().toString()).error(e.getMessage()));
             }
         }
 

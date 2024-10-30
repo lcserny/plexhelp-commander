@@ -5,8 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import net.cserny.filesystem.FilesystemProperties;
 import net.cserny.filesystem.LocalFileService;
 import net.cserny.filesystem.LocalPath;
-import net.cserny.rename.MediaFileType;
-import net.cserny.search.MediaFileGroup;
+import net.cserny.generated.MediaFileGroup;
+import net.cserny.generated.MediaFileType;
+import net.cserny.generated.MediaMoveError;
 import net.cserny.search.MediaIdentificationService;
 import net.cserny.search.SearchProperties;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,9 +59,9 @@ public class MediaMoveService {
     public List<MediaMoveError> moveMedia(MediaFileGroup fileGroup, MediaFileType type) {
         List<MediaMoveError> errors = new ArrayList<>();
 
-        if (movieExists(fileGroup.name(), type)) {
-            log.info("Movie already exists {}", fileGroup.name());
-            return List.of(new MediaMoveError(fileGroup.name(), MOVIE_EXISTS));
+        if (movieExists(fileGroup.getName(), type)) {
+            log.info("Movie already exists {}", fileGroup.getName());
+            return List.of(new MediaMoveError().mediaPath(fileGroup.getName()).error(MOVIE_EXISTS));
         }
 
         String destRoot = switch (type) {
@@ -73,31 +74,31 @@ public class MediaMoveService {
         List<LocalPath> deletableVideos = parsedVideos.deletableVideos();
 
         for (String video : videos) {
-            LocalPath srcPath = fileService.toLocalPath(fileGroup.path(), video);
+            LocalPath srcPath = fileService.toLocalPath(fileGroup.getPath(), video);
             String videoNameOnly = fileService.toLocalPath(video).path().getFileName().toString();
-            LocalPath destPath = fileService.toLocalPath(destRoot, fileGroup.name(), videoNameOnly);
+            LocalPath destPath = fileService.toLocalPath(destRoot, fileGroup.getName(), videoNameOnly);
 
             try {
                 log.info("Moving video {} to {}", srcPath, destPath);
                 fileService.move(srcPath, destPath);
             } catch (IOException e) {
                 log.warn("Could not move media", e);
-                errors.add(new MediaMoveError(srcPath.path().toString(), e.getMessage()));
+                errors.add(new MediaMoveError().mediaPath(srcPath.path().toString()).error(e.getMessage()));
             }
         }
 
-        LocalPath subsSrc = fileService.toLocalPath(fileGroup.path());
-        LocalPath subsDest = fileService.toLocalPath(destRoot, fileGroup.name());
+        LocalPath subsSrc = fileService.toLocalPath(fileGroup.getPath());
+        LocalPath subsDest = fileService.toLocalPath(destRoot, fileGroup.getName());
         SubsMoveOperation subsMoveOperation = new SubsMoveOperation(subsSrc, subsDest, type);
         errors.addAll(subtitleMover.moveSubs(subsMoveOperation));
 
         if (errors.isEmpty()) {
             try {
-                log.info("Cleaning source media folders {}", fileGroup.path());
+                log.info("Cleaning source media folders {}", fileGroup.getPath());
                 cleanSourceMediaDir(fileGroup, deletableVideos);
             } catch (IOException e) {
                 log.warn("Could not clean source media folder", e);
-                errors.add(new MediaMoveError(fileGroup.path(), e.getMessage()));
+                errors.add(new MediaMoveError().mediaPath(fileGroup.getPath()).error(e.getMessage()));
             }
         }
 
@@ -105,10 +106,10 @@ public class MediaMoveService {
     }
 
     private void cleanSourceMediaDir(MediaFileGroup mediaFileGroup, List<LocalPath> deletableVideos) throws IOException {
-        LocalPath removePath = fileService.toLocalPath(mediaFileGroup.path());
+        LocalPath removePath = fileService.toLocalPath(mediaFileGroup.getPath());
 
         for (String folder : importantFolders) {
-            if (mediaFileGroup.path().equals(folder)) {
+            if (mediaFileGroup.getPath().equals(folder)) {
                 log.info("Clean source media dir aborted, important folder, {}", folder);
                 return;
             }

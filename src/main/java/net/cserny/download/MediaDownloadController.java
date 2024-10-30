@@ -1,6 +1,7 @@
 package net.cserny.download;
 
 import lombok.extern.slf4j.Slf4j;
+import net.cserny.generated.DownloadedMediaData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,7 +22,7 @@ public class MediaDownloadController {
     MediaDownloadService service;
 
     @GetMapping
-    public List<DownloadedMedia> downloadsCompleted(@RequestParam int year, @RequestParam int month, @RequestParam int day) {
+    public List<DownloadedMediaData> downloadsCompleted(@RequestParam int year, @RequestParam int month, @RequestParam int day) {
         return service.retrieveAllFromDate(LocalDate.of(year, month, day));
     }
 }

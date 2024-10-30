@@ -1,7 +1,7 @@
 package net.cserny.move;
 
-import net.cserny.rename.MediaFileType;
-import net.cserny.search.MediaFileGroup;
+import net.cserny.generated.MediaFileGroup;
+import net.cserny.generated.MediaFileType;
 
 public interface VideosParser {
 
