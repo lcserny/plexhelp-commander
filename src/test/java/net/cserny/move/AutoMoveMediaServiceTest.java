@@ -79,7 +79,7 @@ class AutoMoveMediaServiceTest extends AbstractInMemoryFileService {
         service.autoMoveMedia();
 
         assertTrue(Files.exists(
-                fileService.toLocalPath(filesystemConfig.getMoviesPath(), title, video).path()));
+                fileService.toLocalPath(filesystemConfig.getMoviesPath(), title, title + ".mp4").path()));
         DownloadedMedia savedMedia = verifyDownloadedMedia(media);
         verifyAutoMovedMedia(savedMedia);
     }
@@ -95,7 +95,7 @@ class AutoMoveMediaServiceTest extends AbstractInMemoryFileService {
 
         service.autoMoveMedia();
 
-        assertTrue(Files.exists(fileService.toLocalPath(filesystemConfig.getTvPath(), name, video).path()));
+        assertTrue(Files.exists(fileService.toLocalPath(filesystemConfig.getTvPath(), name, name + ".mp4").path()));
         DownloadedMedia savedMedia = verifyDownloadedMedia(media);
         verifyAutoMovedMedia(savedMedia);
     }
@@ -146,7 +146,7 @@ class AutoMoveMediaServiceTest extends AbstractInMemoryFileService {
 
         service.autoMoveMedia();
 
-        assertTrue(Files.exists(fileService.toLocalPath(filesystemConfig.getTvPath(), searchName, video).path()));
+        assertTrue(Files.exists(fileService.toLocalPath(filesystemConfig.getTvPath(), searchName, searchName + ".mp4").path()));
         assertFalse(Files.exists(fileService.toLocalPath(filesystemConfig.getMoviesPath(), format("%s (%s)", unsimilarName, ldt.format(ISO_LOCAL_DATE)), video).path()));
     }
 

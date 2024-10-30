@@ -83,12 +83,12 @@ public class MediaMoveServiceTest extends AbstractInMemoryFileService {
         createDirectories(filesystemConfig.getTvPath() + "/" + name);
         createFile(6, path + "/" + show);
 
-        MediaFileGroup fileGroup = new MediaFileGroup().path(path).name(name).videos(List.of(show));
+        MediaFileGroup fileGroup = new MediaFileGroup().path(path).name(name).videos(List.of(show)).season(1);
         List<MediaMoveError> errors = service.moveMedia(fileGroup, MediaFileType.TV);
 
         assertEquals(0, errors.size());
         assertFalse(Files.exists(fileService.toLocalPath(path, show).path()));
-        assertTrue(Files.exists(fileService.toLocalPath(filesystemConfig.getTvPath(), name, show).path()));
+        assertTrue(Files.exists(fileService.toLocalPath(filesystemConfig.getTvPath(), name, "Season 1", name + ".mp4").path()));
     }
 
     @Test
@@ -108,7 +108,7 @@ public class MediaMoveServiceTest extends AbstractInMemoryFileService {
 
         assertEquals(0, errors.size());
         assertFalse(Files.exists(fileService.toLocalPath(path, movie).path()));
-        assertTrue(Files.exists(fileService.toLocalPath(filesystemConfig.getMoviesPath(), name, movie).path()));
+        assertTrue(Files.exists(fileService.toLocalPath(filesystemConfig.getMoviesPath(), name, name + ".mp4").path()));
         assertTrue(Files.exists(fileService.toLocalPath(filesystemConfig.getDownloadsPath(), randomFile).path()));
     }
 
@@ -122,12 +122,13 @@ public class MediaMoveServiceTest extends AbstractInMemoryFileService {
         String tv = format("%s/%s", subdir, videoFile);
         createFile(6, path + "/" + tv);
 
-        MediaFileGroup fileGroup = new MediaFileGroup().path(path).name(name).videos(List.of(tv));
+        MediaFileGroup fileGroup = new MediaFileGroup().path(path).name(name).videos(List.of(tv)).season(2);
         List<MediaMoveError> errors = service.moveMedia(fileGroup, MediaFileType.TV);
 
         assertEquals(0, errors.size());
         assertFalse(Files.exists(fileService.toLocalPath(path, tv).path()));
-        assertTrue(Files.exists(fileService.toLocalPath(filesystemConfig.getTvPath(), name, videoFile).path()));
+        String destVideoFile = name + " Episode 1.mkv";
+        assertTrue(Files.exists(fileService.toLocalPath(filesystemConfig.getTvPath(), name, "Season 2", destVideoFile).path()));
     }
 
     @Test
@@ -147,7 +148,7 @@ public class MediaMoveServiceTest extends AbstractInMemoryFileService {
         List<MediaMoveError> errors = service.moveMedia(fileGroup, MediaFileType.MOVIE);
 
         assertEquals(0, errors.size());
-        assertTrue(Files.exists(fileService.toLocalPath(filesystemConfig.getMoviesPath(), name, movieFile).path()));
+        assertTrue(Files.exists(fileService.toLocalPath(filesystemConfig.getMoviesPath(), name, name + ".mp4").path()));
         assertFalse(Files.exists(fileService.toLocalPath(filesystemConfig.getMoviesPath(), name, sampleFile).path()));
     }
 }

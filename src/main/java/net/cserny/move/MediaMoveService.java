@@ -8,6 +8,7 @@ import net.cserny.filesystem.LocalPath;
 import net.cserny.generated.MediaFileGroup;
 import net.cserny.generated.MediaFileType;
 import net.cserny.generated.MediaMoveError;
+import net.cserny.rename.TVSeriesHelper;
 import net.cserny.search.MediaIdentificationService;
 import net.cserny.search.SearchProperties;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,8 @@ import java.util.List;
 public class MediaMoveService {
 
     private static final String MOVIE_EXISTS = "Movie already exists";
+    private static final String SEASON_PREFIX = "Season ";
+    private static final String EPISODE_PREFIX = " Episode ";
 
     private List<String> importantFolders = new ArrayList<>();
 
@@ -76,7 +79,7 @@ public class MediaMoveService {
         for (String video : videos) {
             LocalPath srcPath = fileService.toLocalPath(fileGroup.getPath(), video);
             String videoNameOnly = fileService.toLocalPath(video).path().getFileName().toString();
-            LocalPath destPath = fileService.toLocalPath(destRoot, fileGroup.getName(), videoNameOnly);
+            LocalPath destPath = produceDestinationPath(fileGroup, type, destRoot, videoNameOnly);
 
             try {
                 log.info("Moving video {} to {}", srcPath, destPath);
@@ -103,6 +106,32 @@ public class MediaMoveService {
         }
 
         return errors;
+    }
+
+    private LocalPath produceDestinationPath(MediaFileGroup group, MediaFileType type, String destRoot, String videoName) {
+        String ext = videoName.substring(videoName.lastIndexOf("."));
+        Integer episodeNr = TVSeriesHelper.findEpisode(videoName);
+        String newVideoName = group.getName();
+
+        if (type == MediaFileType.TV && episodeNr != null) {
+            String namePart = newVideoName;
+            String datePart = "";
+            int dateStartIndex = newVideoName.lastIndexOf(" (");
+            if (dateStartIndex != -1) {
+                namePart = newVideoName.substring(0, dateStartIndex);
+                datePart = newVideoName.substring(dateStartIndex);
+            }
+            newVideoName = namePart + EPISODE_PREFIX + episodeNr + datePart;
+        }
+
+        newVideoName += ext;
+
+        String seasonPart = "";
+        if (type == MediaFileType.TV && group.getSeason() != null) {
+            seasonPart = SEASON_PREFIX + group.getSeason();
+        }
+
+        return fileService.toLocalPath(destRoot, group.getName(), seasonPart, newVideoName);
     }
 
     private void cleanSourceMediaDir(MediaFileGroup mediaFileGroup, List<LocalPath> deletableVideos) throws IOException {

@@ -107,4 +107,20 @@ public class MediaSearchServiceTest extends AbstractInMemoryFileService {
         assertEquals("video3.mp4", media.get(2).getVideos().get(1));
         assertEquals("video5.mp4", media.get(2).getVideos().get(2));
     }
+
+    @Test
+    @DisplayName("Check search finds correct media with season info")
+    public void checkSearchFindsCorrectMediaWithSeason() throws IOException {
+        String downloadPath = filesystemConfig.getDownloadsPath();
+        String video3 = downloadPath + "/some tvShow s05/video3.mp4";
+        createFile(6, video3);
+
+        List<MediaFileGroup> media = service.findMedia();
+
+        assertEquals(1, media.size());
+        assertEquals(downloadPath + "/some tvShow s05", media.getFirst().getPath());
+        assertEquals("some tvShow s05", media.getFirst().getName());
+        assertEquals("video3.mp4", media.getFirst().getVideos().getFirst());
+        assertEquals(5, media.getFirst().getSeason());
+    }
 }
