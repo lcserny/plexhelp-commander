@@ -18,13 +18,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.lang.String.format;
+
 @Service
 @Slf4j
 public class MediaMoveService {
 
     private static final String MOVIE_EXISTS = "Movie already exists";
-    private static final String SEASON_PREFIX = "Season ";
-    private static final String EPISODE_PREFIX = " Episode ";
+    private static final String SEASON_SUBDIR = "Season ";
 
     private List<String> importantFolders = new ArrayList<>();
 
@@ -110,10 +111,10 @@ public class MediaMoveService {
 
     private LocalPath produceDestinationPath(MediaFileGroup group, MediaFileType type, String destRoot, String videoName) {
         String ext = videoName.substring(videoName.lastIndexOf("."));
-        Integer episodeNr = TVSeriesHelper.findEpisode(videoName);
         String newVideoName = group.getName();
 
-        if (type == MediaFileType.TV && episodeNr != null) {
+        String seasonSubdir = "";
+        if (type == MediaFileType.TV) {
             String namePart = newVideoName;
             String datePart = "";
             int dateStartIndex = newVideoName.lastIndexOf(" (");
@@ -121,17 +122,27 @@ public class MediaMoveService {
                 namePart = newVideoName.substring(0, dateStartIndex);
                 datePart = newVideoName.substring(dateStartIndex);
             }
-            newVideoName = namePart + EPISODE_PREFIX + episodeNr + datePart;
+
+            String additionalSpace = " ";
+            String seasonPart = "";
+            if (group.getSeason() != null) {
+                seasonSubdir = SEASON_SUBDIR + group.getSeason();
+                additionalSpace = "";
+                seasonPart = format(" S%02d", group.getSeason());
+            }
+
+            Integer episodeNr = TVSeriesHelper.findEpisode(videoName);
+            String episodePart = "";
+            if (episodeNr != null) {
+                episodePart = format("%sE%02d", additionalSpace, episodeNr);
+            }
+
+            newVideoName = namePart + seasonPart + episodePart + datePart;
         }
 
         newVideoName += ext;
 
-        String seasonPart = "";
-        if (type == MediaFileType.TV && group.getSeason() != null) {
-            seasonPart = SEASON_PREFIX + group.getSeason();
-        }
-
-        return fileService.toLocalPath(destRoot, group.getName(), seasonPart, newVideoName);
+        return fileService.toLocalPath(destRoot, group.getName(), seasonSubdir, newVideoName);
     }
 
     private void cleanSourceMediaDir(MediaFileGroup mediaFileGroup, List<LocalPath> deletableVideos) throws IOException {

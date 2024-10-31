@@ -3,9 +3,7 @@ package net.cserny;
 import net.cserny.download.DownloadedMedia;
 import net.cserny.generated.DownloadedMediaData;
 import net.cserny.generated.MagnetData;
-import net.cserny.generated.MediaDescriptionData;
 import net.cserny.magnet.Magnet;
-import net.cserny.rename.MediaDescription;
 import org.bson.types.ObjectId;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
@@ -22,8 +20,6 @@ public interface DataMapper {
     MagnetData magnetToMagnetData(Magnet magnet);
 
     DownloadedMediaData downloadedMediaToDownloadedMediaData(DownloadedMedia media);
-
-    MediaDescriptionData descriptionToDescriptionData(MediaDescription description);
 
     default OffsetDateTime map(Instant instant) {
         if (instant == null) {

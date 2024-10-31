@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import static net.cserny.filesystem.LocalFileService.WalkOptions.ONLY_DIRECTORIES;
-import static net.cserny.rename.MediaDescription.generateDescFrom;
+import static net.cserny.rename.MediaRenameService.generateDescDataFrom;
 
 @Order(0)
 @Component
@@ -60,7 +60,7 @@ public class DiskSearcher implements Searcher {
             log.warn("Could not walk path " + mediaPath.path(), e);
         }
 
-        return new RenamedMediaOptions().origin(MediaRenameOrigin.DISK).mediaDescriptions(generateDescFrom(nameVariants));
+        return new RenamedMediaOptions().origin(MediaRenameOrigin.DISK).mediaDescriptions(generateDescDataFrom(nameVariants));
     }
 
     private DiskPath convertAndTrimReleaseDate(LocalPath path) {
