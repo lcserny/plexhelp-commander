@@ -35,7 +35,8 @@ import static org.junit.jupiter.api.Assertions.*;
         MongoTestConfiguration.class,
         MediaIdentificationService.class,
         SearchProperties.class,
-        DefaultVideosParser.class
+        DefaultVideosParser.class,
+        DestinationPathResolver.class
 })
 @DataMongoTest
 @Testcontainers
@@ -88,6 +89,24 @@ public class MediaMoveServiceTest extends AbstractInMemoryFileService {
 
         assertEquals(0, errors.size());
         assertFalse(Files.exists(fileService.toLocalPath(path, show).path()));
+        assertTrue(Files.exists(fileService.toLocalPath(filesystemConfig.getTvPath(), name, "Season 1", name + " S01.mp4").path()));
+    }
+
+    @Test
+    @DisplayName("Existing tv with same filename will not get moved")
+    public void existingTvShowNameNotMoved() throws IOException {
+        String name = "some show";
+        String path = filesystemConfig.getDownloadsPath() + "/doesnt matter";
+        String show = "myShow.mp4";
+
+        createFile(6, filesystemConfig.getTvPath(), name, "Season 1", name + " S01.mp4");
+        createFile(6, path, show);
+
+        MediaFileGroup fileGroup = new MediaFileGroup().path(path).name(name).videos(List.of(show)).season(1);
+        List<MediaMoveError> errors = service.moveMedia(fileGroup, MediaFileType.TV);
+
+        assertEquals(1, errors.size());
+        assertTrue(Files.exists(fileService.toLocalPath(path, show).path()));
         assertTrue(Files.exists(fileService.toLocalPath(filesystemConfig.getTvPath(), name, "Season 1", name + " S01.mp4").path()));
     }
 

@@ -38,7 +38,7 @@ public class MediaIdentificationService {
     private boolean excludeConfiguredPaths(LocalPath path) {
         for (String excludePath : searchConfig.getExcludePaths()) {
             if (path.path().toAbsolutePath().toString().contains(excludePath)) {
-                log.info("Excluding based on path: " + path);
+                log.debug("Excluding based on path: {}", path);
                 return false;
             }
         }
@@ -52,7 +52,7 @@ public class MediaIdentificationService {
 
         Optional<MediaType> mimeTypeOptional = MediaTypeFactory.getMediaType(path.toString());
         if (mimeTypeOptional.isEmpty()) {
-            log.warn("Could not get content type of file " + path);
+            log.warn("Could not get content type of file {}", path);
             return false;
         }
 
@@ -65,7 +65,7 @@ public class MediaIdentificationService {
 
         var result = mimeType.startsWith("video/");
         if (!result) {
-            log.info("Excluding based on mime: " + path + " - " + mimeType);
+            log.debug("Excluding based on mime: {} - {}", path, mimeType);
         }
 
         return result;
@@ -78,7 +78,7 @@ public class MediaIdentificationService {
 
         var result = path.attributes().size() >= searchConfig.getVideoMinSizeBytes();
         if (!result) {
-            log.info("Excluding based on size: " + path + " - " + path.attributes().size());
+            log.debug("Excluding based on size: {} - {}", path, path.attributes().size());
         }
         return result;
     }
