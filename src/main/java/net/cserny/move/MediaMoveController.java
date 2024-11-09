@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -24,5 +25,14 @@ public class MediaMoveController {
     @PostMapping
     public List<MediaMoveError> moveMedia(@RequestBody MediaMoveRequest moveRequest) {
         return service.moveMedia(moveRequest.getFileGroup(), moveRequest.getType());
+    }
+
+    @PostMapping("/all")
+    public List<MediaMoveError> moveAllMedia(@RequestBody List<MediaMoveRequest> moveRequests) {
+        List<MediaMoveError> errors = new ArrayList<>();
+        for (MediaMoveRequest request : moveRequests) {
+            errors.addAll(service.moveMedia(request.getFileGroup(), request.getType()));
+        }
+        return errors;
     }
 }
