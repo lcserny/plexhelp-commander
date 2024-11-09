@@ -11,8 +11,8 @@ import java.util.regex.Pattern;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class TVSeriesHelper {
 
-    private static final Pattern seasonRegex = Pattern.compile("([sS]|Season.|season.)(?<season>[0-9]{1,2})");
-    private static final Pattern episodeRegex = Pattern.compile("[eE](?<episode>[0-9]{1,2})");
+    private static final Pattern seasonRegex = Pattern.compile("([sS](eason[\\s-.]{0,3})?)(?<season>[0-9]{1,2})");
+    private static final Pattern episodeRegex = Pattern.compile("([eE]|[sS]eason\\s-\\s)(?<episode>[0-9]{1,2})");
 
     public static Integer findSeason(String seriesName) {
         Matcher matcher = seasonRegex.matcher(seriesName);
