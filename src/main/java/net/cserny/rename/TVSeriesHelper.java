@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class TVSeriesHelper {
 
-    private static final Pattern seasonRegex = Pattern.compile("([sS](eason[\\s-.]{0,3})?)(?<season>[0-9]{1,2})");
+    private static final Pattern seasonRegex = Pattern.compile("((?<season1>[0-9]{1,2})(nd|rd|st|th))|(([sS](eason[\\s.]{0,2})?)(?<season2>[0-9]{1,2}))");
     private static final Pattern episodeRegex = Pattern.compile("([eE]|[sS]eason\\s-\\s)(?<episode>[0-9]{1,2})");
 
     public static Integer findSeason(String seriesName) {
@@ -20,7 +20,9 @@ public class TVSeriesHelper {
         String foundSeason = null;
         int matchesCount = 0;
         while (matcher.find()) {
-            foundSeason = matcher.group("season");
+            String firstSeasonRegex = matcher.group("season1");
+            String secondSeasonRegex = matcher.group("season2");
+            foundSeason = firstSeasonRegex != null ? firstSeasonRegex : secondSeasonRegex;
             matchesCount++;
         }
 

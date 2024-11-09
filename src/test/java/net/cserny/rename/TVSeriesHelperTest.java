@@ -15,7 +15,8 @@ class TVSeriesHelperTest {
         assertNull(TVSeriesHelper.findSeason("Cinderella.Season-E07.1080p.tgx"));
         assertEquals(3, TVSeriesHelper.findSeason("Cinderella season.3 E07.1080p.tgx"));
         assertEquals(1, TVSeriesHelper.findSeason("Cinderella season1 E07.1080p.tgx"));
-        assertEquals(8, TVSeriesHelper.findSeason("Cinderella Season .08 E07.1080p.tgx"));
+        assertEquals(8, TVSeriesHelper.findSeason("Cinderella Season 08 E07.1080p.tgx"));
+        assertEquals(3, TVSeriesHelper.findSeason("Cinderella 3rd season E07.1080p.tgx"));
     }
 
     @Test
