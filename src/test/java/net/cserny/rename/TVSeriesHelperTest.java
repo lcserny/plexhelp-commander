@@ -32,5 +32,6 @@ class TVSeriesHelperTest {
         assertEquals(12, TVSeriesHelper.findEpisode("Cinderella.S05e12.1080p.tgx"));
         assertNull(TVSeriesHelper.findEpisode("Cinderella.S05.1080p.tgx"));
         assertEquals(1, TVSeriesHelper.findEpisode("Cinderella.e1.1080p.tgx"));
+        assertEquals(5, TVSeriesHelper.findEpisode("Cinderella 2nd Season - 05 1080p.tgx"));
     }
 }
