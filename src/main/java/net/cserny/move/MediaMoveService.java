@@ -14,11 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
-
-import static java.lang.String.format;
 
 @Service
 @Slf4j
@@ -47,10 +44,7 @@ public class MediaMoveService {
     MediaIdentificationService identificationService;
 
     @Autowired
-    VideosParser videosParser;
-
-    @Autowired
-    DestinationPathResolver destinationPathResolver;
+    VideosGrouper videosGrouper;
 
     @PostConstruct
     public void init() {
@@ -75,14 +69,16 @@ public class MediaMoveService {
             case TV -> filesystemConfig.getTvPath();
         };
 
-        ParsedVideos parsedVideos = videosParser.parse(fileGroup, type);
-        List<String> videos = parsedVideos.videos();
-        List<LocalPath> deletableVideos = parsedVideos.deletableVideos();
+        GroupedVideos groupedVideos = videosGrouper.group(fileGroup, type);
+        List<String> videos = groupedVideos.videos();
+        List<LocalPath> deletableVideos = groupedVideos.deletableVideos();
 
         for (String video : videos) {
             LocalPath srcPath = fileService.toLocalPath(fileGroup.getPath(), video);
+
             String videoNameOnly = fileService.toLocalPath(video).path().getFileName().toString();
-            LocalPath destPath = destinationPathResolver.resolve(fileGroup, type, destRoot, videoNameOnly);
+            DestinationProducer dest = new DestinationProducer(fileGroup, type, videoNameOnly);
+            LocalPath destPath = fileService.toLocalPath(destRoot, fileGroup.getName(), dest.getSeasonSubDir(), dest.getNewVideoName());
 
             try {
                 if (fileService.exists(destPath)) {

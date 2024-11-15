@@ -50,8 +50,7 @@ import static org.hamcrest.CoreMatchers.is;
         MongoTestConfiguration.class,
         MediaIdentificationService.class,
         SearchProperties.class,
-        DefaultVideosParser.class,
-        DestinationPathResolver.class
+        DefaultVideosGrouper.class
 })
 @EnableAutoConfiguration
 @AutoConfigureDataMongo

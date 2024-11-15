@@ -16,13 +16,13 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Component
-public class DefaultVideosParser implements VideosParser {
+public class DefaultVideosGrouper implements VideosGrouper {
 
     @Autowired
     LocalFileService fileService;
 
     @Override
-    public ParsedVideos parse(MediaFileGroup fileGroup, MediaFileType type) {
+    public GroupedVideos group(MediaFileGroup fileGroup, MediaFileType type) {
         List<String> videos = new ArrayList<>(fileGroup.getVideos());
         List<LocalPath> deletableVideos = new ArrayList<>();
 
@@ -31,7 +31,7 @@ public class DefaultVideosParser implements VideosParser {
             updateVideosForLargeSampleFile(videos, deletableVideos, fileGroup.getPath());
         }
 
-        return new ParsedVideos(videos, deletableVideos);
+        return new GroupedVideos(videos, deletableVideos);
     }
 
     private void updateVideosForLargeSampleFile(List<String> videos, List<LocalPath> deletableVideos, String fileGroupPath) {

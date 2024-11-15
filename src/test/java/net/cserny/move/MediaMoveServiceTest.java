@@ -35,8 +35,7 @@ import static org.junit.jupiter.api.Assertions.*;
         MongoTestConfiguration.class,
         MediaIdentificationService.class,
         SearchProperties.class,
-        DefaultVideosParser.class,
-        DestinationPathResolver.class
+        DefaultVideosGrouper.class
 })
 @DataMongoTest
 @Testcontainers
