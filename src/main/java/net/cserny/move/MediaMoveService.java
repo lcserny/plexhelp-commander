@@ -70,10 +70,8 @@ public class MediaMoveService {
         };
 
         GroupedVideos groupedVideos = videosGrouper.group(fileGroup, type);
-        List<String> videos = groupedVideos.videos();
-        List<LocalPath> deletableVideos = groupedVideos.deletableVideos();
 
-        for (String video : videos) {
+        for (String video : groupedVideos.videos()) {
             LocalPath srcPath = fileService.toLocalPath(fileGroup.getPath(), video);
 
             String videoNameOnly = fileService.toLocalPath(video).path().getFileName().toString();
@@ -101,7 +99,7 @@ public class MediaMoveService {
         if (errors.isEmpty()) {
             try {
                 log.info("Cleaning source media folders {}", fileGroup.getPath());
-                cleanSourceMediaDir(fileGroup, deletableVideos);
+                cleanSourceMediaDir(fileGroup, groupedVideos.deletableVideos());
             } catch (IOException e) {
                 log.warn("Could not clean source media folder", e);
                 errors.add(new MediaMoveError().mediaPath(fileGroup.getPath()).error(e.getMessage()));
