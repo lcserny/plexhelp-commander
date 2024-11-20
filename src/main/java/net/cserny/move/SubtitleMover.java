@@ -10,19 +10,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.regex.Pattern;
 
 @Service
 @Slf4j
 public class SubtitleMover {
-
-    public static final String SUBS_SUBFOLDER = "Subs";
-
-    private final Pattern episodeSegmentRegex = Pattern.compile(".*[eE](\\d{1,2}).*");
 
     @Autowired
     LocalFileService fileService;
@@ -60,49 +54,20 @@ public class SubtitleMover {
 
         log.info("{} type subs found {}", operation.type(), subs);
 
-        errors.addAll(switch (operation.type()) {
-            case MOVIE -> moveMovieSubs(operation, subs);
-            case TV -> moveTvSubs(operation, subs);
-        });
+        errors.addAll(moveSubs(operation, subs));
 
         return errors;
     }
 
-    private List<MediaMoveError> moveTvSubs(SubsMoveOperation operation, List<LocalPath> subs) {
-        List<MediaMoveError> errors = new ArrayList<>();
-
-        for (LocalPath sub : subs) {
-            String subName = sub.path().getFileName().toString();
-            for (Path segment : sub.path()) {
-                String segmentStr = segment.toString();
-                if (segmentStr.matches(episodeSegmentRegex.pattern())) {
-                    subName = segmentStr + "." + subName;
-                    break;
-                }
-            }
-
-            LocalPath subSrc = fileService.toLocalPath(sub.toString());
-            LocalPath subDest = fileService.toLocalPath(operation.subsDest().path().toString(), SUBS_SUBFOLDER, subName);
-
-            try {
-                log.info("Moving sub {} to {}", subSrc, subDest);
-                fileService.move(subSrc, subDest);
-            } catch (IOException e) {
-                log.warn("Could not move sub", e);
-                errors.add(new MediaMoveError().mediaPath(subSrc.path().toString()).error(e.getMessage()));
-            }
-        }
-
-        return errors;
-    }
-
-    private List<MediaMoveError> moveMovieSubs(SubsMoveOperation operation, List<LocalPath> subs) {
+    private List<MediaMoveError> moveSubs(SubsMoveOperation operation, List<LocalPath> subs) {
         List<MediaMoveError> errors = new ArrayList<>();
 
         for (LocalPath sub : subs) {
             LocalPath subSrc = fileService.toLocalPath(sub.toString());
-            String subFilename = sub.path().getFileName().toString();
-            LocalPath subDest = fileService.toLocalPath(operation.subsDest().path().toString(), subFilename);
+
+            String subNameOnly = sub.path().getFileName().toString();
+            DestinationProducer dest = new DestinationProducer(operation.group(), operation.type(), subNameOnly);
+            LocalPath subDest = fileService.toLocalPath(operation.destRoot(), dest.getDestSegments());
 
             try {
                 log.info("Moving sub {} to {}", subSrc, subDest);

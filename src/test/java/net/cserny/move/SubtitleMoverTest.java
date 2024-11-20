@@ -5,6 +5,7 @@ import net.cserny.MongoTestConfiguration;
 import net.cserny.filesystem.FilesystemProperties;
 import net.cserny.filesystem.LocalFileService;
 import net.cserny.filesystem.LocalPath;
+import net.cserny.generated.MediaFileGroup;
 import net.cserny.generated.MediaFileType;
 import net.cserny.generated.MediaMoveError;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,7 +20,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
 
-import static net.cserny.move.SubtitleMover.SUBS_SUBFOLDER;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ContextConfiguration(classes = {
@@ -54,7 +54,7 @@ class SubtitleMoverTest extends AbstractInMemoryFileService {
 
         LocalPath subsSrc = fileService.toLocalPath(filesystemConfig.getDownloadsPath());
 
-        SubsMoveOperation operation = new SubsMoveOperation(subsSrc, null, null);
+        SubsMoveOperation operation = new SubsMoveOperation(subsSrc, null, null, new MediaFileGroup());
         List<MediaMoveError> errors = mover.moveSubs(operation);
 
         assertEquals(0, errors.size());
@@ -73,17 +73,20 @@ class SubtitleMoverTest extends AbstractInMemoryFileService {
         String movieDest = filesystemConfig.getMoviesPath() + "/" + movieName;
         createDirectories(movieDest);
 
+        MediaFileGroup group = new MediaFileGroup().name(movieName);
+
         SubsMoveOperation operation = new SubsMoveOperation(
                 fileService.toLocalPath(movieSrc),
-                fileService.toLocalPath(movieDest),
-                MediaFileType.MOVIE
+                filesystemConfig.getMoviesPath(),
+                MediaFileType.MOVIE,
+                group
         );
 
         List<MediaMoveError> errors = mover.moveSubs(operation);
 
         assertEquals(0, errors.size());
         assertFalse(Files.exists(fileService.toLocalPath(movieSrc, subName).path()));
-        assertTrue(Files.exists(fileService.toLocalPath(movieDest, subName).path()));
+        assertTrue(Files.exists(fileService.toLocalPath(movieDest, "some movie.srt").path()));
     }
 
     @Test
@@ -98,17 +101,20 @@ class SubtitleMoverTest extends AbstractInMemoryFileService {
         String showDest = filesystemConfig.getTvPath() + "/" + showName;
         createDirectories(showDest);
 
+        MediaFileGroup group = new MediaFileGroup().name(showName);
+
         SubsMoveOperation operation = new SubsMoveOperation(
                 fileService.toLocalPath(showSrc),
-                fileService.toLocalPath(showDest),
-                MediaFileType.TV
+                filesystemConfig.getTvPath(),
+                MediaFileType.TV,
+                group
         );
 
         List<MediaMoveError> errors = mover.moveSubs(operation);
 
         assertEquals(0, errors.size());
         assertFalse(Files.exists(fileService.toLocalPath(showSrc, subName).path()));
-        assertTrue(Files.exists(fileService.toLocalPath(showDest, SUBS_SUBFOLDER, subName).path()));
+        assertTrue(Files.exists(fileService.toLocalPath(showDest, "some show.srt").path()));
     }
 
     @Test
@@ -116,7 +122,7 @@ class SubtitleMoverTest extends AbstractInMemoryFileService {
     public void nestedTvSubsMove() throws IOException {
         String showName = "some show";
         String nestedSubFolderName = "show.s02e12.1080p";
-        String subName = "sub.srt";
+        String subName = "sub.s02e12.srt";
 
         String showSrc = filesystemConfig.getDownloadsPath() + "/" + showName;
         createFile(showSrc + "/" + nestedSubFolderName + "/" + subName);
@@ -124,16 +130,19 @@ class SubtitleMoverTest extends AbstractInMemoryFileService {
         String showDest = filesystemConfig.getTvPath() + "/" + showName;
         createDirectories(showDest);
 
+        MediaFileGroup group = new MediaFileGroup().name(showName).season(2);
+
         SubsMoveOperation operation = new SubsMoveOperation(
                 fileService.toLocalPath(showSrc),
-                fileService.toLocalPath(showDest),
-                MediaFileType.TV
+                filesystemConfig.getTvPath(),
+                MediaFileType.TV,
+                group
         );
 
         List<MediaMoveError> errors = mover.moveSubs(operation);
 
         assertEquals(0, errors.size());
         assertFalse(Files.exists(fileService.toLocalPath(showSrc, subName).path()));
-        assertTrue(Files.exists(fileService.toLocalPath(showDest, SUBS_SUBFOLDER, nestedSubFolderName + "." + subName).path()));
+        assertTrue(Files.exists(fileService.toLocalPath(showDest, "Season 2", "some show S02E12.srt").path()));
     }
 }

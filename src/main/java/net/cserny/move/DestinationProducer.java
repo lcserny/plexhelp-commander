@@ -2,7 +2,7 @@ package net.cserny.move;
 
 import net.cserny.generated.MediaFileGroup;
 import net.cserny.generated.MediaFileType;
-import net.cserny.rename.TVSeriesHelper;
+import net.cserny.rename.TVDataExtractor;
 
 import static java.lang.String.format;
 
@@ -12,29 +12,44 @@ public class DestinationProducer {
 
     private final MediaFileGroup group;
     private final MediaFileType type;
-    private final String videoName;
+    private final String mediaName;
 
     private Integer season;
     private Integer episode;
 
-    public DestinationProducer(MediaFileGroup group, MediaFileType type, String videoName) {
+    public DestinationProducer(MediaFileGroup group, MediaFileType type, String mediaName) {
         this.group = group;
         this.type = type;
-        this.videoName = videoName;
+        this.mediaName = mediaName;
     }
 
-    private String getExtension() {
-        return videoName.substring(videoName.lastIndexOf("."));
+    public String[] getDestSegments() {
+        String groupName = group.getName();
+        String seasonDir = getSeasonSubDir();
+        String newMediaName = switch (type) {
+            case TV -> getNewTVName();
+            case MOVIE -> getNewMovieName();
+        };
+
+        return new String[] { groupName, seasonDir, newMediaName };
     }
 
-    public Integer getSeason() {
+    private String getSeasonSubDir() {
+        Integer season = getSeason();
+        if (season != null) {
+            return format(SEASON_SUB_DIR_PAT, season);
+        }
+        return "";
+    }
+
+    private Integer getSeason() {
         if (this.type != MediaFileType.TV) {
             return null;
         }
 
         if (this.season == null) {
             Integer season = group.getSeason();
-            Integer videoSeason = TVSeriesHelper.findSeason(videoName);
+            Integer videoSeason = TVDataExtractor.findSeason(mediaName);
             if (videoSeason != null && !videoSeason.equals(season)) {
                 season = videoSeason;
             }
@@ -42,6 +57,10 @@ public class DestinationProducer {
         }
 
         return this.season;
+    }
+
+    private String getExtension() {
+        return mediaName.substring(mediaName.lastIndexOf("."));
     }
 
     private String getSeasonPart() {
@@ -52,21 +71,13 @@ public class DestinationProducer {
         return "";
     }
 
-    public String getSeasonSubDir() {
-        Integer season = getSeason();
-        if (season != null) {
-            return format(SEASON_SUB_DIR_PAT, season);
-        }
-        return "";
-    }
-
     private Integer getEpisode() {
         if (this.type != MediaFileType.TV) {
             return null;
         }
 
         if (this.episode == null) {
-           this.episode = TVSeriesHelper.findEpisode(videoName);
+           this.episode = TVDataExtractor.findEpisode(mediaName);
         }
 
         return this.episode;
@@ -80,13 +91,6 @@ public class DestinationProducer {
             episodePart = format("%sE%02d", additionalSpace, episode);
         }
         return episodePart;
-    }
-
-    public String getNewVideoName() {
-        return switch (type) {
-            case TV -> getNewTVName();
-            case MOVIE -> getNewMovieName();
-        };
     }
 
     private String getNewTVName() {

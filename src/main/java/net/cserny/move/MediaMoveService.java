@@ -76,7 +76,7 @@ public class MediaMoveService {
 
             String videoNameOnly = fileService.toLocalPath(video).path().getFileName().toString();
             DestinationProducer dest = new DestinationProducer(fileGroup, type, videoNameOnly);
-            LocalPath destPath = fileService.toLocalPath(destRoot, fileGroup.getName(), dest.getSeasonSubDir(), dest.getNewVideoName());
+            LocalPath destPath = fileService.toLocalPath(destRoot, dest.getDestSegments());
 
             try {
                 if (fileService.exists(destPath)) {
@@ -92,8 +92,7 @@ public class MediaMoveService {
         }
 
         LocalPath subsSrc = fileService.toLocalPath(fileGroup.getPath());
-        LocalPath subsDest = fileService.toLocalPath(destRoot, fileGroup.getName());
-        SubsMoveOperation subsMoveOperation = new SubsMoveOperation(subsSrc, subsDest, type);
+        SubsMoveOperation subsMoveOperation = new SubsMoveOperation(subsSrc, destRoot, type, fileGroup);
         errors.addAll(subtitleMover.moveSubs(subsMoveOperation));
 
         if (errors.isEmpty()) {

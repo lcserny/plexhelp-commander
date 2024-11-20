@@ -6,7 +6,7 @@ import net.cserny.filesystem.LocalFileService;
 import net.cserny.filesystem.LocalPath;
 
 import net.cserny.generated.MediaFileGroup;
-import net.cserny.rename.TVSeriesHelper;
+import net.cserny.rename.TVDataExtractor;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -84,7 +84,7 @@ public class MediaSearchService {
             Pair<String, String> key = entry.getKey();
             List<String> value = entry.getValue();
             MediaFileGroup mediaFileGroup = new MediaFileGroup().path(key.getLeft()).name(key.getRight()).videos(value);
-            mediaFileGroup.setSeason(TVSeriesHelper.findSeason(mediaFileGroup.getName()));
+            mediaFileGroup.setSeason(TVDataExtractor.findSeason(mediaFileGroup.getName()));
             mediaFileGroups.add(mediaFileGroup);
         }
 
