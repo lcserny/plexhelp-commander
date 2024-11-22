@@ -20,9 +20,11 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.client.RestTemplate;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.util.List;
+
 import static io.restassured.RestAssured.given;
 import static java.lang.String.format;
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -66,7 +68,57 @@ class MagnetControllerTest {
                 .when().get("/api/v1/magnets")
                 .then()
                 .statusCode(HttpStatus.OK.value())
+                .body("content", hasSize(not(0)));
+    }
+
+    @Test
+    @DisplayName("GET on /magnets should return filtered magnets from db paginated")
+    public void retrieveFilteredMagnets() {
+        Magnet magnetOne = new Magnet();
+        magnetOne.setName("one");
+        Magnet magnetTwo = new Magnet();
+        magnetTwo.setName("two");
+        this.repository.saveAll(List.of(magnetOne, magnetTwo));
+
+        given()
+                .contentType(ContentType.TEXT)
+                .when().get(format("/api/v1/magnets?name=%s", "one"))
+                .then()
+                .statusCode(HttpStatus.OK.value())
                 .body("content", hasSize(1));
+
+        given()
+                .contentType(ContentType.TEXT)
+                .when().get(format("/api/v1/magnets?name=%s", "two"))
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .body("content", hasSize(1));
+
+        given()
+                .contentType(ContentType.TEXT)
+                .when().get(format("/api/v1/magnets?page=%d&size=%d&sort=%s", 0, 1, "name"))
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .body("content", hasSize(1))
+                .body("content[0].name", containsString("one"));
+
+        given()
+                .contentType(ContentType.TEXT)
+                .when().get(format("/api/v1/magnets?page=%d&size=%d&sort=%s", 0, 2, "name,ASC"))
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .body("content", hasSize(2))
+                .body("content[0].name", containsString("one"))
+                .body("content[1].name", containsString("two"));
+
+        given()
+                .contentType(ContentType.TEXT)
+                .when().get(format("/api/v1/magnets?page=%d&size=%d&sort=%s&sort=%s", 0, 2, "name,DESC", "dateAdded,ASC"))
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .body("content", hasSize(2))
+                .body("content[0].name", containsString("two"))
+                .body("content[1].name", containsString("one"));
     }
 
     @Test

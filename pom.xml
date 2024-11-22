@@ -47,6 +47,10 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
         <dependency>
@@ -186,17 +190,17 @@
                         </goals>
                         <configuration>
                             <inputSpecRootDirectory>${project.basedir}/src/main/resources/openapi</inputSpecRootDirectory>
-                            <generatorName>java</generatorName>
+                            <generatorName>spring</generatorName>
                             <configOptions>
                                 <sourceFolder>src/main/java</sourceFolder>
                                 <openApiNullable>false</openApiNullable>
                                 <generateTests>false</generateTests>
+                                <annotationLibrary>none</annotationLibrary>
                             </configOptions>
-                            <generateSupportingFiles>false</generateSupportingFiles>
-                            <generateApis>false</generateApis>
                             <generateModelTests>false</generateModelTests>
                             <modelPackage>net.cserny.generated</modelPackage>
-                            <library>restclient</library>
+                            <apiPackage>net.cserny.generated</apiPackage>
+                            <library>spring-http-interface</library>
                         </configuration>
                     </execution>
                 </executions>

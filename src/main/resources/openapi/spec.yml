@@ -14,6 +14,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CommandRequest'
+        required: true
       responses:
         "200":
           description: OK
@@ -32,16 +33,19 @@ paths:
         schema:
           format: int32
           type: integer
+        required: true
       - name: month
         in: query
         schema:
           format: int32
           type: integer
+        required: true
       - name: year
         in: query
         schema:
           format: int32
           type: integer
+        required: true
       responses:
         "200":
           description: OK
@@ -61,6 +65,29 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/MediaMoveRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MediaMoveError'
+  /api/v1/media-moves/all:
+    post:
+      tags:
+        - Media Move Resource
+      operationId: moveAllMedia
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/MediaMoveRequest'
+        required: true
       responses:
         "200":
           description: OK
@@ -80,6 +107,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/MediaRenameRequest'
+        required: true
       responses:
         "200":
           description: OK
@@ -111,9 +139,10 @@ paths:
           text/plain:
             schema:
               type: string
+        required: true
       responses:
-        "200":
-          description: OK
+        "201":
+          description: Created
           content:
             application/json:
               schema:
@@ -129,21 +158,30 @@ paths:
           required: false
           schema:
             type: integer
-            format: int64
+            format: int32
         - name: size
           in: query
           description: The number of items per page
           required: false
           schema:
             type: integer
-            format: int64
+            format: int32
         - name: sort
           in: query
-          description: The sort order
+          description: The sort orders
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+              example: property,property(,ASC|DESC)
+        - name: name
+          in: query
+          description: Magnet name to filter by
           required: false
           schema:
             type: string
-            example: property,property(,ASC|DESC)
+            example: MovieX
       responses:
         "200":
           description: OK
@@ -163,11 +201,15 @@ components:
           items:
             type: string
           nullable: true
+      required:
+        - name
     CommandResponse:
       type: object
       properties:
         status:
           $ref: '#/components/schemas/Status'
+      required:
+        - status
     DownloadedMediaData:
       type: object
       properties:
@@ -305,16 +347,16 @@ components:
           properties:
             size:
               type: integer
-              format: int64
+              format: int32
             number:
               type: integer
-              format: int64
+              format: int32
             totalElements:
               type: integer
               format: int64
             totalPages:
               type: integer
-              format: int64
+              format: int32
           required:
             - size
             - number
