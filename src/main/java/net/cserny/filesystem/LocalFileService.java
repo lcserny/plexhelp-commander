@@ -57,7 +57,7 @@ public class LocalFileService {
         try {
             return Files.readAttributes(path, BasicFileAttributes.class);
         } catch (IOException e) {
-            log.warn("Could not determine attributes of file: {}, {}", path.toAbsolutePath(), e.getMessage());
+            log.warn("Could not determine attributes of file}", e);
             return new NoAttributes();
         }
     }
