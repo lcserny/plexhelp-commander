@@ -17,7 +17,7 @@ import java.util.stream.Stream;
 @Service
 public class LocalFileService {
 
-    private static final int CACHE_LIMIT = 1000;
+    private static final int CACHE_LIMIT = 10000;
 
     @Getter
     private final LRUCache<String, BasicFileAttributes> fileAttrCache = new LRUCache<>(CACHE_LIMIT);
@@ -55,11 +55,13 @@ public class LocalFileService {
 
     private BasicFileAttributes getRealAttributes(Path path) {
         try {
-            return Files.readAttributes(path, BasicFileAttributes.class);
+            if (Files.exists(path)) {
+                return Files.readAttributes(path, BasicFileAttributes.class);
+            }
         } catch (IOException e) {
             log.warn("Could not determine attributes of file}", e);
-            return new NoAttributes();
         }
+        return new NoAttributes();
     }
 
     public void delete(LocalPath path) throws IOException {
