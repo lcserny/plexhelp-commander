@@ -5,6 +5,8 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import lombok.extern.slf4j.Slf4j;
+import net.cserny.generated.UserPerm;
+import net.cserny.generated.UserRole;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +31,9 @@ import static net.cserny.security.KnownAlgorithms.RSA_FAMILY;
 @Slf4j
 @Component
 public class JwtUtil {
+
+    private static final String ROLES_KEY = "roles";
+    private static final String PERMS_KEY = "perms";
 
     @Value("${spring.application.name}")
     private String appName;
@@ -108,18 +113,16 @@ public class JwtUtil {
     }
 
     public Set<UserRole> extractRoles(DecodedJWT jwt) {
-        List<String> roles = jwt.getClaim(UserRole.KEY).asList(String.class);
+        List<String> roles = jwt.getClaim(ROLES_KEY).asList(String.class);
         return roles.stream()
-                .map(UserRole::fromString)
-                .filter(Objects::nonNull)
+                .map(UserRole::fromValue)
                 .collect(Collectors.toSet());
     }
 
     public Set<UserPerm> extractPermissions(DecodedJWT jwt) {
-        List<String> perms = jwt.getClaim(UserPerm.KEY).asList(String.class);
+        List<String> perms = jwt.getClaim(PERMS_KEY).asList(String.class);
         return perms.stream()
-                .map(UserPerm::fromString)
-                .filter(Objects::nonNull)
+                .map(UserPerm::fromValue)
                 .collect(Collectors.toSet());
     }
 
