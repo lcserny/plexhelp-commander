@@ -10,6 +10,7 @@ import net.cserny.filesystem.LocalPath;
 import net.cserny.generated.*;
 import net.cserny.rename.*;
 import net.cserny.rename.NameNormalizer.NameYear;
+import net.cserny.search.MediaIdentificationService;
 import net.cserny.search.MediaSearchService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -62,6 +63,9 @@ public class AutoMoveMediaService {
     @Autowired
     private VirtualExecutor threadpool;
 
+    @Autowired
+    private MediaIdentificationService identificationService;
+
     @Scheduled(initialDelayString = "${automove.initial-delay-ms}", fixedDelayString = "${automove.cron-ms}")
     public void autoMoveMedia() {
         log.info("Checking download cache to automatically move media files");
@@ -88,6 +92,11 @@ public class AutoMoveMediaService {
             LocalPath path = fileService.toLocalPath(filesystemProperties.getDownloadsPath(), media.getFileName());
             if (!fileService.exists(path)) {
                 log.info("Path doesn't exist: {}, skipping...", path);
+                return;
+            }
+
+            if (!identificationService.isMedia(path)) {
+                log.info("Path is not a valid media file: {}, skipping...", path);
                 return;
             }
 
@@ -125,37 +134,16 @@ public class AutoMoveMediaService {
 
         log.info("Options parsed: {}", allOptions);
 
+        MediaTypeComparatorProvider compProvider = new MediaTypeComparatorProvider(group, nameYear);
         List<AutoMoveOption> sortedOptions = allOptions.stream()
                 .filter(o -> o.origin != MediaRenameOrigin.NAME)
                 .filter(o -> o.similarity() >= properties.getSimilarityAccepted())
                 .sorted(comparing(AutoMoveOption::similarity, reverseOrder())
-                        .thenComparing(movieYearBiasedMediaComparator(nameYear)))
+                        .thenComparing(compProvider.provide()))
                 .collect(Collectors.toCollection(LinkedList::new));
 
         log.info("Sorted options map by similarity: {}", sortedOptions);
         return sortedOptions.stream().findFirst();
-    }
-
-    // if year was present in initial name, then its most probably a movie
-    private Comparator<AutoMoveOption> movieYearBiasedMediaComparator(NameYear nameYear) {
-        return (o1, o2) -> {
-            if (nameYear.year() != null) {
-                if (o1.type() == MediaFileType.MOVIE) {
-                    return o2.type() == MediaFileType.MOVIE ? 0 : -1;
-                }
-                if (o2.type() == MediaFileType.MOVIE) {
-                    return 1;
-                }
-            } else {
-                if (o1.type() == MediaFileType.TV) {
-                    return o2.type() == MediaFileType.TV ? 0 : -1;
-                }
-                if (o2.type() == MediaFileType.TV) {
-                    return 1;
-                }
-            }
-            return 0;
-        };
     }
 
     private String moveMedia(AutoMoveOption option, MediaFileGroup group) {
@@ -200,6 +188,5 @@ public class AutoMoveMediaService {
         }
     }
 
-    private record AutoMoveOption(MediaDescriptionData desc, MediaFileType type, MediaRenameOrigin origin, int similarity) {
-    }
+    record AutoMoveOption(MediaDescriptionData desc, MediaFileType type, MediaRenameOrigin origin, int similarity) { }
 }
