@@ -6,7 +6,6 @@ import net.cserny.LRUCache;
 import net.cserny.search.NoAttributes;
 import org.springframework.stereotype.Service;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -57,7 +56,7 @@ public class LocalFileService {
     private BasicFileAttributes getRealAttributes(Path path) {
         try {
             return Files.readAttributes(path, BasicFileAttributes.class);
-        } catch (FileNotFoundException ignore) {
+        } catch (NoSuchFileException ignore) {
         } catch (IOException e) {
             log.warn("Could not determine attributes of file}", e);
         }
