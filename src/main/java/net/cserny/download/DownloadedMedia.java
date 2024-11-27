@@ -16,14 +16,21 @@ public class DownloadedMedia {
 
     @Id
     private ObjectId id;
+
     @Field("file_name")
     private String fileName;
+
     @Field("file_size")
     private long fileSize;
+
     @Field("date_downloaded")
     @Indexed(name = "dateDownloaded_idx")
     private Instant dateDownloaded;
+
     @Field("tried_automove")
     @Indexed(name = "triedAutoMove_idx")
     private boolean triedAutoMove;
+    
+    @Field("download_complete")
+    private boolean downloadComplete;
 }

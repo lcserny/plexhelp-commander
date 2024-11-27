@@ -3,13 +3,12 @@ package net.cserny.download;
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.generated.DownloadedMediaData;
 import net.cserny.generated.MediaDownloadResourceApi;
+import net.cserny.generated.SearchDownloadedMedia;
+import net.cserny.generated.SearchDownloadedMediaDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -23,11 +22,15 @@ public class MediaDownloadController implements MediaDownloadResourceApi {
     @Autowired
     MediaDownloadService service;
 
-    @GetMapping
+    @PostMapping
     @Override
-    public ResponseEntity<List<DownloadedMediaData>> downloadsCompleted(@RequestParam Integer year,
-                                                                        @RequestParam Integer month,
-                                                                        @RequestParam Integer day) {
-        return ResponseEntity.ok(service.retrieveAllFromDate(LocalDate.of(year, month, day)));
+    public ResponseEntity<List<DownloadedMediaData>> searchDownloadedMedia(SearchDownloadedMedia searchDownloadedMedia) {
+        LocalDate searchDate = null;
+        SearchDownloadedMediaDate date = searchDownloadedMedia.getDate();
+        if (date != null) {
+            searchDate = LocalDate.of(date.getYear(), date.getMonth(), date.getDay());
+        }
+
+        return ResponseEntity.ok(this.service.retrieveAllFrom(searchDate, searchDownloadedMedia.getNames(), searchDownloadedMedia.getDownloaded()));
     }
 }

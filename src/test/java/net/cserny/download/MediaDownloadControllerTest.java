@@ -4,6 +4,8 @@ import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import net.cserny.MongoTestConfiguration;
 
+import net.cserny.generated.SearchDownloadedMedia;
+import net.cserny.generated.SearchDownloadedMediaDate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -76,9 +78,12 @@ public class MediaDownloadControllerTest {
 
         repository.save(media);
 
+        SearchDownloadedMedia request = new SearchDownloadedMedia().date(new SearchDownloadedMediaDate(year, month, day));
+
         given()
                 .contentType(ContentType.JSON)
-                .when().get("/api/v1/media-downloads?year=" + year + "&month=" + month + "&day=" + day)
+                .body(request)
+                .when().post("/api/v1/media-downloads")
                 .then()
                 .statusCode(200)
                 .body("$.size()", is(1))

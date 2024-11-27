@@ -2,8 +2,8 @@ package net.cserny.move;
 
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.VirtualExecutor;
-import net.cserny.download.DownloadedMedia;
 import net.cserny.download.DownloadedMediaRepository;
+import net.cserny.download.DownloadedMedia;
 import net.cserny.filesystem.FilesystemProperties;
 import net.cserny.filesystem.LocalFileService;
 import net.cserny.filesystem.LocalPath;
@@ -70,7 +70,7 @@ public class AutoMoveMediaService {
     public void autoMoveMedia() {
         log.info("Checking download cache to automatically move media files");
 
-        List<DownloadedMedia> medias = downloadedMediaRepository.retrieveForAutoMove(false, properties.getLimit());
+        List<DownloadedMedia> medias = downloadedMediaRepository.findForAutoMove(false, properties.getLimit());
         if (medias.isEmpty()) {
             log.info("No media found to auto move");
             return;

@@ -1,11 +1,11 @@
 package net.cserny.move;
 
+import net.cserny.download.DownloadedMediaRepository;
 import net.cserny.filesystem.AbstractInMemoryFileService;
 import net.cserny.MongoTestConfiguration;
 import net.cserny.TestConfig;
 import net.cserny.VirtualExecutor;
 import net.cserny.download.DownloadedMedia;
-import net.cserny.download.DownloadedMediaRepository;
 import net.cserny.filesystem.FilesystemProperties;
 import net.cserny.generated.MediaFileType;
 import net.cserny.rename.OnlineCacheItem;
@@ -183,6 +183,7 @@ class AutoMoveMediaServiceTest extends AbstractInMemoryFileService {
         downloadedMedia.setFileName(initialName + "/" + videoFile);
         downloadedMedia.setFileSize(size);
         downloadedMedia.setDateDownloaded(Instant.now(Clock.systemUTC()));
+        downloadedMedia.setDownloadComplete(true);
         return downloadedMediaRepository.save(downloadedMedia);
     }
 }

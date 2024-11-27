@@ -23,28 +23,15 @@ paths:
               schema:
                 $ref: '#/components/schemas/CommandResponse'
   /api/v1/media-downloads:
-    get:
+    post:
       tags:
-      - Media Download Resource
-      operationId: downloadsCompleted
-      parameters:
-      - name: day
-        in: query
-        schema:
-          format: int32
-          type: integer
-        required: true
-      - name: month
-        in: query
-        schema:
-          format: int32
-          type: integer
-        required: true
-      - name: year
-        in: query
-        schema:
-          format: int32
-          type: integer
+        - Media Download Resource
+      operationId: searchDownloadedMedia
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchDownloadedMedia'
         required: true
       responses:
         "200":
@@ -224,6 +211,8 @@ components:
           format: date-time
           type: string
           example: 2022-03-10T12:15:50
+        downloadComplete:
+          type: boolean
     MediaDescriptionData:
       type: object
       properties:
@@ -365,3 +354,31 @@ components:
       required:
         - content
         - page
+    SearchDownloadedMedia:
+      type: object
+      properties:
+        date:
+          type: object
+          description: Date of the downloaded media to search for
+          properties:
+            year:
+              type: integer
+              format: int32
+            month:
+              type: integer
+              format: int32
+            day:
+              type: integer
+              format: int32
+          required:
+            - year
+            - month
+            - day
+        downloaded:
+          type: boolean
+          description: Search only for the downloaded media
+        names:
+          type: array
+          description: The media names to search for
+          items:
+            type: string
