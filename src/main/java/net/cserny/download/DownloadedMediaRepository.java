@@ -48,16 +48,20 @@ public class DownloadedMediaRepository {
         return mongoTemplate.find(query, DownloadedMedia.class);
     }
 
-    public List<DownloadedMedia> findForAutoMove(Boolean triedAutoMove, int limit) {
+    public List<DownloadedMedia> findForAutoMove(int limit) {
         Query query = new Query();
 
-        if (triedAutoMove != null) {
-            Criteria criteria = new Criteria().orOperator(
-                    Criteria.where("triedAutoMove").is(triedAutoMove),
-                    Criteria.where("triedAutoMove").exists(false)
-            );
-            query.addCriteria(criteria);
-        }
+        Criteria criteria = new Criteria().andOperator(
+                new Criteria().orOperator(
+                        Criteria.where("downloadComplete").is(true),
+                        Criteria.where("downloadComplete").exists(false)
+                ),
+                new Criteria().orOperator(
+                        Criteria.where("triedAutoMove").is(false),
+                        Criteria.where("triedAutoMove").exists(false)
+                )
+        );
+        query.addCriteria(criteria);
 
         query.with(Sort.by(Sort.Direction.DESC, "dateDownloaded"));
         query.limit(limit);

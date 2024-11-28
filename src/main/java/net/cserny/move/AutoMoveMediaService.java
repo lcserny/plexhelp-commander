@@ -70,7 +70,7 @@ public class AutoMoveMediaService {
     public void autoMoveMedia() {
         log.info("Checking download cache to automatically move media files");
 
-        List<DownloadedMedia> medias = downloadedMediaRepository.findForAutoMove(false, properties.getLimit());
+        List<DownloadedMedia> medias = downloadedMediaRepository.findForAutoMove(properties.getLimit());
         if (medias.isEmpty()) {
             log.info("No media found to auto move");
             return;

@@ -72,31 +72,13 @@ public class MediaDownloadRepositoryTest {
         assertEquals(name, list.getFirst().getFileName());
         assertEquals(size, list.getFirst().getFileSize());
         assertEquals(media1Date.toEpochMilli(), list.getFirst().getDateDownloaded().toEpochMilli());
-    }
 
-    @Test
-    @DisplayName("Check that repo retrieves media with tried_automve unset too")
-    void retrieveMediaWithTriedAutoMoveUnset() {
-        String name = "media without automve set";
-        long size = 14L;
-        LocalDateTime date = LocalDateTime.of(2014, 1, 5, 3, 40);
-        Instant media1Date = date.atZone(ZoneOffset.UTC).toInstant();
-
-        DownloadedMedia media = new DownloadedMedia();
-        media.setFileName(name);
-        media.setFileSize(size);
-        media.setDateDownloaded(media1Date);
-        media.setTriedAutoMove(true);
-
-        repository.save(media);
-
-        List<DownloadedMedia> list = repository.findForAutoMove(true, 10);
+        list = repository.findAllWith(date.toLocalDate(), true, List.of(name));
 
         assertNotNull(list);
         assertEquals(1, list.size());
         assertEquals(name, list.getFirst().getFileName());
         assertEquals(size, list.getFirst().getFileSize());
         assertEquals(media1Date.toEpochMilli(), list.getFirst().getDateDownloaded().toEpochMilli());
-        assertEquals(true, list.getFirst().isTriedAutoMove());
     }
 }
