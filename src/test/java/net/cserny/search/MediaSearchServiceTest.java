@@ -101,6 +101,7 @@ public class MediaSearchServiceTest extends AbstractInMemoryFileService {
         assertEquals(3, media.size());
         assertEquals(downloadPath, media.get(0).getPath());
         assertEquals("video1", media.get(0).getName());
+        assertEquals(true, media.get(0).getNoParent());
         assertEquals(downloadPath + "/some tvShow", media.get(2).getPath());
         assertEquals("some tvShow", media.get(2).getName());
         assertEquals("video1.mp4", media.get(2).getVideos().get(0));
