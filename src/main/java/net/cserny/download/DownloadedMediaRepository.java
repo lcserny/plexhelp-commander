@@ -34,7 +34,11 @@ public class DownloadedMediaRepository {
         }
 
         if (downloadComplete != null) {
-            query.addCriteria(Criteria.where("downloadComplete").is(downloadComplete));
+            Criteria criteria = new Criteria().orOperator(
+                    Criteria.where("downloadComplete").is(downloadComplete),
+                    Criteria.where("downloadComplete").exists(false)
+            );
+            query.addCriteria(criteria);
         }
 
         if (names != null && !names.isEmpty()) {
@@ -48,7 +52,11 @@ public class DownloadedMediaRepository {
         Query query = new Query();
 
         if (triedAutoMove != null) {
-            query.addCriteria(Criteria.where("triedAutoMove").is(triedAutoMove));
+            Criteria criteria = new Criteria().orOperator(
+                    Criteria.where("triedAutoMove").is(triedAutoMove),
+                    Criteria.where("triedAutoMove").exists(false)
+            );
+            query.addCriteria(criteria);
         }
 
         query.with(Sort.by(Sort.Direction.DESC, "dateDownloaded"));
