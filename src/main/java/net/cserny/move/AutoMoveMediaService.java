@@ -149,7 +149,10 @@ public class AutoMoveMediaService {
     private String moveMedia(AutoMoveOption option, MediaFileGroup group) {
         MediaDescriptionData desc = option.desc();
         String movedName = desc.getTitle() + (desc.getDate() != null && !desc.getDate().isEmpty() ? format(" (%s)", desc.getDate()) : "");
-        MediaFileGroup resultGroup = new MediaFileGroup().path(group.getPath()).name(movedName).videos(group.getVideos());
+        MediaFileGroup resultGroup = new MediaFileGroup().path(group.getPath())
+                .name(movedName)
+                .noParent(group.getNoParent())
+                .videos(group.getVideos());
         moveService.moveMedia(resultGroup, option.type());
         return movedName;
     }

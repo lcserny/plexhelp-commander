@@ -54,12 +54,13 @@ public class MediaSearchService {
         Path downloadsPath = fileService.toLocalPath(filesystemConfig.getDownloadsPath()).path();
         int downloadsPathSegments = downloadsPath.getNameCount();
 
-        Map<Pair<String, String>, List<String>> tmpMap = new TreeMap<>();
+        Map<Pair<String, NameBundle>, List<String>> tmpMap = new TreeMap<>();
 
         for (LocalPath localPath : allVideos) {
             Path videoPath = localPath.path();
             int videoPathSegments = videoPath.getNameCount();
 
+            boolean noParentDirectory = false;
             Path name = videoPath.subpath(downloadsPathSegments, downloadsPathSegments + 1);
             Path path = downloadsPath;
             Path video = name;
@@ -67,11 +68,12 @@ public class MediaSearchService {
                 path = downloadsPath.resolve(name);
                 video = videoPath.subpath(downloadsPathSegments + 1, videoPathSegments);
             } else {
+                noParentDirectory = true;
                 String nameString = name.toString();
                 name = fileService.toLocalPath(nameString.substring(0, nameString.lastIndexOf("."))).path();
             }
 
-            Pair<String, String> key = Pair.of(path.toString(), name.toString());
+            Pair<String, NameBundle> key = Pair.of(path.toString(), new NameBundle(name.toString(), noParentDirectory));
             List<String> videos = tmpMap.get(key);
             if (videos == null) {
                 videos = new ArrayList<>();
@@ -80,10 +82,13 @@ public class MediaSearchService {
             tmpMap.put(key, videos);
         }
 
-        for (Map.Entry<Pair<String, String>, List<String>> entry : tmpMap.entrySet()) {
-            Pair<String, String> key = entry.getKey();
+        for (Map.Entry<Pair<String, NameBundle>, List<String>> entry : tmpMap.entrySet()) {
+            Pair<String, NameBundle> key = entry.getKey();
             List<String> value = entry.getValue();
-            MediaFileGroup mediaFileGroup = new MediaFileGroup().path(key.getLeft()).name(key.getRight()).videos(value);
+            MediaFileGroup mediaFileGroup = new MediaFileGroup().path(key.getLeft())
+                    .name(key.getRight().name())
+                    .noParent(key.getRight().noParentDirectory())
+                    .videos(value);
             mediaFileGroup.setSeason(TVDataExtractor.findSeason(mediaFileGroup.getName()));
             mediaFileGroups.add(mediaFileGroup);
         }
@@ -91,5 +96,13 @@ public class MediaSearchService {
         log.info("Generated media file groups: {}", mediaFileGroups);
 
         return mediaFileGroups;
+    }
+
+    private record NameBundle(String name, boolean noParentDirectory) implements Comparable<NameBundle> {
+
+        @Override
+        public int compareTo(MediaSearchService.NameBundle other) {
+            return this.name().compareTo(other.name());
+        }
     }
 }

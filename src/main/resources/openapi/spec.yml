@@ -247,6 +247,10 @@ components:
           format: int32
           type: integer
           description: Optional season to use for the subfolder in case of TV series.
+        noParent:
+          type: boolean
+          default: false
+          description: If the media found has a parent directory in the downloads root
       required:
         - path
         - name
