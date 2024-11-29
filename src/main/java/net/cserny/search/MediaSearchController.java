@@ -1,8 +1,8 @@
 package net.cserny.search;
 
 import lombok.extern.slf4j.Slf4j;
+import net.cserny.generated.ApiApi;
 import net.cserny.generated.MediaFileGroup;
-import net.cserny.generated.MediaSearchResourceApi;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping(value = "/api/v1/media-searches",
         produces = MediaType.APPLICATION_JSON_VALUE)
-public class MediaSearchController implements MediaSearchResourceApi {
+public class MediaSearchController implements ApiApi {
 
     @Autowired
     MediaSearchService service;

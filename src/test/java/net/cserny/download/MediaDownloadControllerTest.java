@@ -92,4 +92,34 @@ public class MediaDownloadControllerTest {
                 .body("[0].fileSize", is((int) size))
                 .body("[0].dateDownloaded", is(DateTimeFormatter.ISO_INSTANT.format(date)));
     }
+
+    @Test
+    @DisplayName("Check that the endpoint fails with bad request when a required field is not sent")
+    public void testInvalidRequest() {
+        String name = "some other name for validation";
+        long size = 2L;
+        int year = 2011;
+        int month = 10;
+        int day = 1;
+        int hour = 9;
+        int minute = 33;
+        int sec = 44;
+        Instant date = LocalDateTime.of(year, month, day, hour, minute, sec).atZone(ZoneOffset.UTC).toInstant();
+
+        DownloadedMedia media = new DownloadedMedia();
+        media.setFileName(name);
+        media.setFileSize(size);
+        media.setDateDownloaded(date);
+
+        repository.save(media);
+
+        SearchDownloadedMedia request = new SearchDownloadedMedia().date(new SearchDownloadedMediaDate().year(year));
+
+        given()
+                .contentType(ContentType.JSON)
+                .body(request)
+                .when().post("/api/v1/media-downloads")
+                .then()
+                .statusCode(400);
+    }
 }

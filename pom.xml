@@ -26,6 +26,8 @@
         <openapi-plugin.version>7.9.0</openapi-plugin.version>
         <mapstruct.version>1.6.2</mapstruct.version>
         <mapstruct-lombok.version>0.2.0</mapstruct-lombok.version>
+        <swagger-annot.version>2.2.25</swagger-annot.version>
+        <springdoc-annot.version>1.8.0</springdoc-annot.version>
     </properties>
 
     <dependencies>
@@ -52,6 +54,16 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-annotations</artifactId>
+            <version>${swagger-annot.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-ui</artifactId>
+            <version>${springdoc-annot.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -195,17 +207,18 @@
                                 <sourceFolder>src/main/java</sourceFolder>
                                 <openApiNullable>false</openApiNullable>
                                 <generateTests>false</generateTests>
-                                <annotationLibrary>none</annotationLibrary>
+                                <annotationLibrary>swagger2</annotationLibrary>
                                 <generateBuilders>true</generateBuilders>
                                 <performBeanValidation>true</performBeanValidation>
                                 <useBeanValidation>true</useBeanValidation>
                                 <useSpringController>true</useSpringController>
                                 <useJakartaEe>true</useJakartaEe>
+                                <interfaceOnly>true</interfaceOnly>
                             </configOptions>
                             <generateModelTests>false</generateModelTests>
                             <modelPackage>net.cserny.generated</modelPackage>
                             <apiPackage>net.cserny.generated</apiPackage>
-                            <library>spring-http-interface</library>
+                            <library>spring-boot</library>
                         </configuration>
                     </execution>
                 </executions>

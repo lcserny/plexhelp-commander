@@ -135,33 +135,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/MagnetData'
     get:
+      x-spring-paginated: true
       tags:
         - Torrent Magnet Resource
       operationId: getAll
       parameters:
-        - name: page
-          in: query
-          description: The page number to retrieve
-          required: false
-          schema:
-            type: integer
-            format: int32
-        - name: size
-          in: query
-          description: The number of items per page
-          required: false
-          schema:
-            type: integer
-            format: int32
-        - name: sort
-          in: query
-          description: The sort orders
-          required: false
-          schema:
-            type: array
-            items:
-              type: string
-              example: property,property(,ASC|DESC)
         - name: name
           in: query
           description: Magnet name to filter by
@@ -213,6 +191,7 @@ components:
           example: 2022-03-10T12:15:50
         downloadComplete:
           type: boolean
+          default: false
     MediaDescriptionData:
       type: object
       properties:
@@ -291,6 +270,9 @@ components:
           type: string
         type:
           $ref: '#/components/schemas/MediaFileType'
+      required:
+        - name
+        - type
     RenamedMediaOptions:
       type: object
       properties:
@@ -320,6 +302,7 @@ components:
           format: date-time
         downloaded:
           type: boolean
+          default: false
         dateDownloaded:
           type: string
           format: date-time
@@ -381,6 +364,7 @@ components:
         downloaded:
           type: boolean
           description: Search only for the downloaded media
+          default: false
         names:
           type: array
           description: The media names to search for
