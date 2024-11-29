@@ -18,7 +18,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ContextConfiguration(classes = {
         MongoTestConfiguration.class,
-        DownloadedMediaRepository.class
+        DownloadedMediaRepository.class,
+        InternalDownloadedMediaRepository.class
 })
 @DataMongoTest
 @Testcontainers

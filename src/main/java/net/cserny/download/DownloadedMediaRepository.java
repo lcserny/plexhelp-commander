@@ -20,8 +20,19 @@ public class DownloadedMediaRepository {
     @Autowired
     MongoTemplate mongoTemplate;
 
+    @Autowired
+    InternalDownloadedMediaRepository repository;
+
     public Optional<DownloadedMedia> findById(ObjectId id) {
-        return Optional.ofNullable(mongoTemplate.findById(id, DownloadedMedia.class));
+        return this.repository.findById(id);
+    }
+
+    public DownloadedMedia save(DownloadedMedia media) {
+        return this.repository.save(media);
+    }
+
+    public List<DownloadedMedia> saveAll(List<DownloadedMedia> medias) {
+        return this.repository.saveAll(medias);
     }
 
     public List<DownloadedMedia> findAllWith(LocalDate date, Boolean downloadComplete, List<String> names) {
@@ -67,13 +78,5 @@ public class DownloadedMediaRepository {
         query.limit(limit);
 
         return mongoTemplate.find(query, DownloadedMedia.class);
-    }
-
-    public DownloadedMedia save(DownloadedMedia media) {
-        return mongoTemplate.save(media);
-    }
-
-    public List<DownloadedMedia> saveAll(List<DownloadedMedia> medias) {
-        return medias.stream().map(this::save).toList();
     }
 }

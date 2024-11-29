@@ -35,6 +35,7 @@ import static org.hamcrest.CoreMatchers.is;
 @ActiveProfiles("test")
 @ContextConfiguration(classes = {
         DownloadedMediaRepository.class,
+        InternalDownloadedMediaRepository.class,
         MongoTestConfiguration.class,
         MediaDownloadController.class,
         MediaDownloadService.class
