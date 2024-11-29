@@ -18,6 +18,7 @@ public class DownloadedMedia {
     private ObjectId id;
 
     @Field("file_name")
+    @Indexed(name = "fileName_idx")
     private String fileName;
 
     @Field("file_size")
@@ -32,5 +33,6 @@ public class DownloadedMedia {
     private boolean triedAutoMove;
     
     @Field("download_complete")
+    @Indexed(name = "downloadComplete_idx")
     private boolean downloadComplete;
 }
