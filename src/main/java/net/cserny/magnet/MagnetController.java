@@ -13,6 +13,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -34,7 +35,7 @@ public class MagnetController implements TorrentMagnetResourceApi {
 
     @PostMapping
     @Override
-    public ResponseEntity<MagnetData> addMagnet(@RequestBody String magnetLink) {
+    public ResponseEntity<MagnetData> addMagnet(@RequestBody @Validated String magnetLink) {
         return new ResponseEntity<>(this.service.addMagnet(magnetLink), HttpStatus.CREATED);
     }
 

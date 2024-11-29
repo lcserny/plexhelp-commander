@@ -196,6 +196,11 @@
                                 <openApiNullable>false</openApiNullable>
                                 <generateTests>false</generateTests>
                                 <annotationLibrary>none</annotationLibrary>
+                                <generateBuilders>true</generateBuilders>
+                                <performBeanValidation>true</performBeanValidation>
+                                <useBeanValidation>true</useBeanValidation>
+                                <useSpringController>true</useSpringController>
+                                <useJakartaEe>true</useJakartaEe>
                             </configOptions>
                             <generateModelTests>false</generateModelTests>
                             <modelPackage>net.cserny.generated</modelPackage>

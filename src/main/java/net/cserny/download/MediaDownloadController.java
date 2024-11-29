@@ -8,6 +8,7 @@ import net.cserny.generated.SearchDownloadedMediaDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -24,7 +25,7 @@ public class MediaDownloadController implements MediaDownloadResourceApi {
 
     @PostMapping
     @Override
-    public ResponseEntity<List<DownloadedMediaData>> searchDownloadedMedia(SearchDownloadedMedia searchDownloadedMedia) {
+    public ResponseEntity<List<DownloadedMediaData>> searchDownloadedMedia(@RequestBody @Validated SearchDownloadedMedia searchDownloadedMedia) {
         LocalDate searchDate = null;
         SearchDownloadedMediaDate date = searchDownloadedMedia.getDate();
         if (date != null) {

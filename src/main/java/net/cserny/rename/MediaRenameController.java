@@ -7,6 +7,7 @@ import net.cserny.generated.RenamedMediaOptions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,7 +24,7 @@ public class MediaRenameController implements MediaRenameResourceApi {
 
     @PostMapping
     @Override
-    public ResponseEntity<RenamedMediaOptions> produceRenames(@RequestBody MediaRenameRequest request) {
+    public ResponseEntity<RenamedMediaOptions> produceRenames(@RequestBody @Validated MediaRenameRequest request) {
         return ResponseEntity.ok(service.produceNames(request.getName(), request.getType()));
     }
 }

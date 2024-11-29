@@ -7,6 +7,7 @@ import net.cserny.generated.MediaMoveResourceApi;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,13 +27,13 @@ public class MediaMoveController implements MediaMoveResourceApi {
 
     @PostMapping
     @Override
-    public ResponseEntity<List<MediaMoveError>> moveMedia(@RequestBody MediaMoveRequest moveRequest) {
+    public ResponseEntity<List<MediaMoveError>> moveMedia(@RequestBody @Validated MediaMoveRequest moveRequest) {
         return ResponseEntity.ok(service.moveMedia(moveRequest.getFileGroup(), moveRequest.getType()));
     }
 
     @PostMapping("/all")
     @Override
-    public ResponseEntity<List<MediaMoveError>> moveAllMedia(@RequestBody List<MediaMoveRequest> moveRequests) {
+    public ResponseEntity<List<MediaMoveError>> moveAllMedia(@RequestBody @Validated List<MediaMoveRequest> moveRequests) {
         List<MediaMoveError> errors = new ArrayList<>();
         for (MediaMoveRequest request : moveRequests) {
             errors.addAll(service.moveMedia(request.getFileGroup(), request.getType()));
