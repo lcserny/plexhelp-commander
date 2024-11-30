@@ -20,7 +20,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserResponse'
+                type: string
+                description: the result message
+                example: user created
         "400":
           description: error
           content:
@@ -166,7 +168,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserResponse'
+                type: string
+                description: result message
+                example: user logged out successfully
         "400":
           description: error
           content:
@@ -231,18 +235,6 @@ components:
         - userId
         - roles
         - perms
-    UserResponse:
-      type: object
-      properties:
-        message:
-          type: string
-        error:
-          type: string
-        statusCode:
-          type: integer
-      required:
-        - message
-        - statusCode
     UserData:
       type: object
       properties:
