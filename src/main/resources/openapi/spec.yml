@@ -22,6 +22,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CommandResponse'
+        "400":
+          description: error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationErrorResponse'
   /api/v1/media-downloads:
     post:
       tags:
@@ -42,6 +48,12 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/DownloadedMediaData'
+        "400":
+          description: error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationErrorResponse'
   /api/v1/media-moves:
     post:
       tags:
@@ -62,6 +74,12 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/MediaMoveError'
+        "400":
+          description: error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationErrorResponse'
   /api/v1/media-moves/all:
     post:
       tags:
@@ -84,6 +102,12 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/MediaMoveError'
+        "400":
+          description: error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationErrorResponse'
   /api/v1/media-renames:
     post:
       tags:
@@ -102,6 +126,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RenamedMediaOptions'
+        "400":
+          description: error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationErrorResponse'
   /api/v1/media-searches:
     get:
       tags:
@@ -116,6 +146,12 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/MediaFileGroup'
+        "400":
+          description: error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationErrorResponse'
   /api/v1/magnets:
     post:
       tags:
@@ -134,6 +170,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MagnetData'
+        "400":
+          description: error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationErrorResponse'
     get:
       x-spring-paginated: true
       tags:
@@ -154,6 +196,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PaginatedMagnets'
+        "400":
+          description: error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationErrorResponse'
+
 components:
   schemas:
     CommandRequest:
@@ -370,3 +419,20 @@ components:
           description: The media names to search for
           items:
             type: string
+    ApplicationErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: the error type
+        message:
+          type: string
+          description: the error description
+        code:
+          type: string
+          description: the specific application error code, if available
+          default: no_code
+      required:
+        - error
+        - message
+        - code
