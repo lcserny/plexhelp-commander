@@ -2,6 +2,9 @@ package net.cserny.download;
 
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -35,7 +38,7 @@ public class DownloadedMediaRepository {
         return this.repository.saveAll(medias);
     }
 
-    public List<DownloadedMedia> findAllWith(LocalDate date, Boolean downloadComplete, List<String> names) {
+    private Query buildFindAllQuery(LocalDate date, Boolean downloadComplete, List<String> names) {
         Query query = new Query();
 
         if (date != null) {
@@ -56,7 +59,23 @@ public class DownloadedMediaRepository {
             query.addCriteria(Criteria.where("fileName").in(names));
         }
 
+        return query;
+    }
+
+    public List<DownloadedMedia> findAllWith(LocalDate date, Boolean downloadComplete, List<String> names) {
+        Query query = this.buildFindAllQuery(date, downloadComplete, names);
         return mongoTemplate.find(query, DownloadedMedia.class);
+    }
+
+    public Page<DownloadedMedia> findAllPaginatedWith(LocalDate date, Boolean downloadComplete, List<String> names, Pageable pageable) {
+        Query query = this.buildFindAllQuery(date, downloadComplete, names);
+        query.skip(pageable.getOffset());
+        query.limit(pageable.getPageSize());
+
+        List<DownloadedMedia> results = mongoTemplate.find(query, DownloadedMedia.class);
+        long total = mongoTemplate.count(query.skip(0).limit(0), DownloadedMedia.class);
+
+        return new PageImpl<>(results, pageable, total);
     }
 
     public List<DownloadedMedia> findForAutoMove(int limit) {

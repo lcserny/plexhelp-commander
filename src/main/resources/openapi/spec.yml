@@ -54,6 +54,31 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApplicationErrorResponse'
+  /api/v1/media-downloads/paginated:
+    post:
+      tags:
+        - Media Download Resource
+      operationId: searchDownloadedMediaPaginated
+      x-spring-paginated: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchDownloadedMedia'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedDownloads'
+        "400":
+          description: error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationErrorResponse'
   /api/v1/media-moves:
     post:
       tags:
@@ -360,13 +385,9 @@ components:
         - hash
         - url
         - dateAdded
-    PaginatedMagnets:
+    PaginatedBase:
       type: object
       properties:
-        content:
-          type: array
-          items:
-            $ref: '#/components/schemas/MagnetData'
         page:
           type: object
           properties:
@@ -388,8 +409,33 @@ components:
             - totalElements
             - totalPages
       required:
-        - content
         - page
+    PaginatedMagnets:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/PaginatedBase'
+        - type: object
+          properties:
+            content:
+              type: array
+              items:
+                $ref: '#/components/schemas/MagnetData'
+          required:
+            - content
+            - page
+    PaginatedDownloads:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/PaginatedBase'
+        - type: object
+          properties:
+            content:
+              type: array
+              items:
+                $ref: '#/components/schemas/DownloadedMediaData'
+          required:
+            - content
+            - page
     SearchDownloadedMedia:
       type: object
       properties:

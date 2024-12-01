@@ -4,8 +4,8 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.generated.ApiApi;
 import net.cserny.generated.MagnetData;
+import net.cserny.generated.PaginatedBase1Page;
 import net.cserny.generated.PaginatedMagnets;
-import net.cserny.generated.PaginatedMagnetsPage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -36,7 +36,7 @@ public class MagnetController implements ApiApi {
     @Override
     public ResponseEntity<PaginatedMagnets> getAll(@Valid @RequestParam(value = "name", required = false) String name, Pageable page) {
         Page<MagnetData> resultPage = this.service.getAll(page, name);
-        PaginatedMagnetsPage magnetsPage = new PaginatedMagnetsPage(resultPage.getSize(), resultPage.getNumber(), resultPage.getTotalElements(), resultPage.getTotalPages());
-        return ResponseEntity.ok(new PaginatedMagnets(resultPage.getContent(), magnetsPage));
+        PaginatedBase1Page magnetsPage = new PaginatedBase1Page(resultPage.getSize(), resultPage.getNumber(), resultPage.getTotalElements(), resultPage.getTotalPages());
+        return ResponseEntity.ok(new PaginatedMagnets(magnetsPage, resultPage.getContent()));
     }
 }
