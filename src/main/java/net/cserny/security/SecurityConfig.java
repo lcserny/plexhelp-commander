@@ -28,6 +28,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((registry) -> registry
+                        .requestMatchers(HttpMethod.POST, "**/torrents").permitAll()
                         .requestMatchers(HttpMethod.GET)
                             .hasAnyAuthority(UserPerm.READ.toString(), UserRole.ADMIN.toString())
                         .requestMatchers(HttpMethod.POST)
