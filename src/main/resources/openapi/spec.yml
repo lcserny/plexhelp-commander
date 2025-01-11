@@ -2,8 +2,30 @@
 openapi: 3.0.3
 info:
   title: plexhelp-commander API
-  version: 2.0.0
+  version: 2.1.0
 paths:
+  /api/v1/torrents/:
+    post:
+      tags:
+        - Upsert torrent by hash from client
+      operationId: upsertTorrent
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TorrentData'
+        required: true
+      responses:
+        "201":
+          description: Torrent created
+        "200":
+          description: Torrent updated
+        "400":
+          description: error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationErrorResponse'
   /api/v1/commands:
     post:
       tags:
@@ -482,3 +504,17 @@ components:
         - error
         - message
         - code
+    TorrentData:
+      type: object
+      properties:
+        operation:
+          type: string
+          enum:
+            - added
+            - downloaded
+        hash:
+          type: string
+          description: the hash of the torrent
+      required:
+        - hash
+        - operation

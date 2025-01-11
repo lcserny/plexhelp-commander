@@ -2,11 +2,14 @@ package net.cserny.qtorrent;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.List;
 
 @Slf4j
 @Component
@@ -16,6 +19,8 @@ public class QTorrentRestClient implements TorrentRestClient {
 
     private final String loginUrl;
     private final String addUrl;
+    private final String listUrl;
+    private final String deleteUrl;
     private final String username;
     private final String password;
 
@@ -26,6 +31,8 @@ public class QTorrentRestClient implements TorrentRestClient {
         this.password = properties.getPassword();
         this.loginUrl = properties.getBaseUrl() + "/api/v2/auth/login";
         this.addUrl = properties.getBaseUrl() + "/api/v2/torrents/add";
+        this.listUrl = properties.getBaseUrl() + "/api/v2/torrents/files";
+        this.deleteUrl = properties.getBaseUrl() + "/api/v2/torrents/delete";
     }
 
     @Override
@@ -67,6 +74,41 @@ public class QTorrentRestClient implements TorrentRestClient {
         var response = restTemplate.exchange(this.addUrl, HttpMethod.POST, request, String.class);
         if (!response.getStatusCode().is2xxSuccessful()) {
             throw new RestClientException("Could not add magnet to torrent client, error code: " + response.getStatusCode());
+        }
+    }
+
+    @Override
+    public List<TorrentFile> listTorrents(String sid, String hash) {
+        var headers = this.createFormHeaders();
+        this.addSIDCookie(headers, sid);
+
+        var formParams = new LinkedMultiValueMap<>();
+        formParams.add("hash", hash);
+
+        var request = new HttpEntity<>(formParams, headers);
+
+        var response = restTemplate.exchange(this.listUrl, HttpMethod.POST, request, new ParameterizedTypeReference<List<TorrentFile>>() {});
+        if (!response.getStatusCode().is2xxSuccessful()) {
+            throw new RestClientException("Could not list torrents from torrent client, error code: " + response.getStatusCode());
+        }
+
+        return response.getBody();
+    }
+
+    @Override
+    public void deleteTorrent(String sid, String hash, boolean removeFiles) {
+        var headers = this.createFormHeaders();
+        this.addSIDCookie(headers, sid);
+
+        var formParams = new LinkedMultiValueMap<>();
+        formParams.add("hashes", hash);
+        formParams.add("deleteFiles", removeFiles);
+
+        var request = new HttpEntity<>(formParams, headers);
+
+        var response = restTemplate.exchange(this.deleteUrl, HttpMethod.POST, request, String.class);
+        if (!response.getStatusCode().is2xxSuccessful()) {
+            throw new RestClientException("Could not remove torrent from torrent client, error code: " + response.getStatusCode());
         }
     }
 

@@ -33,6 +33,7 @@ import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
         MagnetController.class,
         MagnetService.class,
         MagnetRepository.class,
+        MagnetRepositoryInternal.class,
         QTorrentRestClient.class,
         RestTemplate.class,
         TorrentProperties.class,
@@ -96,7 +97,7 @@ class MagnetControllerTest {
 
         given()
                 .contentType(ContentType.TEXT)
-                .when().get(format("/api/v1/magnets?page=%d&size=%d&sort=%s", 0, 1, "name"))
+                .when().get(format("/api/v1/magnets?page=%d&size=%d&sort=%s", 0, 1, "name,ASC"))
                 .then()
                 .statusCode(HttpStatus.OK.value())
                 .body("content", hasSize(1))

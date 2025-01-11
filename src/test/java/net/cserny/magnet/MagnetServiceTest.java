@@ -52,7 +52,7 @@ class MagnetServiceTest {
     @DisplayName("Adding magnet link returns magnet data created")
     public void addMagnet() {
         var hash = "abc";
-        var name = "myName";
+        var name = "XmyName";
         var magnetLink = format("magnet:?xt=urn:btih:%s&dn=%s&tr=whatever", hash, name);
 
         var magnet = new Magnet();

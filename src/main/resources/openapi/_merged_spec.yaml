@@ -7,6 +7,8 @@ paths:
     $ref: "./spec.yml#/paths/~1api~1v1~1media-renames"
   /security/users:
     $ref: "./auth-spec.yml#/paths/~1security~1users"
+  /api/v1/torrents/:
+    $ref: "./spec.yml#/paths/~1api~1v1~1torrents~1"
   /security/users/{id}:
     $ref: "./auth-spec.yml#/paths/~1security~1users~1{id}"
   /api/v1/media-moves/all:

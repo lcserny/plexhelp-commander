@@ -1,5 +1,6 @@
 package net.cserny.download;
 
+import net.cserny.qtorrent.TorrentFile;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -11,6 +12,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
@@ -100,5 +102,25 @@ public class DownloadedMediaRepository {
         query.limit(limit);
 
         return mongoTemplate.find(query, DownloadedMedia.class);
+    }
+
+    public int upsertTorrents(List<TorrentFile> torrentFiles, boolean isDownloaded) {
+        List<String> names = torrentFiles.stream().map(TorrentFile::name).toList();
+        List<DownloadedMedia> downloadedMediaList = this.findAllWith(null, null, names);
+
+        List<DownloadedMedia> downloadedMedia = torrentFiles.stream()
+                .filter(TorrentFile::isMedia)
+                .map(torrentFile -> {
+            DownloadedMedia media = downloadedMediaList.stream().filter(dm -> dm.getFileName().equals(torrentFile.name())).findFirst()
+                    .orElse(new DownloadedMedia());
+            media.setFileName(torrentFile.name());
+            media.setFileSize(torrentFile.size());
+            media.setDateDownloaded(Instant.now(Clock.systemUTC()));
+            media.setTriedAutoMove(false);
+            media.setDownloadComplete(isDownloaded);
+            return media;
+        }).toList();
+
+        return this.saveAll(downloadedMedia).size();
     }
 }

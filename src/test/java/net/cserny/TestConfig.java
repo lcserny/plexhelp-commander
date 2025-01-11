@@ -15,6 +15,8 @@ import org.springframework.web.client.RestTemplate;
         "net.cserny.move",
         "net.cserny.filesystem",
         "net.cserny.download",
+        "net.cserny.magnet",
+        "net.cserny.qtorrent",
 })
 public class TestConfig {
 
