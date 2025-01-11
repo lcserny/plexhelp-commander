@@ -1,5 +1,6 @@
 package net.cserny;
 
+import net.cserny.qtorrent.TorrentFile;
 import net.cserny.rename.TmdbWrapper;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,7 +23,8 @@ import java.time.Duration;
         TmdbWrapper.Tv.class,
         TmdbWrapper.Credits.class,
         TmdbWrapper.Person.class,
-        DataMapperImpl.class
+        DataMapperImpl.class,
+        TorrentFile.class
 })
 public class WebConfig implements WebMvcConfigurer {
 
