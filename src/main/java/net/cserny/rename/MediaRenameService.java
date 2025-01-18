@@ -15,6 +15,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static net.cserny.CommanderApplication.toOneLineString;
+
 @Slf4j
 @Service
 public class MediaRenameService {
@@ -50,19 +52,19 @@ public class MediaRenameService {
 
     public RenamedMediaOptions produceNames(String name, MediaFileType type) {
         NameYear nameYear = normalizer.normalize(name);
-        log.info("Normalized media: {}", nameYear);
+        log.info("Normalized media: {}", nameYear.formatted());
 
         for (Searcher searcher : searchers) {
-            log.info("Searching options using: {}", searcher);
+            log.info("Searching options using: {}", searcher.getClass().getSimpleName());
             RenamedMediaOptions options = searcher.search(nameYear, type);
             if (options.getMediaDescriptions() != null && !options.getMediaDescriptions().isEmpty()) {
-                log.info("Found options: {}", options);
+                log.info("Found options: {}", toOneLineString(options));
                 return options;
             }
         }
 
         List<MediaDescriptionData> mediaDescriptions = generateDescDataFrom(List.of(nameYear.formatted()));
-        log.info("Using options from name with descriptions: {}", mediaDescriptions);
+        log.info("Using options from name with descriptions: {}", toOneLineString(mediaDescriptions));
         return new RenamedMediaOptions().origin(MediaRenameOrigin.NAME).mediaDescriptions(mediaDescriptions);
     }
 }

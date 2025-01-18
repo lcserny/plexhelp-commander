@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static net.cserny.CommanderApplication.toOneLineString;
+
 @Order(2)
 @Component
 @Slf4j
@@ -48,7 +50,7 @@ public class ExternalSearcher implements Searcher {
         };
 
         List<OnlineCacheItem> items = convertAll(nameYear, mediaFound, type);
-        log.info("Saving media found to cache {}", items);
+        log.info("Saving media found to cache {}", toOneLineString(items));
         repository.saveAll(items);
 
         return new RenamedMediaOptions().origin(MediaRenameOrigin.EXTERNAL).mediaDescriptions(mediaFound);
@@ -81,7 +83,7 @@ public class ExternalSearcher implements Searcher {
         }
 
         List<Tv> sublist = results.subList(0, Math.min(results.size(), onlineConfig.getResultLimit()));
-        log.info("TV show results found {}", sublist);
+        log.info("TV show results found {}", toOneLineString(sublist));
 
         List<MediaDescriptionData> descriptions = new ArrayList<>();
         for (Tv tvSeries : sublist) {
@@ -106,7 +108,7 @@ public class ExternalSearcher implements Searcher {
         }
 
         List<Movie> sublist = results.subList(0, Math.min(results.size(), onlineConfig.getResultLimit()));
-        log.info("Movie results found {}", sublist);
+        log.info("Movie results found {}", toOneLineString(sublist));
 
         List<MediaDescriptionData> descriptions = new ArrayList<>();
         for (Movie movieDb : sublist) {

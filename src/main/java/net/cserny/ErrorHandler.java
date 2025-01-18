@@ -13,7 +13,7 @@ public class ErrorHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApplicationErrorResponse> handleException(Exception e) {
-        log.error(e.getMessage(), e);
+        log.error(e.getMessage());
 
         return new ResponseEntity<>(ApplicationErrorResponse.builder()
                 .error(e.getClass().getName())

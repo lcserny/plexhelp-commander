@@ -28,12 +28,12 @@ public class ServerCommandService {
         log.info("Initializing " + config.getName());
         Optional<ServerCommand> serverCommand = repository.getByServerName(config.getName());
         if (serverCommand.isPresent()) {
-            log.info("Found remote server command with name " + config.getName());
+            log.info("Found remote server command with name {}", config.getName());
             ServerCommand server = serverCommand.get();
             server.actionsPending = new ArrayList<>();
             repository.save(server);
         } else {
-            log.info("Remote server command with name " + config.getName() + " not found, creating...");
+            log.info("Remote server command with name {} not found, creating...", config.getName());
             ServerCommand server = new ServerCommand();
             server.serverName = config.getName();
             server.actionsAvailable = commands.stream().map(Command::name).toList();
@@ -57,7 +57,7 @@ public class ServerCommandService {
 
                 for (Command command : commands) {
                     if (command.name().equals(firstActionPending)) {
-                        log.info("Executing action " + command.name() + " for server " + config.getName());
+                        log.info("Executing action {} for server {}", command.name(), config.getName());
                         command.execute(new String[]{});
                     }
                 }

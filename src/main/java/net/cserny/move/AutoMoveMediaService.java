@@ -27,6 +27,7 @@ import java.util.stream.Stream;
 import static java.lang.String.format;
 import static java.util.Comparator.comparing;
 import static java.util.Comparator.reverseOrder;
+import static net.cserny.CommanderApplication.toOneLineString;
 
 @Slf4j
 @Service
@@ -116,12 +117,12 @@ public class AutoMoveMediaService {
             }
 
             AutoMoveOption option = autoMoveOptional.get();
-            log.info("Using first option to move media {}", option);
+            log.info("Using first option to move media {}", toOneLineString(option));
 
             String movedName = moveMedia(option, group);
             saveAutoMove(media, movedName, option);
         } catch (Exception e) {
-            log.error("Error occurred in virtual thread", e);
+            log.error("Error occurred in virtual thread: {}", e.getMessage());
         }
     }
 
@@ -132,7 +133,7 @@ public class AutoMoveMediaService {
         ));
         List<AutoMoveOption> allOptions = listOfAllOptions.stream().flatMap(List::stream).toList();
 
-        log.info("Options parsed: {}", allOptions);
+        log.info("Options parsed: {}", toOneLineString(allOptions));
 
         MediaTypeComparatorProvider compProvider = new MediaTypeComparatorProvider(group, nameYear);
         List<AutoMoveOption> sortedOptions = allOptions.stream()
@@ -142,7 +143,7 @@ public class AutoMoveMediaService {
                         .thenComparing(compProvider.provide()))
                 .collect(Collectors.toCollection(LinkedList::new));
 
-        log.info("Sorted options map by similarity: {}", sortedOptions);
+        log.info("Sorted options map by similarity: {}", toOneLineString(sortedOptions));
         return sortedOptions.stream().findFirst();
     }
 
@@ -175,7 +176,7 @@ public class AutoMoveMediaService {
 
     private List<AutoMoveOption> produceOptions(String groupName, MediaFileType type, String compare) {
         try {
-            log.info("Producing {} options", type);
+            log.info("Producing {} options", type.toString());
             RenamedMediaOptions options = renameService.produceNames(groupName, type);
             return options.getMediaDescriptions().stream()
                     .map(description -> {
@@ -186,7 +187,7 @@ public class AutoMoveMediaService {
                     })
                     .toList();
         } catch (Exception e) {
-            log.error("Error occurred in virtual thread", e);
+            log.error("Error occurred in virtual thread: {}", e.getMessage());
             return Collections.emptyList();
         }
     }

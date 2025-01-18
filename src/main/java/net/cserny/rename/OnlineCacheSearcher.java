@@ -1,7 +1,6 @@
 package net.cserny.rename;
 
 import lombok.extern.slf4j.Slf4j;
-import net.cserny.DataMapper;
 import net.cserny.generated.MediaDescriptionData;
 import net.cserny.generated.MediaFileType;
 import net.cserny.generated.MediaRenameOrigin;

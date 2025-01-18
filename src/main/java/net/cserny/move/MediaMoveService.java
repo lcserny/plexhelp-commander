@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static net.cserny.CommanderApplication.toOneLineString;
+
 @Service
 @Slf4j
 public class MediaMoveService {
@@ -53,7 +55,7 @@ public class MediaMoveService {
             filesystemConfig.getMoviesPath(),
             filesystemConfig.getTvPath()
         );
-        log.info("Important folders: {}", this.importantFolders);
+        log.info("Important folders: {}", toOneLineString(this.importantFolders));
     }
 
     public List<MediaMoveError> moveMedia(MediaFileGroup fileGroup, MediaFileType type) {
@@ -86,7 +88,7 @@ public class MediaMoveService {
                 log.info("Moving video {} to {}", srcPath, destPath);
                 fileService.move(srcPath, destPath);
             } catch (IOException e) {
-                log.warn("Could not move media", e);
+                log.warn("Could not move media: {}", e.getMessage());
                 errors.add(new MediaMoveError().mediaPath(srcPath.path().toString()).error(e.getMessage()));
             }
         }
@@ -100,7 +102,7 @@ public class MediaMoveService {
                 log.info("Cleaning source media folders {}", fileGroup.getPath());
                 cleanSourceMediaDir(fileGroup, groupedVideos.deletableVideos());
             } catch (IOException e) {
-                log.warn("Could not clean source media folder", e);
+                log.warn("Could not clean source media folder: {}", e.getMessage());
                 errors.add(new MediaMoveError().mediaPath(fileGroup.getPath()).error(e.getMessage()));
             }
         }

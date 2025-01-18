@@ -8,6 +8,8 @@ import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.stereotype.Component;
 
+import static net.cserny.CommanderApplication.toOneLineString;
+
 @Slf4j
 @Aspect
 @Component
@@ -21,12 +23,12 @@ public class RestControllersLoggingAspect {
     @Before("controllerMethods()")
     public void logBefore(JoinPoint joinPoint) {
         log.info("Entering method: {} with arguments = {}",
-                joinPoint.getSignature().toShortString(), joinPoint.getArgs());
+                joinPoint.getSignature().toShortString(), toOneLineString(joinPoint.getArgs()));
     }
 
     @AfterReturning(pointcut = "controllerMethods()", returning = "result")
     public void logAfterReturning(JoinPoint joinPoint, Object result) {
         log.info("Exiting method: {} with result = {}",
-                joinPoint.getSignature().toShortString(), result);
+                joinPoint.getSignature().toShortString(), toOneLineString(result));
     }
 }

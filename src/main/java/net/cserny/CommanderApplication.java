@@ -18,4 +18,11 @@ public class CommanderApplication {
     public static void main(String[] args) {
         SpringApplication.run(CommanderApplication.class, args);
     }
+
+    public static String toOneLineString(Object obj) {
+        if (obj == null) {
+            return "null";
+        }
+        return obj.toString().replace("\n", ";    ");
+    }
 }

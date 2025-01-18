@@ -18,6 +18,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import static net.cserny.CommanderApplication.toOneLineString;
 import static net.cserny.filesystem.LocalFileService.WalkOptions.ONLY_DIRECTORIES;
 import static net.cserny.rename.MediaRenameService.generateDescDataFrom;
 
@@ -57,7 +58,7 @@ public class DiskSearcher implements Searcher {
                     .map(this::chooseCorrectPath)
                     .toList();
         } catch (IOException e) {
-            log.warn("Could not walk path " + mediaPath.path(), e);
+            log.warn("Could not walk path {}, error: {}", mediaPath, e.getMessage());
         }
 
         return new RenamedMediaOptions().origin(MediaRenameOrigin.DISK).mediaDescriptions(generateDescDataFrom(nameVariants));
@@ -74,7 +75,7 @@ public class DiskSearcher implements Searcher {
         int simPercent = SimilarityService.getSimilarityPercent(diskPath.distance(), bigger);
         if (simPercent >= renameConfig.getSimilarityPercent()) {
             log.info("For path {}, the disk path {} is {}% similar with distance of {}",
-                    name, diskPath.trimmedLocalPpath(), simPercent, diskPath.distance());
+                    name, diskPath.trimmedLocalPpath(), simPercent, toOneLineString(diskPath.distance()));
             return true;
         }
         return false;

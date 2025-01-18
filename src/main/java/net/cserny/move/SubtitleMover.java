@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static net.cserny.CommanderApplication.toOneLineString;
+
 @Service
 @Slf4j
 public class SubtitleMover {
@@ -42,17 +44,17 @@ public class SubtitleMover {
                     .filter(this::filterBySubExtension)
                     .toList();
         } catch (IOException e) {
-            log.warn("Could not walk subs path", e);
+            log.warn("Could not walk subs path: {}", e.getMessage());
             errors.add(new MediaMoveError().mediaPath(operation.subsSrc().path().toString()).error(e.getMessage()));
             return errors;
         }
 
         if (subs.isEmpty()) {
-            log.info("No subs found for media " + operation.subsSrc().path());
+            log.info("No subs found for media {}", operation.subsSrc());
             return Collections.emptyList();
         }
 
-        log.info("{} type subs found {}", operation.type(), subs);
+        log.info("{} type subs found {}", operation.type().toString(), toOneLineString(subs));
 
         errors.addAll(moveSubs(operation, subs));
 
@@ -73,7 +75,7 @@ public class SubtitleMover {
                 log.info("Moving sub {} to {}", subSrc, subDest);
                 fileService.move(subSrc, subDest);
             } catch (IOException e) {
-                log.warn("Could not move sub", e);
+                log.warn("Could not move sub: {}", e.getMessage());
                 errors.add(new MediaMoveError().mediaPath(subSrc.path().toString()).error(e.getMessage()));
             }
         }

@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static java.lang.String.format;
+import static net.cserny.CommanderApplication.toOneLineString;
 
 @Service
 @Slf4j
@@ -21,10 +21,10 @@ public class LocalCommandService {
         for (Command command : commands) {
             if (command.name().equals(name)) {
                 try {
-                    log.info("Executing command: {} with params {}", command.name(), params);
+                    log.info("Executing command: {} with params {}", command.name(), toOneLineString(params));
                     return command.execute(params);
                 } catch (Exception e) {
-                    log.warn(format("Error occurred executing command: %s", name), e);
+                    log.warn("Error occurred executing command {}: {}", name, e.getMessage());
                     return new CommandResponse().status(Status.FAILED);
                 }
             }
