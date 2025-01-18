@@ -50,6 +50,7 @@ public class TorrentsService {
         log.info("Received {} torrent files from client", torrentFiles.size());
 
         List<TorrentFile> mediaTorrentFiles = processMediaTorrents(torrentFiles);
+        log.info("{} torrent files are media files", mediaTorrentFiles.stream().filter(TorrentFile::isMedia).count());
 
         var count = this.downloadedMediaRepository.upsertTorrents(mediaTorrentFiles, false);
         log.info("Added {} torrent files to downloads cache", count);
@@ -62,6 +63,7 @@ public class TorrentsService {
         log.info("Received {} torrent files from client", torrentFiles.size());
 
         List<TorrentFile> mediaTorrentFiles = processMediaTorrents(torrentFiles);
+        log.info("{} torrent files are media files", mediaTorrentFiles.stream().filter(TorrentFile::isMedia).count());
 
         this.threadpool.executeWithCurrentSpan(Stream.of(
                 () -> {
