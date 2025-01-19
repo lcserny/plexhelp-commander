@@ -15,6 +15,8 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.*;
 
+import static net.cserny.CommanderApplication.toOneLineString;
+
 @Service
 @Slf4j
 public class MediaSearchService {
@@ -43,7 +45,7 @@ public class MediaSearchService {
 
             return generateMediaFileGroups(allVideos);
         } catch (IOException e) {
-            log.warn("Could not walk path " + walkPath.path(), e);
+            log.warn("Could not walk path {}: {}", walkPath, e.getMessage());
             return Collections.emptyList();
         }
     }
@@ -93,7 +95,7 @@ public class MediaSearchService {
             mediaFileGroups.add(mediaFileGroup);
         }
 
-        log.info("Generated media file groups: {}", mediaFileGroups);
+        log.info("Generated media file groups: {}", toOneLineString(mediaFileGroups));
 
         return mediaFileGroups;
     }
