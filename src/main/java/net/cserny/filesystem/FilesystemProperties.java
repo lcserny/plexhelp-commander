@@ -20,6 +20,7 @@ public class FilesystemProperties {
     @Setter
     public static class CacheProperties {
 
+        private boolean enabled;
         private boolean loggerEnabled;
         private long initialDelayMs;
         private long cronMs;

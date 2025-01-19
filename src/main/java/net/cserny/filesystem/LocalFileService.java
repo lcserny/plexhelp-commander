@@ -19,10 +19,16 @@ public class LocalFileService {
 
     private static final int CACHE_LIMIT = 10000;
 
+    private final FilesystemProperties properties;
+
     @Getter
     private final LRUCache<String, BasicFileAttributes> fileAttrCache = new LRUCache<>(CACHE_LIMIT);
 
     protected FileSystem fileSystem = FileSystems.getDefault();
+
+    public LocalFileService(FilesystemProperties properties) {
+        this.properties = properties;
+    }
 
     public LocalPath toLocalPath(BasicFileAttributes attributes, String root, String... segments) {
         Path path = fileSystem.getPath(root, segments);
@@ -41,14 +47,19 @@ public class LocalFileService {
     public LocalPath toLocalPath(Path path, BasicFileAttributes attr) {
         String key = path.toAbsolutePath().toString();
 
-        if (attr == null) {
-            attr = fileAttrCache.get(key);
+        if (properties.getCache().isEnabled()) {
+            if (attr == null) {
+                attr = fileAttrCache.get(key);
+                if (attr == null) {
+                    attr = getRealAttributes(path);
+                }
+            }
+            fileAttrCache.put(key, attr);
+        } else {
             if (attr == null) {
                 attr = getRealAttributes(path);
             }
         }
-
-        fileAttrCache.put(key, attr);
 
         return new LocalPath(path, attr);
     }

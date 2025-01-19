@@ -11,7 +11,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 
 @Slf4j
 @Component
-@ConditionalOnProperty(prefix = "filesystem.cache", name = "logger-enabled", havingValue = "true")
+@ConditionalOnProperty(prefix = "filesystem.cache", name = {"enabled", "logger-enabled"}, havingValue = "true")
 public class FileServiceCacheLogger {
 
     @Autowired

@@ -1,8 +1,12 @@
 package net.cserny.filesystem;
 
+import net.cserny.filesystem.FilesystemProperties.CacheProperties;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.io.IOException;
@@ -11,12 +15,24 @@ import java.nio.file.NotDirectoryException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @ContextConfiguration(classes = {
         LocalFileService.class,
+        FilesystemProperties.class
 })
 public class LocalFileServiceTest extends AbstractInMemoryFileService {
+
+    @MockBean
+    private FilesystemProperties properties;
+
+    @BeforeEach
+    public void setUp() throws IOException {
+        CacheProperties cachePropsMock = mock(CacheProperties.class);
+        when(this.properties.getCache()).thenReturn(cachePropsMock);
+    }
 
     @Test
     @DisplayName("Service can delete a path")
