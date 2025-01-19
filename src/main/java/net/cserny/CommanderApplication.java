@@ -23,6 +23,6 @@ public class CommanderApplication {
         if (obj == null) {
             return "null";
         }
-        return obj.toString().replace("\n", ";    ");
+        return obj.toString().replace("\n", " - ");
     }
 }
