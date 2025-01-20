@@ -18,7 +18,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest
+@SpringBootTest(properties = {
+        "filesystem.cache.enabled=false"
+})
 @ContextConfiguration(classes = {
         LocalFileService.class,
         FilesystemProperties.class

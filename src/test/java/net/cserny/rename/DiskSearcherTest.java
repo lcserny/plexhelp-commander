@@ -23,7 +23,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         "server.command.name=test-server",
         "server.command.listen-cron=disabled",
         "search.video-min-size-bytes=5",
-        "search.exclude-paths[0]=Excluded Folder 1"
+        "search.exclude-paths[0]=Excluded Folder 1",
+        "filesystem.cache.enabled=false"
 })
 @ContextConfiguration(classes = {
         DiskSearcher.class,

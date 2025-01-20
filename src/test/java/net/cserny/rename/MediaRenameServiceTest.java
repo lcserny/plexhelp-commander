@@ -28,7 +28,9 @@ import static org.junit.jupiter.api.Assertions.*;
         TMDBSetupMock.class,
         LocalFileService.class}
 )
-@DataMongoTest
+@DataMongoTest(properties = {
+        "filesystem.cache.enabled=false"
+})
 @Testcontainers
 class MediaRenameServiceTest {
 

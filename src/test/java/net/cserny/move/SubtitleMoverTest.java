@@ -29,7 +29,9 @@ import static org.junit.jupiter.api.Assertions.*;
         LocalFileService.class,
         MongoTestConfiguration.class,
 })
-@DataMongoTest
+@DataMongoTest(properties = {
+        "filesystem.cache.enabled=false"
+})
 @Testcontainers
 class SubtitleMoverTest extends AbstractInMemoryFileService {
 

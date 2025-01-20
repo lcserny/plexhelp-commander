@@ -15,7 +15,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 public class FileServiceCacheLogger {
 
     @Autowired
-    private LocalFileService fileService;
+    private CachedLocalFileService fileService;
 
     @Scheduled(initialDelayString = "${filesystem.cache.initial-delay-ms}", fixedDelayString = "${filesystem.cache.cron-ms}")
     public void runCacheLogging() {
