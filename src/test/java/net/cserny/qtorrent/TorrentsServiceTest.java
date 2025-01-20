@@ -149,10 +149,11 @@ class TorrentsServiceTest extends AbstractInMemoryFileService {
     @Test
     @DisplayName("downloading new torrent, updates magnet found to downloaded")
     public void downloadingTorrentUpdatesMagnet() {
-        var hash = "myHash2";
+        var hash = "hashimodo";
 
         Magnet magnet = new Magnet();
         magnet.setHash(hash);
+        magnet.setName("aaa");
         magnet.setDownloaded(false);
         magnetRepository.save(magnet);
 
