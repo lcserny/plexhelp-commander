@@ -1,6 +1,8 @@
 package net.cserny;
 
 import io.micrometer.tracing.Tracer;
+import net.cserny.filesystem.LocalFileService;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -28,5 +30,10 @@ public class TestConfig {
     @Bean
     public RestTemplate restTemplate() {
         return new RestTemplate();
+    }
+
+    @Bean
+    public LocalFileService localFileService() {
+        return new LocalFileService();
     }
 }

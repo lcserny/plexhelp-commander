@@ -14,8 +14,6 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 @Slf4j
-@ConditionalOnProperty(prefix = "filesystem.cache", name = "enabled", havingValue = "false")
-@Service
 public class LocalFileService {
 
     protected FileSystem fileSystem = FileSystems.getDefault();
