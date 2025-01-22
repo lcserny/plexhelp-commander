@@ -57,14 +57,14 @@ public class WebConfig implements WebMvcConfigurer {
     }
 
     @Bean
-    @ConditionalOnProperty(prefix = "filesystem.cache", name = "enabled", havingValue = "false", matchIfMissing = true)
+    @ConditionalOnProperty(name = "filesystem.cache.enabled", havingValue = "false", matchIfMissing = true)
     public LocalFileService localFileService() {
         log.info("Using LocalFileService");
         return new LocalFileService();
     }
 
     @Bean
-    @ConditionalOnProperty(prefix = "filesystem.cache", name = "enabled", havingValue = "true")
+    @ConditionalOnProperty(name = "filesystem.cache.enabled", havingValue = "true")
     public LocalFileService cachedLocalFileService() {
         log.info("Using CachedLocalFileService");
         return new CachedLocalFileService();
