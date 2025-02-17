@@ -58,7 +58,7 @@ public class DownloadedMediaRepository {
         }
 
         if (names != null && !names.isEmpty()) {
-            query.addCriteria(names.size() == 1
+            query.addCriteria(names.size() == 1 && !names.getFirst().contains("/")
                     ? Criteria.where("fileName").regex(".*" + names.getFirst() + ".*", "i")
                     : Criteria.where("fileName").in(names)
             );

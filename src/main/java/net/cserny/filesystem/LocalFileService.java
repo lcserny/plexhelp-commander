@@ -3,8 +3,6 @@ package net.cserny.filesystem;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.search.NoAttributes;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.nio.file.*;
