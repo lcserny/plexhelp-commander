@@ -32,6 +32,7 @@ import static java.util.Comparator.reverseOrder;
 @Slf4j
 @Service
 @ConditionalOnProperty(prefix = "automove", name = "enabled", havingValue = "true")
+// enable this as a feature: https://www.togglz.org/documentation/spring-boot-starter
 public class AutoMoveMediaService {
 
     @Autowired
