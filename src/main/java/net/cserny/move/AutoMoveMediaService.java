@@ -30,42 +30,43 @@ import static java.util.Comparator.reverseOrder;
 import static net.cserny.CommanderApplication.toOneLineString;
 
 @Slf4j
-@Service
-@ConditionalOnProperty(prefix = "automove", name = "enabled", havingValue = "true")
 public class AutoMoveMediaService {
 
-    @Autowired
-    private DownloadedMediaRepository downloadedMediaRepository;
+    private final DownloadedMediaRepository downloadedMediaRepository;
+    private final AutoMoveMediaRepository autoMoveMediaRepository;
+    private final MediaSearchService searchService;
+    private final MediaRenameService renameService;
+    private final MediaMoveService moveService;
+    private final NameNormalizer normalizer;
+    private final LocalFileService fileService;
+    private final FilesystemProperties filesystemProperties;
+    private final AutoMoveProperties properties;
+    private final VirtualExecutor threadpool;
+    private final MediaIdentificationService identificationService;
 
-    @Autowired
-    private AutoMoveMediaRepository autoMoveMediaRepository;
-
-    @Autowired
-    private MediaSearchService searchService;
-
-    @Autowired
-    private MediaRenameService renameService;
-
-    @Autowired
-    private MediaMoveService moveService;
-
-    @Autowired
-    private NameNormalizer normalizer;
-
-    @Autowired
-    private LocalFileService fileService;
-
-    @Autowired
-    private FilesystemProperties filesystemProperties;
-
-    @Autowired
-    private AutoMoveProperties properties;
-
-    @Autowired
-    private VirtualExecutor threadpool;
-
-    @Autowired
-    private MediaIdentificationService identificationService;
+    public AutoMoveMediaService(DownloadedMediaRepository downloadedMediaRepository,
+                                AutoMoveMediaRepository autoMoveMediaRepository,
+                                MediaSearchService searchService,
+                                MediaRenameService renameService,
+                                MediaMoveService moveService,
+                                NameNormalizer normalizer,
+                                LocalFileService fileService,
+                                FilesystemProperties filesystemProperties,
+                                AutoMoveProperties properties,
+                                VirtualExecutor threadpool,
+                                MediaIdentificationService identificationService) {
+        this.downloadedMediaRepository = downloadedMediaRepository;
+        this.autoMoveMediaRepository = autoMoveMediaRepository;
+        this.searchService = searchService;
+        this.renameService = renameService;
+        this.moveService = moveService;
+        this.normalizer = normalizer;
+        this.fileService = fileService;
+        this.filesystemProperties = filesystemProperties;
+        this.properties = properties;
+        this.threadpool = threadpool;
+        this.identificationService = identificationService;
+    }
 
     @Scheduled(initialDelayString = "${automove.initial-delay-ms}", fixedDelayString = "${automove.cron-ms}")
     public void autoMoveMedia() {
