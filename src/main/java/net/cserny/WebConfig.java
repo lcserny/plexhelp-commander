@@ -122,6 +122,7 @@ public class WebConfig implements WebMvcConfigurer {
                 .build();
     }
 
+    // FIXME: doesnt work from native image, add to spring resource info?
     private File getResourceFile(String resourcePath) {
         try {
             java.net.URL url = getClass().getClassLoader().getResource(resourcePath);
