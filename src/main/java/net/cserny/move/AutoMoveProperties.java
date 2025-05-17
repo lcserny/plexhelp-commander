@@ -13,7 +13,6 @@ import java.util.List;
 @Setter
 public class AutoMoveProperties {
 
-    private boolean enabled;
     private int initialDelayMs;
     private int cronMs;
     private int limit;

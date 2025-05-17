@@ -3,15 +3,11 @@ package net.cserny.filesystem;
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.LRUCache;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
 
 import java.nio.file.attribute.BasicFileAttributes;
 
 @Slf4j
-@Component
-@ConditionalOnProperty(name = {"filesystem.cache.enabled", "filesystem.cache.logger-enabled"}, havingValue = "true")
 public class FileServiceCacheLogger {
 
     private CachedLocalFileService fileService = null;

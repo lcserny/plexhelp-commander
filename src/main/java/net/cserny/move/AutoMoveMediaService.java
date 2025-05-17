@@ -12,10 +12,7 @@ import net.cserny.rename.*;
 import net.cserny.rename.NameNormalizer.NameYear;
 import net.cserny.search.MediaIdentificationService;
 import net.cserny.search.MediaSearchService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
 
 import java.time.Clock;
 import java.time.Instant;
