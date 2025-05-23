@@ -31,6 +31,8 @@ import org.togglz.core.manager.FeatureManagerBuilder;
 import org.togglz.core.repository.file.FileBasedStateRepository;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Duration;
 
 @Slf4j
@@ -122,14 +124,10 @@ public class WebConfig implements WebMvcConfigurer {
                 .build();
     }
 
-    // FIXME: doesnt work from native image, add to spring resource info?
     private File getResourceFile(String resourcePath) {
         try {
-            java.net.URL url = getClass().getClassLoader().getResource(resourcePath);
-            if (url == null) {
-                throw new IllegalArgumentException("Resource not found: " + resourcePath);
-            }
-            return new File(url.toURI());
+            Path path = Paths.get(ClassLoader.getSystemResource(resourcePath).toURI());
+            return path.toFile();
         } catch (Exception e) {
             throw new RuntimeException("Failed to load resource: " + resourcePath, e);
         }
