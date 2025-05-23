@@ -35,6 +35,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
 
+import static net.cserny.filesystem.LocalFileService.getResourceFile;
+
 @Slf4j
 @Configuration
 @EnableWebMvc
@@ -122,15 +124,6 @@ public class WebConfig implements WebMvcConfigurer {
                 .stateRepository(new FileBasedStateRepository(getResourceFile("features.properties")))
                 .featureProvider(new EnumBasedFeatureProvider(ApplicationFeatures.class))
                 .build();
-    }
-
-    private File getResourceFile(String resourcePath) {
-        try {
-            Path path = Paths.get(ClassLoader.getSystemResource(resourcePath).toURI());
-            return path.toFile();
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to load resource: " + resourcePath, e);
-        }
     }
 
     public enum ApplicationFeatures implements Feature {

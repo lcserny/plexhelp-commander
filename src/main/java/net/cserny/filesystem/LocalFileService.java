@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.search.NoAttributes;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -96,6 +97,15 @@ public class LocalFileService {
                     .map(this::toLocalPath)
                     .filter(localPath -> options.getFilter().test(localPath))
                     .toList();
+        }
+    }
+
+    public static File getResourceFile(String resourcePath) {
+        try {
+            Path path = Paths.get(ClassLoader.getSystemResource(resourcePath).toURI());
+            return path.toFile();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to load resource: " + resourcePath, e);
         }
     }
 
