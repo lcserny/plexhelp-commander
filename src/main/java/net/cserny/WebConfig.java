@@ -30,6 +30,8 @@ import org.togglz.core.manager.FeatureManager;
 import org.togglz.core.manager.FeatureManagerBuilder;
 import org.togglz.core.repository.file.FileBasedStateRepository;
 
+import java.io.File;
+import java.net.URISyntaxException;
 import java.time.Duration;
 
 @Slf4j
@@ -114,9 +116,9 @@ public class WebConfig implements WebMvcConfigurer {
     }
 
     @Bean
-    public FeatureManager featureManager() {
+    public FeatureManager featureManager() throws URISyntaxException {
         return new FeatureManagerBuilder()
-                .stateRepository(new FileBasedStateRepository(LocalFileService.getResourceFile("features.properties")))
+                .stateRepository(new FileBasedStateRepository(new File(ClassLoader.getSystemResource("features.properties").toURI())))
                 .featureProvider(new EnumBasedFeatureProvider(ApplicationFeatures.class))
                 .build();
     }

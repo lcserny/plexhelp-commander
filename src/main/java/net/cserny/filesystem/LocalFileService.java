@@ -4,9 +4,16 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.search.NoAttributes;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.*;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.FileVisitOption;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.NotDirectoryException;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 import java.util.function.Predicate;
@@ -97,15 +104,6 @@ public class LocalFileService {
                     .map(this::toLocalPath)
                     .filter(localPath -> options.getFilter().test(localPath))
                     .toList();
-        }
-    }
-
-    public static File getResourceFile(String resourcePath) {
-        try {
-            Path path = Paths.get(ClassLoader.getSystemResource(resourcePath).toURI());
-            return path.toFile();
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to load resource: " + resourcePath, e);
         }
     }
 
