@@ -32,8 +32,6 @@ import org.togglz.core.repository.file.FileBasedStateRepository;
 
 import java.time.Duration;
 
-import static net.cserny.filesystem.LocalFileService.getResourceFile;
-
 @Slf4j
 @Configuration
 @EnableWebMvc
@@ -118,7 +116,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Bean
     public FeatureManager featureManager() {
         return new FeatureManagerBuilder()
-                .stateRepository(new FileBasedStateRepository(getResourceFile("features.properties")))
+                .stateRepository(new FileBasedStateRepository(LocalFileService.getResourceFile("features.properties")))
                 .featureProvider(new EnumBasedFeatureProvider(ApplicationFeatures.class))
                 .build();
     }
