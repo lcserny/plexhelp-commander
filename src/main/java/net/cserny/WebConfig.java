@@ -30,9 +30,6 @@ import org.togglz.core.manager.FeatureManager;
 import org.togglz.core.manager.FeatureManagerBuilder;
 import org.togglz.core.repository.file.FileBasedStateRepository;
 
-import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Duration;
 
 import static net.cserny.filesystem.LocalFileService.getResourceFile;
