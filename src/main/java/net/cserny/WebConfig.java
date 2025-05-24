@@ -28,9 +28,14 @@ import org.togglz.core.annotation.Label;
 import org.togglz.core.manager.EnumBasedFeatureProvider;
 import org.togglz.core.manager.FeatureManager;
 import org.togglz.core.manager.FeatureManagerBuilder;
+import org.togglz.core.repository.StateRepository;
 import org.togglz.core.repository.file.FileBasedStateRepository;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Duration;
 
@@ -54,6 +59,9 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Value("${http.client.read.timeout.ms}")
     private int readTimeoutMs;
+
+    @Value("${spring.application.name}")
+    private String applicationName;
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
@@ -116,9 +124,23 @@ public class WebConfig implements WebMvcConfigurer {
     }
 
     @Bean
-    public FeatureManager featureManager() throws URISyntaxException {
+    public FeatureManager featureManager() throws URISyntaxException, IOException {
+        InputStream inputStream = getClass().getClassLoader().getResourceAsStream("features.properties");
+
+        String homeDir = System.getProperty("user.home");
+        File file = new File(homeDir, applicationName + "-features.properties");
+        file.createNewFile();
+
+        try (FileOutputStream outputStream = new FileOutputStream(file)) {
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, bytesRead);
+            }
+        }
+
         return new FeatureManagerBuilder()
-                .stateRepository(new FileBasedStateRepository(new File(ClassLoader.getSystemResource("features.properties").toURI())))
+                .stateRepository(new FileBasedStateRepository(file))
                 .featureProvider(new EnumBasedFeatureProvider(ApplicationFeatures.class))
                 .build();
     }
