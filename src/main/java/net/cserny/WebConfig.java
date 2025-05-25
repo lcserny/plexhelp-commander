@@ -60,7 +60,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Value("${http.client.read.timeout.ms}")
     private int readTimeoutMs;
 
-    @Value("${features.file}")
+    @Value("${features.file:}")
     private String featuresFile;
 
     @Override
@@ -128,7 +128,7 @@ public class WebConfig implements WebMvcConfigurer {
         FeatureManagerBuilder builder = new FeatureManagerBuilder()
                 .featureProvider(new EnumBasedFeatureProvider(ApplicationFeatures.class));
 
-        if (featuresFile != null) {
+        if (featuresFile != null && !featuresFile.isEmpty()) {
             File file = new File(featuresFile);
             if (file.exists()) {
                 log.info("Using features file: {}", featuresFile);
