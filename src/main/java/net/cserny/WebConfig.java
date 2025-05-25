@@ -60,8 +60,8 @@ public class WebConfig implements WebMvcConfigurer {
     @Value("${http.client.read.timeout.ms}")
     private int readTimeoutMs;
 
-    @Value("${spring.application.name}")
-    private String applicationName;
+    @Value("${features.file}")
+    private String featuresFile;
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
@@ -125,24 +125,18 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Bean
     public FeatureManager featureManager() throws URISyntaxException, IOException {
-        InputStream inputStream = getClass().getClassLoader().getResourceAsStream("features.properties");
+        FeatureManagerBuilder builder = new FeatureManagerBuilder()
+                .featureProvider(new EnumBasedFeatureProvider(ApplicationFeatures.class));
 
-        String homeDir = System.getProperty("user.home");
-        File file = new File(homeDir, applicationName + "-features.properties");
-        file.createNewFile();
-
-        try (FileOutputStream outputStream = new FileOutputStream(file)) {
-            byte[] buffer = new byte[1024];
-            int bytesRead;
-            while ((bytesRead = inputStream.read(buffer)) != -1) {
-                outputStream.write(buffer, 0, bytesRead);
+        if (featuresFile != null) {
+            File file = new File(featuresFile);
+            if (file.exists()) {
+                log.info("Using features file: {}", featuresFile);
+                builder.stateRepository(new FileBasedStateRepository(file));
             }
         }
 
-        return new FeatureManagerBuilder()
-                .stateRepository(new FileBasedStateRepository(file))
-                .featureProvider(new EnumBasedFeatureProvider(ApplicationFeatures.class))
-                .build();
+        return builder.build();
     }
 
     public enum ApplicationFeatures implements Feature {
