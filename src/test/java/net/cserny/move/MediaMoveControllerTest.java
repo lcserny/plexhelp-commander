@@ -35,7 +35,6 @@ import static org.hamcrest.CoreMatchers.is;
         "server.command.listen-cron=disabled",
         "search.video-min-size-bytes=5",
         "search.exclude-paths[0]=Excluded Folder 1",
-        "automove.enabled=false",
         "automove.initial-delay-ms=5000",
         "automove.cron-ms=10000"
 }, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)

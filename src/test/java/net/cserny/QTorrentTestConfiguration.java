@@ -1,6 +1,9 @@
 package net.cserny;
 
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
@@ -12,10 +15,12 @@ import java.time.temporal.ChronoUnit;
 
 import static java.lang.String.format;
 
-@Configuration
+@TestConfiguration(proxyBeanMethods = false)
 public class QTorrentTestConfiguration {
 
     public static final int MAPPED_PORT = 8080;
+
+    private static final String WEBUI_BASE_KEY = "torrent.webui.baseUrl";
 
     @Container
     public static GenericContainer container = new GenericContainer("linuxserver/qbittorrent:4.5.2")
@@ -29,6 +34,20 @@ public class QTorrentTestConfiguration {
 
     static {
         container.start();
-        System.setProperty("torrent.webui.baseUrl", format("http://%s:%d", container.getHost(), container.getMappedPort(MAPPED_PORT)));
+        System.setProperty(WEBUI_BASE_KEY, buildUrl(container));
+    }
+
+    @Bean
+    public GenericContainer qtorrentContainer() {
+        return container;
+    }
+
+    @DynamicPropertySource
+    static void setQTorrentProperties(DynamicPropertyRegistry registry) {
+        registry.add(WEBUI_BASE_KEY, () -> buildUrl(container));
+    }
+
+    private static String buildUrl(GenericContainer container) {
+        return format("http://%s:%d", container.getHost(), container.getMappedPort(MAPPED_PORT));
     }
 }
