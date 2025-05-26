@@ -22,14 +22,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.togglz.core.Feature;
-import org.togglz.core.annotation.EnabledByDefault;
-import org.togglz.core.annotation.Label;
-import org.togglz.core.manager.EnumBasedFeatureProvider;
 import org.togglz.core.manager.FeatureManager;
-import org.togglz.core.manager.FeatureManagerBuilder;
-import org.togglz.core.repository.StateRepository;
-import org.togglz.core.repository.file.FileBasedStateRepository;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -60,9 +53,6 @@ public class WebConfig implements WebMvcConfigurer {
     @Value("${http.client.read.timeout.ms}")
     private int readTimeoutMs;
 
-    @Value("${features.file:}")
-    private String featuresFile;
-
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/api/**")
@@ -82,7 +72,7 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Bean
     FileServiceCacheLogger fileServiceCacheLogger(FeatureManager featureManager, LocalFileService fileService) {
-        if (featureManager.isActive(ApplicationFeatures.FILESYSTEM_CACHE_LOGGING)) {
+        if (featureManager.isActive(Features.FILESYSTEM_CACHE_LOGGING)) {
             log.info("Filesystem cache logging feature activated");
             return new FileServiceCacheLogger(fileService);
         }
@@ -92,7 +82,7 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Bean
     LocalFileService fileService(FeatureManager featureManager) {
-        if (featureManager.isActive(ApplicationFeatures.FILESYSTEM_CACHE)) {
+        if (featureManager.isActive(Features.FILESYSTEM_CACHE)) {
             log.info("Filesystem cache feature activated");
             return new CachedLocalFileService();
         }
@@ -113,7 +103,7 @@ public class WebConfig implements WebMvcConfigurer {
                                               AutoMoveProperties properties,
                                               VirtualExecutor threadpool,
                                               MediaIdentificationService identificationService) {
-        if (featureManager.isActive(ApplicationFeatures.AUTOMOVE)) {
+        if (featureManager.isActive(Features.AUTOMOVE)) {
             log.info("Automove feature activated");
             return new AutoMoveMediaService(downloadedMediaRepository, autoMoveMediaRepository,
                     searchService, renameService, moveService, normalizer, fileService,
@@ -121,34 +111,5 @@ public class WebConfig implements WebMvcConfigurer {
         }
         log.info("Automove feature not activated");
         return null;
-    }
-
-    @Bean
-    public FeatureManager featureManager() throws URISyntaxException, IOException {
-        FeatureManagerBuilder builder = new FeatureManagerBuilder()
-                .featureProvider(new EnumBasedFeatureProvider(ApplicationFeatures.class));
-
-        if (featuresFile != null && !featuresFile.isEmpty()) {
-            File file = new File(featuresFile);
-            if (file.exists()) {
-                log.info("Using features file: {}", featuresFile);
-                builder.stateRepository(new FileBasedStateRepository(file));
-            }
-        }
-
-        return builder.build();
-    }
-
-    public enum ApplicationFeatures implements Feature {
-
-        @EnabledByDefault
-        @Label("Automatically move media files downloaded if possible")
-        AUTOMOVE,
-
-        @Label("Use a InMemory cache for the filesystem operations")
-        FILESYSTEM_CACHE,
-
-        @Label("Log operations on the InMemory cache")
-        FILESYSTEM_CACHE_LOGGING;
     }
 }
