@@ -86,11 +86,19 @@ public class LocalFileService {
         Files.move(source.path(), dest.path());
     }
 
+    public List<LocalPath> walk(LocalPath path, int maxDepthFromPath, List<String> excludePaths) throws IOException {
+        return walk(path, maxDepthFromPath, excludePaths, WalkOptions.ONLY_FILES);
+    }
+
     public List<LocalPath> walk(LocalPath path, int maxDepthFromPath) throws IOException {
         return walk(path, maxDepthFromPath, WalkOptions.ONLY_FILES);
     }
 
     public List<LocalPath> walk(LocalPath path, int maxDepthFromPath, WalkOptions options) throws IOException {
+        return walk(path, maxDepthFromPath, List.of(), options);
+    }
+
+    public List<LocalPath> walk(LocalPath path, int maxDepthFromPath, List<String> excludePaths, WalkOptions options) throws IOException {
         if (!path.attributes().isDirectory()) {
             throw new NotDirectoryException(path.path().toString());
         }
@@ -102,9 +110,20 @@ public class LocalFileService {
         try (Stream<Path> walkStream = Files.walk(path.path(), maxDepthFromPath, FileVisitOption.FOLLOW_LINKS)) {
             return walkStream.parallel()
                     .map(this::toLocalPath)
+                    .filter(localPath -> excludePaths(localPath, excludePaths))
                     .filter(localPath -> options.getFilter().test(localPath))
                     .toList();
         }
+    }
+
+    private boolean excludePaths(LocalPath path, List<String> excludePaths) {
+        for (String excludePath : excludePaths) {
+            if (path.path().toAbsolutePath().toString().contains(excludePath)) {
+                log.debug("Excluding based on path: {}", path);
+                return false;
+            }
+        }
+        return true;
     }
 
     @Getter

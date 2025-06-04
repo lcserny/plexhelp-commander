@@ -7,9 +7,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.MediaTypeFactory;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Optional;
 
 @Service
@@ -20,29 +17,11 @@ public class MediaIdentificationService {
     private SearchProperties searchConfig;
 
     public boolean isMedia(LocalPath path) {
-        if (!excludeConfiguredPaths(path)) {
-            return false;
-        }
-
         if (!excludeNonVideosByContentType(path)) {
             return false;
         }
 
-        if (!excludeNonVideosBySize(path)) {
-            return false;
-        }
-
-        return true;
-    }
-
-    private boolean excludeConfiguredPaths(LocalPath path) {
-        for (String excludePath : searchConfig.getExcludePaths()) {
-            if (path.path().toAbsolutePath().toString().contains(excludePath)) {
-                log.debug("Excluding based on path: {}", path);
-                return false;
-            }
-        }
-        return true;
+        return excludeNonVideosBySize(path);
     }
 
     private boolean excludeNonVideosByContentType(LocalPath path) {

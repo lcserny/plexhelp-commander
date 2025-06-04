@@ -36,7 +36,7 @@ public class MediaSearchService {
     public List<MediaFileGroup> findMedia() {
         LocalPath walkPath = fileService.toLocalPath(filesystemConfig.getDownloadsPath());
         try {
-            List<LocalPath> files = fileService.walk(walkPath, searchConfig.getMaxDepth());
+            List<LocalPath> files = fileService.walk(walkPath, searchConfig.getMaxDepth(), searchConfig.getExcludePaths());
 
             List<LocalPath> allVideos = files.stream()
                     .filter(identificationService::isMedia)
