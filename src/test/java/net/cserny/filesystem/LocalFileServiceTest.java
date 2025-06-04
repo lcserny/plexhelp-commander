@@ -4,7 +4,8 @@ import net.cserny.filesystem.FilesystemProperties.CacheProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
@@ -18,13 +19,13 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest(properties = {
-        "filesystem.cache.enabled=false"
-})
+@ExtendWith(MockitoExtension.class)
+@SpringBootTest
 @ContextConfiguration(classes = {
         LocalFileService.class,
         FilesystemProperties.class
 })
+// FIXME
 public class LocalFileServiceTest extends AbstractInMemoryFileService {
 
     @MockBean

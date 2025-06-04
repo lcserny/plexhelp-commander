@@ -7,7 +7,6 @@ import net.cserny.search.NoAttributes;
 import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
-import java.nio.file.FileVisitOption;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
@@ -17,7 +16,6 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 import java.util.function.Predicate;
-import java.util.stream.Stream;
 
 @Slf4j
 public class LocalFileService {
@@ -107,23 +105,12 @@ public class LocalFileService {
             throw new IllegalArgumentException("Max depth passed cannot be lower than 1");
         }
 
-        try (Stream<Path> walkStream = Files.walk(path.path(), maxDepthFromPath, FileVisitOption.FOLLOW_LINKS)) {
-            return walkStream.parallel()
-                    .map(this::toLocalPath)
-                    .filter(localPath -> excludePaths(localPath, excludePaths))
-                    .filter(localPath -> options.getFilter().test(localPath))
-                    .toList();
-        }
-    }
-
-    private boolean excludePaths(LocalPath path, List<String> excludePaths) {
-        for (String excludePath : excludePaths) {
-            if (path.path().toAbsolutePath().toString().contains(excludePath)) {
-                log.debug("Excluding based on path: {}", path);
-                return false;
-            }
-        }
-        return true;
+        ExcludingFileVisitor excludingFileVisitor = new ExcludingFileVisitor(excludePaths, maxDepthFromPath);
+        Files.walkFileTree(path.path(), excludingFileVisitor);
+        return excludingFileVisitor.getAcceptedPaths().stream()
+                .map(this::toLocalPath)
+                .filter(localPath -> options.getFilter().test(localPath))
+                .toList();
     }
 
     @Getter
