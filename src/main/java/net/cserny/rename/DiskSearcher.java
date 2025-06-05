@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import static net.cserny.CommanderApplication.toOneLineString;
-import static net.cserny.filesystem.LocalFileService.WalkOptions.ONLY_DIRECTORIES;
+import static net.cserny.filesystem.ExcludingFileVisitor.WalkOptions.ONLY_DIRECTORIES;
 import static net.cserny.rename.MediaRenameService.generateDescDataFrom;
 
 @Order(0)

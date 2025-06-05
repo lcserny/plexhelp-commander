@@ -7,8 +7,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -25,10 +25,9 @@ import static org.mockito.Mockito.when;
         LocalFileService.class,
         FilesystemProperties.class
 })
-// FIXME
 public class LocalFileServiceTest extends AbstractInMemoryFileService {
 
-    @MockBean
+    @MockitoBean
     private FilesystemProperties properties;
 
     @BeforeEach

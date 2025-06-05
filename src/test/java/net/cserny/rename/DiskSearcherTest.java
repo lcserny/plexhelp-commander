@@ -33,7 +33,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         LocalFileService.class
 })
 @EnableAutoConfiguration
-// FIXME
 public class DiskSearcherTest extends AbstractInMemoryFileService {
 
     @Autowired

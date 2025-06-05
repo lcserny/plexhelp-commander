@@ -1,6 +1,5 @@
 package net.cserny.filesystem;
 
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.search.NoAttributes;
 
@@ -15,7 +14,8 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
-import java.util.function.Predicate;
+
+import static net.cserny.filesystem.ExcludingFileVisitor.WalkOptions.ONLY_FILES;
 
 @Slf4j
 public class LocalFileService {
@@ -85,18 +85,18 @@ public class LocalFileService {
     }
 
     public List<LocalPath> walk(LocalPath path, int maxDepthFromPath, List<String> excludePaths) throws IOException {
-        return walk(path, maxDepthFromPath, excludePaths, WalkOptions.ONLY_FILES);
+        return walk(path, maxDepthFromPath, excludePaths, ONLY_FILES);
     }
 
     public List<LocalPath> walk(LocalPath path, int maxDepthFromPath) throws IOException {
-        return walk(path, maxDepthFromPath, WalkOptions.ONLY_FILES);
+        return walk(path, maxDepthFromPath, ONLY_FILES);
     }
 
-    public List<LocalPath> walk(LocalPath path, int maxDepthFromPath, WalkOptions options) throws IOException {
+    public List<LocalPath> walk(LocalPath path, int maxDepthFromPath, ExcludingFileVisitor.WalkOptions options) throws IOException {
         return walk(path, maxDepthFromPath, List.of(), options);
     }
 
-    public List<LocalPath> walk(LocalPath path, int maxDepthFromPath, List<String> excludePaths, WalkOptions options) throws IOException {
+    public List<LocalPath> walk(LocalPath path, int maxDepthFromPath, List<String> excludePaths, ExcludingFileVisitor.WalkOptions options) throws IOException {
         if (!path.attributes().isDirectory()) {
             throw new NotDirectoryException(path.path().toString());
         }
@@ -105,24 +105,10 @@ public class LocalFileService {
             throw new IllegalArgumentException("Max depth passed cannot be lower than 1");
         }
 
-        ExcludingFileVisitor excludingFileVisitor = new ExcludingFileVisitor(excludePaths, maxDepthFromPath);
+        ExcludingFileVisitor excludingFileVisitor = new ExcludingFileVisitor(excludePaths, maxDepthFromPath, options);
         Files.walkFileTree(path.path(), excludingFileVisitor);
         return excludingFileVisitor.getAcceptedPaths().stream()
                 .map(this::toLocalPath)
-                .filter(localPath -> options.getFilter().test(localPath))
                 .toList();
-    }
-
-    @Getter
-    public enum WalkOptions {
-
-        ONLY_DIRECTORIES(lp -> lp.attributes().isDirectory()),
-        ONLY_FILES(lp -> lp.attributes().isRegularFile());
-
-        private final Predicate<LocalPath> filter;
-
-        WalkOptions(Predicate<LocalPath> filter) {
-            this.filter = filter;
-        }
     }
 }

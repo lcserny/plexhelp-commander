@@ -8,25 +8,28 @@ import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 @Slf4j
 public class ExcludingFileVisitor implements FileVisitor<Path> {
 
     @Getter
-    private final Set<Path> acceptedPaths = new HashSet<>();
+    private final Set<Path> acceptedPaths = new TreeSet<>();
 
     private int currentDepth;
     private final int maxWalkDepth;
 
+    private final WalkOptions options;
+
     private final List<String> excludedPaths;
 
-    public ExcludingFileVisitor(List<String> excludedPaths, int maxWalkDepth) {
+    public ExcludingFileVisitor(List<String> excludedPaths, int maxWalkDepth, WalkOptions options) {
         this.excludedPaths = excludedPaths;
         this.maxWalkDepth = maxWalkDepth;
         this.currentDepth = 0;
+        this.options = options;
     }
 
     @Override
@@ -43,13 +46,19 @@ public class ExcludingFileVisitor implements FileVisitor<Path> {
             return FileVisitResult.SKIP_SUBTREE;
         }
 
+        if (this.options == WalkOptions.ONLY_DIRECTORIES) {
+            this.acceptedPaths.add(dir);
+        }
+
         currentDepth++;
         return FileVisitResult.CONTINUE;
     }
 
     @Override
     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-        this.acceptedPaths.add(file);
+        if (this.options == WalkOptions.ONLY_FILES) {
+            this.acceptedPaths.add(file);
+        }
         return FileVisitResult.CONTINUE;
     }
 
@@ -63,5 +72,12 @@ public class ExcludingFileVisitor implements FileVisitor<Path> {
     public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
         currentDepth--;
         return FileVisitResult.CONTINUE;
+    }
+
+    @Getter
+    public enum WalkOptions {
+
+        ONLY_DIRECTORIES,
+        ONLY_FILES;
     }
 }

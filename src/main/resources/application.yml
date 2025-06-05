@@ -122,7 +122,7 @@ rename:
     - "Season \\d{1}"
     - DUBBED
   similarity-percent: 80
-  max-depth: 1
+  max-depth: 2
 
 move:
   restricted-remove-paths:

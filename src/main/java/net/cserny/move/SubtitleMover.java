@@ -3,7 +3,6 @@ package net.cserny.move;
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.filesystem.FilesystemProperties;
 import net.cserny.filesystem.LocalFileService;
-import net.cserny.filesystem.LocalFileService.WalkOptions;
 import net.cserny.filesystem.LocalPath;
 import net.cserny.generated.MediaMoveError;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +14,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static net.cserny.CommanderApplication.toOneLineString;
+import static net.cserny.filesystem.ExcludingFileVisitor.WalkOptions.ONLY_FILES;
 
 @Service
 @Slf4j
@@ -39,7 +39,7 @@ public class SubtitleMover {
 
         List<LocalPath> subs;
         try {
-            subs = fileService.walk(operation.subsSrc(), moveConfig.getSubsMaxDepth(), WalkOptions.ONLY_FILES)
+            subs = fileService.walk(operation.subsSrc(), moveConfig.getSubsMaxDepth(), ONLY_FILES)
                     .stream().parallel()
                     .filter(this::filterBySubExtension)
                     .toList();
