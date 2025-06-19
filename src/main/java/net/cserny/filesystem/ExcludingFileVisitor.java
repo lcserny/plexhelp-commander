@@ -34,11 +34,9 @@ public class ExcludingFileVisitor implements FileVisitor<Path> {
 
     @Override
     public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-        for (String excludedPath : this.excludedPaths) {
-            if (dir.toAbsolutePath().toString().contains(excludedPath)) {
-                log.info("Excluding {} from file visit", dir.toAbsolutePath());
-                return FileVisitResult.SKIP_SUBTREE;
-            }
+        // used for skipping directories based on the excluded paths, perf improvement for large folders
+        if (skipPath(dir)) {
+            return FileVisitResult.SKIP_SUBTREE;
         }
 
         if (currentDepth >= maxWalkDepth) {
@@ -56,6 +54,11 @@ public class ExcludingFileVisitor implements FileVisitor<Path> {
 
     @Override
     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+        // used for skipping files based on the excluded paths
+        if (skipPath(file)) {
+            return FileVisitResult.CONTINUE;
+        }
+
         if (this.options == WalkOptions.ONLY_FILES) {
             this.acceptedPaths.add(file);
         }
@@ -72,6 +75,16 @@ public class ExcludingFileVisitor implements FileVisitor<Path> {
     public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
         currentDepth--;
         return FileVisitResult.CONTINUE;
+    }
+
+    private boolean skipPath(Path path) {
+        for (String excludedPath : this.excludedPaths) {
+            if (path.toAbsolutePath().toString().contains(excludedPath)) {
+                log.info("Excluding {} from file visit", path.toAbsolutePath());
+                return true;
+            }
+        }
+        return false;
     }
 
     @Getter
