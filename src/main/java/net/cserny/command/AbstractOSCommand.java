@@ -18,13 +18,15 @@ public abstract class AbstractOSCommand implements Command {
     public CommandResponse execute(String[] params) {
         try {
             Runtime runtime = Runtime.getRuntime();
+            Process process;
             if (SystemUtils.IS_OS_WINDOWS || properties.isWsl()) {
-                executeInternalWindows(runtime, params);
+                process = executeInternalWindows(runtime, params);
             } else if (SystemUtils.IS_OS_LINUX) {
-                executeInternalLinux(runtime, params);
+                process = executeInternalLinux(runtime, params);
             } else {
                 throw new RuntimeException("Unsupported operating system: " + SystemUtils.OS_NAME);
             }
+            process.waitFor();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return new CommandResponse(Status.FAILED);
@@ -33,7 +35,7 @@ public abstract class AbstractOSCommand implements Command {
         return Command.EMPTY;
     }
 
-    protected abstract void executeInternalWindows(Runtime runtime, String[] params) throws IOException;
+    protected abstract Process executeInternalWindows(Runtime runtime, String[] params) throws IOException;
 
-    protected abstract void executeInternalLinux(Runtime runtime, String[] params) throws IOException;
+    protected abstract Process executeInternalLinux(Runtime runtime, String[] params) throws IOException;
 }
