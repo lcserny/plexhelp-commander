@@ -43,14 +43,15 @@ public class ShutdownCommand extends AbstractOSCommand {
     protected void executeInternalWindows(Runtime runtime, String[] params) throws IOException {
         if (params.length == 0) {
             log.info("Shutting down system without delay");
-            runtime.exec(new String[]{"shutdown.exe", "-s", "-f"});
+            runtime.exec(new String[]{"powershell.exe", "shutdown", "-s", "-f"});
         } else if (params.length == 1 && StringUtils.isNumeric(params[0])) {
             log.info("Shutting down system in {} minutes", params[0]);
-            runtime.exec(new String[]{"shutdown.exe", "-s", "-f", "-t", String.valueOf(60 * Integer.parseInt(params[0]))});
+            runtime.exec(new String[]{"powershell.exe", "shutdown", "-s", "-f", "-t", String.valueOf(60 * Integer.parseInt(params[0]))});
         } else {
             log.info("Shutting down system with params: {}", Arrays.toString(params));
             List<String> execParams = new ArrayList<>();
-            execParams.add("shutdown.exe");
+            execParams.add("powershell.exe");
+            execParams.add("shutdown");
             execParams.addAll(List.of(params));
 
             runtime.exec(execParams.toArray(new String[0]));
