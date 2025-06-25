@@ -1,8 +1,10 @@
 package net.cserny.command;
 
+import lombok.Getter;
 import net.cserny.generated.CommandResponse;
 import org.springframework.stereotype.Component;
 
+@Getter
 @Component
 public class TestCommand implements Command {
 
@@ -19,9 +21,5 @@ public class TestCommand implements Command {
     @Override
     public String name() {
         return TEST_COMMAND;
-    }
-
-    public boolean isExecuted() {
-        return executed;
     }
 }
