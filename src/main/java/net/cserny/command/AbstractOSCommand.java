@@ -11,6 +11,8 @@ import java.io.IOException;
 @Slf4j
 public abstract class AbstractOSCommand implements Command {
 
+    private static final String COMMAND_PREFIX = "/mnt/c/Windows/System32/";
+
     @Autowired
     protected ServerCommandProperties properties;
 
@@ -33,6 +35,13 @@ public abstract class AbstractOSCommand implements Command {
         }
 
         return Command.EMPTY;
+    }
+
+    protected String getCommandPrefix() {
+        if (properties.isWsl()) {
+            return COMMAND_PREFIX;
+        }
+        return "";
     }
 
     protected abstract Process executeInternalWindows(Runtime runtime, String[] params) throws IOException;
