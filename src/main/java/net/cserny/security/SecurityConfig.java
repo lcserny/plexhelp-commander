@@ -26,7 +26,8 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable)
+        http.cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.configure(http))
+                .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((registry) -> registry
                         .requestMatchers(HttpMethod.POST, "/api/v1/torrents").permitAll()
                         .requestMatchers(HttpMethod.GET)

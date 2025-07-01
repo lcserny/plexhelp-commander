@@ -50,7 +50,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            if (!jwtUtil.validate(username, jwt)) {
+            if (jwtUtil.validate(username, jwt)) {
                 Set<GrantedAuthority> userRoles = convertToGrantedAuthorities(jwtUtil.extractRoles(jwt));
                 Set<GrantedAuthority> userPerms = convertToGrantedAuthorities(jwtUtil.extractPermissions(jwt));
 

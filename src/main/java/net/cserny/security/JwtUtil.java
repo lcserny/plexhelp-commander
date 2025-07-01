@@ -130,7 +130,7 @@ public class JwtUtil {
         return this.verifier.verify(token);
     }
 
-    public Boolean validate(String username, DecodedJWT jwt) {
+    public boolean validate(String username, DecodedJWT jwt) {
         String currentIssuer = this.extractIssuer(jwt);
         if (!currentIssuer.equals(this.issuer)) {
             log.warn("User with id '{}' did not provide correct issuer, it provided: '{}'", username, currentIssuer);
@@ -143,6 +143,6 @@ public class JwtUtil {
             return false;
         }
 
-        return this.extractExpiration(jwt).before(new Date());
+        return this.extractExpiration(jwt).after(new Date());
     }
 }
