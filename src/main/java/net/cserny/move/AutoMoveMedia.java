@@ -1,8 +1,6 @@
 package net.cserny.move;
 
 import lombok.Data;
-import net.cserny.rename.MediaFileType;
-import net.cserny.rename.MediaRenameOrigin;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -25,7 +23,7 @@ public class AutoMoveMedia {
     @Field("similarity_percent")
     private int similarityPercent;
     @Field("origin")
-    private MediaRenameOrigin origin;
+    private String origin;
     @Field("media_type")
-    private MediaFileType type;
+    private String type;
 }

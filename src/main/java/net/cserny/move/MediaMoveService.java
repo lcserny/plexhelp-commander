@@ -5,18 +5,19 @@ import lombok.extern.slf4j.Slf4j;
 import net.cserny.filesystem.FilesystemProperties;
 import net.cserny.filesystem.LocalFileService;
 import net.cserny.filesystem.LocalPath;
-import net.cserny.rename.MediaFileType;
-import net.cserny.search.MediaFileGroup;
+import net.cserny.generated.MediaFileGroup;
+import net.cserny.generated.MediaFileType;
+import net.cserny.generated.MediaMoveError;
 import net.cserny.search.MediaIdentificationService;
 import net.cserny.search.SearchProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+
+import static net.cserny.CommanderApplication.toOneLineString;
 
 @Service
 @Slf4j
@@ -44,21 +45,25 @@ public class MediaMoveService {
     @Autowired
     MediaIdentificationService identificationService;
 
+    @Autowired
+    VideosGrouper videosGrouper;
+
     @PostConstruct
     public void init() {
         this.importantFolders = List.of(
-                filesystemConfig.getDownloadsPath(),
-                filesystemConfig.getMoviesPath(),
-                filesystemConfig.getTvPath());
-        log.info("Important folders: {}", this.importantFolders);
+            filesystemConfig.getDownloadsPath(),
+            filesystemConfig.getMoviesPath(),
+            filesystemConfig.getTvPath()
+        );
+        log.info("Important folders: {}", toOneLineString(this.importantFolders));
     }
 
     public List<MediaMoveError> moveMedia(MediaFileGroup fileGroup, MediaFileType type) {
         List<MediaMoveError> errors = new ArrayList<>();
 
-        if (movieExists(fileGroup.name(), type)) {
-            log.info("Movie already exists {}", fileGroup.name());
-            return List.of(new MediaMoveError(fileGroup.name(), MOVIE_EXISTS));
+        if (movieExists(fileGroup.getName(), type)) {
+            log.info("Movie already exists {}", fileGroup.getName());
+            return List.of(new MediaMoveError().mediaPath(fileGroup.getName()).error(MOVIE_EXISTS));
         }
 
         String destRoot = switch (type) {
@@ -66,43 +71,50 @@ public class MediaMoveService {
             case TV -> filesystemConfig.getTvPath();
         };
 
-        for (String video : fileGroup.videos()) {
-            LocalPath srcPath = fileService.toLocalPath(fileGroup.path(), video);
+        GroupedVideos groupedVideos = videosGrouper.group(fileGroup, type);
+
+        for (String video : groupedVideos.videos()) {
+            LocalPath srcPath = fileService.toLocalPath(fileGroup.getPath(), video);
+
             String videoNameOnly = fileService.toLocalPath(video).path().getFileName().toString();
-            LocalPath destPath = fileService.toLocalPath(destRoot, fileGroup.name(), videoNameOnly);
+            DestinationProducer dest = new DestinationProducer(fileGroup, type, videoNameOnly);
+            LocalPath destPath = fileService.toLocalPath(destRoot, dest.getDestSegments());
 
             try {
+                if (fileService.exists(destPath)) {
+                    throw new IOException("Media already exists: " + destPath);
+                }
+
                 log.info("Moving video {} to {}", srcPath, destPath);
                 fileService.move(srcPath, destPath);
             } catch (IOException e) {
-                log.warn("Could not move media", e);
-                errors.add(new MediaMoveError(srcPath.path().toString(), e.getMessage()));
+                log.warn("Could not move media: {}", e.getMessage());
+                errors.add(new MediaMoveError().mediaPath(srcPath.path().toString()).error(e.getMessage()));
             }
         }
 
-        LocalPath subsSrc = fileService.toLocalPath(fileGroup.path());
-        LocalPath subsDest = fileService.toLocalPath(destRoot, fileGroup.name());
-        SubsMoveOperation subsMoveOperation = new SubsMoveOperation(subsSrc, subsDest, type);
+        LocalPath subsSrc = fileService.toLocalPath(fileGroup.getPath());
+        SubsMoveOperation subsMoveOperation = new SubsMoveOperation(subsSrc, destRoot, type, fileGroup);
         errors.addAll(subtitleMover.moveSubs(subsMoveOperation));
 
         if (errors.isEmpty()) {
             try {
-                log.info("Cleaning source media folders {}", fileGroup.path());
-                cleanSourceMediaDir(fileGroup.path());
+                log.info("Cleaning source media folders {}", fileGroup.getPath());
+                cleanSourceMediaDir(fileGroup, groupedVideos.deletableVideos());
             } catch (IOException e) {
-                log.warn("Could not clean source media folder", e);
-                errors.add(new MediaMoveError(fileGroup.path(), e.getMessage()));
+                log.warn("Could not clean source media folder: {}", e.getMessage());
+                errors.add(new MediaMoveError().mediaPath(fileGroup.getPath()).error(e.getMessage()));
             }
         }
 
         return errors;
     }
 
-    private void cleanSourceMediaDir(String path) throws IOException {
-        LocalPath removePath = fileService.toLocalPath(path);
+    private void cleanSourceMediaDir(MediaFileGroup mediaFileGroup, List<LocalPath> deletableVideos) throws IOException {
+        LocalPath removePath = fileService.toLocalPath(mediaFileGroup.getPath());
 
         for (String folder : importantFolders) {
-            if (path.equals(folder)) {
+            if (mediaFileGroup.getPath().equals(folder)) {
                 log.info("Clean source media dir aborted, important folder, {}", folder);
                 return;
             }
@@ -115,8 +127,11 @@ public class MediaMoveService {
             }
         }
 
-        List<Path> files = fileService.walk(removePath, searchConfig.getMaxDepth());
-        List<Path> allVideos = files.stream().filter(identificationService::isMedia).toList();
+        List<LocalPath> files = fileService.walk(removePath, searchConfig.getMaxDepth());
+        List<LocalPath> allVideos = files.stream()
+                .filter(identificationService::isMedia)
+                .filter(p -> !deletableVideos.contains(p))
+                .toList();
         if (!allVideos.isEmpty()) {
             log.info("Clean source media dir aborted, there are still other media in this dir");
             return;
@@ -128,7 +143,7 @@ public class MediaMoveService {
     private boolean movieExists(String movieName, MediaFileType type) {
         if (type == MediaFileType.MOVIE) {
             LocalPath moviePath = fileService.toLocalPath(filesystemConfig.getMoviesPath(), movieName);
-            return Files.exists(moviePath.path()) && Files.isDirectory(moviePath.path());
+            return fileService.exists(moviePath) && moviePath.attributes().isDirectory();
         }
         return false;
     }

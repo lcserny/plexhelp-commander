@@ -16,5 +16,4 @@ public class ServerCommandProperties {
     private String name;
     private String listenCron;
     private boolean wsl;
-    private Map<String, String> wslOverrides;
 }

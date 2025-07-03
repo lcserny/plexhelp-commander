@@ -1,8 +1,9 @@
 package net.cserny.search;
 
-import net.cserny.AbstractInMemoryFileService;
+import net.cserny.filesystem.AbstractInMemoryFileService;
 import net.cserny.filesystem.FilesystemProperties;
 import net.cserny.filesystem.LocalFileService;
+import net.cserny.generated.MediaFileGroup;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +21,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         "server.command.name=test-server",
         "server.command.listen-cron=disabled",
         "search.video-min-size-bytes=5",
-        "search.exclude-paths[0]=Excluded Folder 1"
+        "search.exclude-paths[0]=Excluded Folder 1",
+        "filesystem.cache.enabled=false"
 })
 @ContextConfiguration(classes = {
         MediaSearchService.class,
@@ -81,29 +83,46 @@ public class MediaSearchServiceTest extends AbstractInMemoryFileService {
     public void checkSearchFindsCorrectMedia() throws IOException {
         String downloadPath = filesystemConfig.getDownloadsPath();
         String video1 = downloadPath + "/video1.mp4";
-        createFile(video1, 6);
-        String video2 = downloadPath + "/" + searchConfig.getExcludePaths().get(0) + "/video2.mp4";
-        createFile(video2, 6);
+        createFile(6, video1);
+        String video2 = downloadPath + "/" + searchConfig.getExcludePaths().getFirst() + "/video2.mp4";
+        createFile(6, video2);
         String video3 = downloadPath + "/video3.mp4";
-        createFile(video3, 6);
+        createFile(6, video3);
         String video4 = downloadPath + "/video4.mp4";
-        createFile(video4, 1);
+        createFile(1, video4);
         String video5 = downloadPath + "/some tvShow/video3.mp4";
-        createFile(video5, 6);
+        createFile(6, video5);
         String video6 = downloadPath + "/some tvShow/video1.mp4";
-        createFile(video6, 6);
+        createFile(6, video6);
         String video7 = downloadPath + "/some tvShow/video5.mp4";
-        createFile(video7, 6);
+        createFile(6, video7);
 
         List<MediaFileGroup> media = service.findMedia();
 
         assertEquals(3, media.size());
-        assertEquals(downloadPath, media.get(0).path());
-        assertEquals("video1", media.get(0).name());
-        assertEquals(downloadPath + "/some tvShow", media.get(2).path());
-        assertEquals("some tvShow", media.get(2).name());
-        assertEquals("video1.mp4", media.get(2).videos().get(0));
-        assertEquals("video3.mp4", media.get(2).videos().get(1));
-        assertEquals("video5.mp4", media.get(2).videos().get(2));
+        assertEquals(downloadPath, media.get(0).getPath());
+        assertEquals("video1", media.get(0).getName());
+        assertEquals(true, media.get(0).getNoParent());
+        assertEquals(downloadPath + "/some tvShow", media.get(2).getPath());
+        assertEquals("some tvShow", media.get(2).getName());
+        assertEquals("video1.mp4", media.get(2).getVideos().get(0));
+        assertEquals("video3.mp4", media.get(2).getVideos().get(1));
+        assertEquals("video5.mp4", media.get(2).getVideos().get(2));
+    }
+
+    @Test
+    @DisplayName("Check search finds correct media with season info")
+    public void checkSearchFindsCorrectMediaWithSeason() throws IOException {
+        String downloadPath = filesystemConfig.getDownloadsPath();
+        String video3 = downloadPath + "/some tvShow s05/video3.mp4";
+        createFile(6, video3);
+
+        List<MediaFileGroup> media = service.findMedia();
+
+        assertEquals(1, media.size());
+        assertEquals(downloadPath + "/some tvShow s05", media.getFirst().getPath());
+        assertEquals("some tvShow s05", media.getFirst().getName());
+        assertEquals("video3.mp4", media.getFirst().getVideos().getFirst());
+        assertEquals(5, media.getFirst().getSeason());
     }
 }

@@ -2,8 +2,30 @@
 openapi: 3.0.3
 info:
   title: plexhelp-commander API
-  version: 2.0.0
+  version: 2.1.0
 paths:
+  /api/v1/torrents/:
+    post:
+      tags:
+        - Upsert torrent by hash from client
+      operationId: upsertTorrent
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TorrentData'
+        required: true
+      responses:
+        "201":
+          description: Torrent created
+        "200":
+          description: Torrent updated
+        "400":
+          description: error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationErrorResponse'
   /api/v1/commands:
     post:
       tags:
@@ -14,6 +36,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CommandRequest'
+        required: true
       responses:
         "200":
           description: OK
@@ -21,27 +44,23 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CommandResponse'
+        "400":
+          description: error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationErrorResponse'
   /api/v1/media-downloads:
-    get:
+    post:
       tags:
-      - Media Download Resource
-      operationId: downloadsCompleted
-      parameters:
-      - name: day
-        in: query
-        schema:
-          format: int32
-          type: integer
-      - name: month
-        in: query
-        schema:
-          format: int32
-          type: integer
-      - name: year
-        in: query
-        schema:
-          format: int32
-          type: integer
+        - Media Download Resource
+      operationId: searchDownloadedMedia
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchDownloadedMedia'
+        required: true
       responses:
         "200":
           description: OK
@@ -50,7 +69,38 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/DownloadedMedia'
+                  $ref: '#/components/schemas/DownloadedMediaData'
+        "400":
+          description: error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationErrorResponse'
+  /api/v1/media-downloads/paginated:
+    post:
+      tags:
+        - Media Download Resource
+      operationId: searchDownloadedMediaPaginated
+      x-spring-paginated: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchDownloadedMedia'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedDownloads'
+        "400":
+          description: error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationErrorResponse'
   /api/v1/media-moves:
     post:
       tags:
@@ -61,6 +111,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/MediaMoveRequest'
+        required: true
       responses:
         "200":
           description: OK
@@ -70,6 +121,40 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/MediaMoveError'
+        "400":
+          description: error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationErrorResponse'
+  /api/v1/media-moves/all:
+    post:
+      tags:
+        - Media Move Resource
+      operationId: moveAllMedia
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/MediaMoveRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MediaMoveError'
+        "400":
+          description: error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationErrorResponse'
   /api/v1/media-renames:
     post:
       tags:
@@ -80,6 +165,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/MediaRenameRequest'
+        required: true
       responses:
         "200":
           description: OK
@@ -87,6 +173,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RenamedMediaOptions'
+        "400":
+          description: error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationErrorResponse'
   /api/v1/media-searches:
     get:
       tags:
@@ -101,6 +193,63 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/MediaFileGroup'
+        "400":
+          description: error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationErrorResponse'
+  /api/v1/magnets:
+    post:
+      tags:
+        - Torrent Magnet Resource
+      operationId: addMagnet
+      requestBody:
+        content:
+          text/plain:
+            schema:
+              type: string
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MagnetData'
+        "400":
+          description: error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationErrorResponse'
+    get:
+      x-spring-paginated: true
+      tags:
+        - Torrent Magnet Resource
+      operationId: getAll
+      parameters:
+        - name: name
+          in: query
+          description: Magnet name to filter by
+          required: false
+          schema:
+            type: string
+            example: MovieX
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedMagnets'
+        "400":
+          description: error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationErrorResponse'
+
 components:
   schemas:
     CommandRequest:
@@ -111,37 +260,35 @@ components:
         params:
           type: array
           items:
-            $ref: '#/components/schemas/Param'
+            type: string
+          nullable: true
+      required:
+        - name
     CommandResponse:
       type: object
       properties:
         status:
           $ref: '#/components/schemas/Status'
-    Date:
-      format: date
-      type: string
-      example: 2022-03-10
-    DownloadedMedia:
+      required:
+        - status
+    DownloadedMediaData:
       type: object
       properties:
         id:
-          $ref: '#/components/schemas/ObjectId'
+          type: string
         fileName:
           type: string
         fileSize:
           format: int64
           type: integer
         dateDownloaded:
-          $ref: '#/components/schemas/LocalDateTime'
-    LocalDate:
-      format: date
-      type: string
-      example: 2022-03-10
-    LocalDateTime:
-      format: date-time
-      type: string
-      example: 2022-03-10T12:15:50
-    MediaDescription:
+          format: date-time
+          type: string
+          example: 2022-03-10T12:15:50
+        downloadComplete:
+          type: boolean
+          default: false
+    MediaDescriptionData:
       type: object
       properties:
         posterUrl:
@@ -149,7 +296,8 @@ components:
         title:
           type: string
         date:
-          $ref: '#/components/schemas/LocalDate'
+          type: string
+          example: 2022 or 2022-10-02
         description:
           type: string
         cast:
@@ -161,12 +309,27 @@ components:
       properties:
         path:
           type: string
+          description: The absolute parent source path of the videos list
         name:
           type: string
+          description: The name of the target subfolder that will be created in the media destination dir
         videos:
           type: array
+          description: The videos names list (gets merged with path above), can contain subpaths as well
           items:
             type: string
+        season:
+          format: int32
+          type: integer
+          description: Optional season to use for the subfolder in case of TV series.
+        noParent:
+          type: boolean
+          default: false
+          description: If the media found has a parent directory in the downloads root
+      required:
+        - path
+        - name
+        - videos
     MediaFileType:
       enum:
       - MOVIE
@@ -186,6 +349,9 @@ components:
           $ref: '#/components/schemas/MediaFileGroup'
         type:
           $ref: '#/components/schemas/MediaFileType'
+      required:
+        - fileGroup
+        - type
     MediaRenameOrigin:
       enum:
       - DISK
@@ -200,29 +366,9 @@ components:
           type: string
         type:
           $ref: '#/components/schemas/MediaFileType'
-    ObjectId:
-      type: object
-      properties:
-        timestamp:
-          format: int32
-          type: integer
-        counter:
-          format: int32
-          type: integer
-        randomValue1:
-          format: int32
-          type: integer
-        randomValue2:
-          type: integer
-        date:
-          $ref: '#/components/schemas/Date'
-    Param:
-      type: object
-      properties:
-        key:
-          type: string
-        value:
-          type: string
+      required:
+        - name
+        - type
     RenamedMediaOptions:
       type: object
       properties:
@@ -231,10 +377,144 @@ components:
         mediaDescriptions:
           type: array
           items:
-            $ref: '#/components/schemas/MediaDescription'
+            $ref: '#/components/schemas/MediaDescriptionData'
     Status:
       enum:
       - SUCCESS
       - NOT_FOUND
       - FAILED
       type: string
+    MagnetData:
+      type: object
+      properties:
+        name:
+          type: string
+        hash:
+          type: string
+        url:
+          type: string
+        dateAdded:
+          type: string
+          format: date-time
+        downloaded:
+          type: boolean
+          default: false
+        dateDownloaded:
+          type: string
+          format: date-time
+      required:
+        - name
+        - hash
+        - url
+        - dateAdded
+    PaginatedBase:
+      type: object
+      properties:
+        page:
+          type: object
+          properties:
+            size:
+              type: integer
+              format: int32
+            number:
+              type: integer
+              format: int32
+            totalElements:
+              type: integer
+              format: int64
+            totalPages:
+              type: integer
+              format: int32
+          required:
+            - size
+            - number
+            - totalElements
+            - totalPages
+      required:
+        - page
+    PaginatedMagnets:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/PaginatedBase'
+        - type: object
+          properties:
+            content:
+              type: array
+              items:
+                $ref: '#/components/schemas/MagnetData'
+          required:
+            - content
+            - page
+    PaginatedDownloads:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/PaginatedBase'
+        - type: object
+          properties:
+            content:
+              type: array
+              items:
+                $ref: '#/components/schemas/DownloadedMediaData'
+          required:
+            - content
+            - page
+    SearchDownloadedMedia:
+      type: object
+      properties:
+        date:
+          type: object
+          description: Date of the downloaded media to search for
+          properties:
+            year:
+              type: integer
+              format: int32
+            month:
+              type: integer
+              format: int32
+            day:
+              type: integer
+              format: int32
+          required:
+            - year
+            - month
+            - day
+        downloaded:
+          type: boolean
+          description: Search only for the downloaded media
+          default: false
+        names:
+          type: array
+          description: The media names to search for
+          items:
+            type: string
+    ApplicationErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: the error type
+        message:
+          type: string
+          description: the error description
+        code:
+          type: string
+          description: the specific application error code, if available
+          default: no_code
+      required:
+        - error
+        - message
+        - code
+    TorrentData:
+      type: object
+      properties:
+        operation:
+          type: string
+          enum:
+            - added
+            - downloaded
+        hash:
+          type: string
+          description: the hash of the torrent
+      required:
+        - hash
+        - operation

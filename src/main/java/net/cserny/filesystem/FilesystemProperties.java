@@ -1,8 +1,12 @@
 package net.cserny.filesystem;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
+@Getter
+@Setter
 @Configuration
 @ConfigurationProperties(prefix = "filesystem")
 public class FilesystemProperties {
@@ -10,28 +14,13 @@ public class FilesystemProperties {
     private String downloadsPath;
     private String moviesPath;
     private String tvPath;
+    private CacheProperties cache;
 
-    public String getDownloadsPath() {
-        return downloadsPath;
-    }
+    @Getter
+    @Setter
+    public static class CacheProperties {
 
-    public void setDownloadsPath(String downloadsPath) {
-        this.downloadsPath = downloadsPath;
-    }
-
-    public String getMoviesPath() {
-        return moviesPath;
-    }
-
-    public void setMoviesPath(String moviesPath) {
-        this.moviesPath = moviesPath;
-    }
-
-    public String getTvPath() {
-        return tvPath;
-    }
-
-    public void setTvPath(String tvPath) {
-        this.tvPath = tvPath;
+        private long initialDelayMs;
+        private long cronMs;
     }
 }

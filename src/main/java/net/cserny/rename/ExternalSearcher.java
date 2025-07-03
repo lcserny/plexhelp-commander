@@ -1,6 +1,11 @@
 package net.cserny.rename;
 
 import lombok.extern.slf4j.Slf4j;
+import net.cserny.DataMapper;
+import net.cserny.generated.MediaDescriptionData;
+import net.cserny.generated.MediaFileType;
+import net.cserny.generated.MediaRenameOrigin;
+import net.cserny.generated.RenamedMediaOptions;
 import net.cserny.rename.NameNormalizer.NameYear;
 import net.cserny.rename.TmdbWrapper.Credits;
 import net.cserny.rename.TmdbWrapper.Movie;
@@ -18,6 +23,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import static net.cserny.CommanderApplication.toOneLineString;
 
 @Order(2)
 @Component
@@ -37,38 +44,38 @@ public class ExternalSearcher implements Searcher {
 
     @Override
     public RenamedMediaOptions search(NameYear nameYear, MediaFileType type) {
-        List<MediaDescription> mediaFound = switch (type) {
+        List<MediaDescriptionData> mediaFound = switch (type) {
             case MOVIE -> searchMovie(nameYear);
             case TV -> searchTvShow(nameYear);
         };
 
         List<OnlineCacheItem> items = convertAll(nameYear, mediaFound, type);
-        log.info("Saving media found to cache {}", items);
+        log.info("Saving media found to cache {}", toOneLineString(items));
         repository.saveAll(items);
 
-        return new RenamedMediaOptions(MediaRenameOrigin.EXTERNAL, mediaFound);
+        return new RenamedMediaOptions().origin(MediaRenameOrigin.EXTERNAL).mediaDescriptions(mediaFound);
     }
 
-    private OnlineCacheItem convert(NameYear nameYear, MediaDescription description, MediaFileType mediaType) {
+    private OnlineCacheItem convert(NameYear nameYear, MediaDescriptionData description, MediaFileType mediaType) {
         OnlineCacheItem item = new OnlineCacheItem();
         item.setSearchName(nameYear.name());
         item.setSearchYear(nameYear.year());
-        item.setCoverPath(description.posterUrl());
-        item.setTitle(description.title());
-        item.setDate(StringUtils.isBlank(description.date()) ? null : LocalDate.parse(description.date()).atStartOfDay(ZoneOffset.UTC).toInstant());
-        item.setDescription(description.description());
-        item.setCast(description.cast());
-        item.setMediaType(mediaType);
+        item.setCoverPath(description.getPosterUrl());
+        item.setTitle(description.getTitle());
+        item.setDate(StringUtils.isBlank(description.getDate()) ? null : LocalDate.parse(description.getDate()).atStartOfDay(ZoneOffset.UTC).toInstant());
+        item.setDescription(description.getDescription());
+        item.setCast(description.getCast());
+        item.setMediaType(mediaType.getValue());
         return item;
     }
 
-    private List<OnlineCacheItem> convertAll(NameYear nameYear, List<MediaDescription> descriptions, MediaFileType mediaType) {
+    private List<OnlineCacheItem> convertAll(NameYear nameYear, List<MediaDescriptionData> descriptions, MediaFileType mediaType) {
         return descriptions.stream()
                 .map(description -> this.convert(nameYear, description, mediaType))
                 .collect(Collectors.toList());
     }
 
-    private List<MediaDescription> searchTvShow(NameYear nameYear) {
+    private List<MediaDescriptionData> searchTvShow(NameYear nameYear) {
         List<Tv> results = tmdbWrapper.searchTvShows(nameYear.name(), nameYear.year());
         if (results.isEmpty()) {
             log.info("No TV show results found");
@@ -76,9 +83,9 @@ public class ExternalSearcher implements Searcher {
         }
 
         List<Tv> sublist = results.subList(0, Math.min(results.size(), onlineConfig.getResultLimit()));
-        log.info("TV show results found {}", sublist);
+        log.info("TV show results found {}", toOneLineString(sublist));
 
-        List<MediaDescription> descriptions = new ArrayList<>();
+        List<MediaDescriptionData> descriptions = new ArrayList<>();
         for (Tv tvSeries : sublist) {
             String posterUrl = producePosterUrl(tvSeries.getPosterPath());
             String title = processTitle(tvSeries.getName());
@@ -86,13 +93,14 @@ public class ExternalSearcher implements Searcher {
             String description = nullIfBlank(tvSeries.getOverview());
             List<String> cast = produceCast(tmdbWrapper.tvShowCredits(tvSeries.getId()));
 
-            descriptions.add(new MediaDescription( posterUrl, title, date, description, cast ));
+            descriptions.add(new MediaDescriptionData().posterUrl(posterUrl).title(title)
+                    .date(date).description(description).cast(cast));
         }
 
         return descriptions;
     }
 
-    private List<MediaDescription> searchMovie(NameYear nameYear) {
+    private List<MediaDescriptionData> searchMovie(NameYear nameYear) {
         List<Movie> results = tmdbWrapper.searchMovies(nameYear.name(), nameYear.year());
         if (results.isEmpty()) {
             log.info("No movie results found");
@@ -100,9 +108,9 @@ public class ExternalSearcher implements Searcher {
         }
 
         List<Movie> sublist = results.subList(0, Math.min(results.size(), onlineConfig.getResultLimit()));
-        log.info("Movie results found {}", sublist);
+        log.info("Movie results found {}", toOneLineString(sublist));
 
-        List<MediaDescription> descriptions = new ArrayList<>();
+        List<MediaDescriptionData> descriptions = new ArrayList<>();
         for (Movie movieDb : sublist) {
             String posterUrl = producePosterUrl(movieDb.getPosterPath());
             String title = processTitle(movieDb.getTitle());
@@ -110,7 +118,8 @@ public class ExternalSearcher implements Searcher {
             String description = nullIfBlank(movieDb.getOverview());
             List<String> cast = produceCast(tmdbWrapper.movieCredits(movieDb.getId()));
 
-            descriptions.add(new MediaDescription( posterUrl, title, date, description, cast ));
+            descriptions.add(new MediaDescriptionData().posterUrl(posterUrl).title(title)
+                    .date(date).description(description).cast(cast));
         }
 
         return descriptions;

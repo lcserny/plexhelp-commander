@@ -1,24 +1,40 @@
 package net.cserny.filesystem;
 
-import net.cserny.AbstractInMemoryFileService;
+import net.cserny.filesystem.FilesystemProperties.CacheProperties;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.NotDirectoryException;
-import java.nio.file.Path;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 @SpringBootTest
 @ContextConfiguration(classes = {
         LocalFileService.class,
+        FilesystemProperties.class
 })
 public class LocalFileServiceTest extends AbstractInMemoryFileService {
+
+    @MockitoBean
+    private FilesystemProperties properties;
+
+    @BeforeEach
+    public void setUp() throws IOException {
+        CacheProperties cachePropsMock = mock(CacheProperties.class);
+        when(this.properties.getCache()).thenReturn(cachePropsMock);
+    }
 
     @Test
     @DisplayName("Service can delete a path")
@@ -63,7 +79,6 @@ public class LocalFileServiceTest extends AbstractInMemoryFileService {
     @Test
     @DisplayName("Service can walk a path")
     public void walkWorks() throws IOException {
-        LocalPath rootPath = fileService.toLocalPath("/mypath");
         String path1 = "/mypath/file1.txt";
         String path2 = "/mypath/file2.txt";
         String path3 = "/mypath/sub1/file3.txt";
@@ -74,18 +89,19 @@ public class LocalFileServiceTest extends AbstractInMemoryFileService {
         createFile(path3);
         createFile(path4);
 
-        List<Path> filesFound = fileService.walk(rootPath, 1);
+        LocalPath rootPath = fileService.toLocalPath("/mypath");
+
+        List<LocalPath> filesFound = fileService.walk(rootPath, 1);
 
         assertEquals(3, filesFound.size());
-        assertEquals(path1, filesFound.get(0).toAbsolutePath().toString());
-        assertEquals(path2, filesFound.get(1).toAbsolutePath().toString());
-        assertEquals(path4, filesFound.get(2).toAbsolutePath().toString());
+        assertEquals(path1, filesFound.get(0).path().toAbsolutePath().toString());
+        assertEquals(path2, filesFound.get(1).path().toAbsolutePath().toString());
+        assertEquals(path4, filesFound.get(2).path().toAbsolutePath().toString());
     }
 
     @Test
     @DisplayName("Service can walk a path of max depth passed from path passed")
     public void walkDepthIsCorrect() throws IOException {
-        LocalPath rootPath = fileService.toLocalPath("/aaa/main/movies");
         String path1 = "/aaa/main/movies/movie1.mp4";
         String path2 = "/aaa/main/movies/movie2/file1.mp4";
         String path3 = "/aaa/main/movies/mypath/movie3/file3.mkv";
@@ -96,30 +112,32 @@ public class LocalFileServiceTest extends AbstractInMemoryFileService {
         createFile(path3);
         createFile(path4);
 
-        List<Path> firstFiles = fileService.walk(rootPath, 1);
+        LocalPath rootPath = fileService.toLocalPath("/aaa/main/movies");
+
+        List<LocalPath> firstFiles = fileService.walk(rootPath, 1);
         assertEquals(2, firstFiles.size());
-        assertEquals(path1, firstFiles.get(0).toAbsolutePath().toString());
-        assertEquals(path4, firstFiles.get(1).toAbsolutePath().toString());
+        assertEquals(path1, firstFiles.get(0).path().toAbsolutePath().toString());
+        assertEquals(path4, firstFiles.get(1).path().toAbsolutePath().toString());
 
-        List<Path> secondFiles = fileService.walk(rootPath, 2);
+        List<LocalPath> secondFiles = fileService.walk(rootPath, 2);
         assertEquals(3, secondFiles.size());
-        assertEquals(path1, secondFiles.get(0).toAbsolutePath().toString());
-        assertEquals(path2, secondFiles.get(1).toAbsolutePath().toString());
-        assertEquals(path4, secondFiles.get(2).toAbsolutePath().toString());
+        assertEquals(path1, secondFiles.get(0).path().toAbsolutePath().toString());
+        assertEquals(path2, secondFiles.get(1).path().toAbsolutePath().toString());
+        assertEquals(path4, secondFiles.get(2).path().toAbsolutePath().toString());
 
-        List<Path> thirdFiles = fileService.walk(rootPath, 3);
+        List<LocalPath> thirdFiles = fileService.walk(rootPath, 3);
         assertEquals(4, thirdFiles.size());
-        assertEquals(path1, thirdFiles.get(0).toAbsolutePath().toString());
-        assertEquals(path2, thirdFiles.get(1).toAbsolutePath().toString());
-        assertEquals(path4, thirdFiles.get(2).toAbsolutePath().toString());
-        assertEquals(path3, thirdFiles.get(3).toAbsolutePath().toString());
+        assertEquals(path1, thirdFiles.get(0).path().toAbsolutePath().toString());
+        assertEquals(path2, thirdFiles.get(1).path().toAbsolutePath().toString());
+        assertEquals(path4, thirdFiles.get(2).path().toAbsolutePath().toString());
+        assertEquals(path3, thirdFiles.get(3).path().toAbsolutePath().toString());
     }
 
     @Test
     @DisplayName("Service can walk a path at least depth 1")
     public void walkDepthCannotBeZero() throws IOException {
-        LocalPath rootPath = fileService.toLocalPath("/bbb");
         createFile("/bbb/doesntMatter.txt");
+        LocalPath rootPath = fileService.toLocalPath("/bbb");
         assertThrows(IllegalArgumentException.class, () -> {
             fileService.walk(rootPath, 0);
         });

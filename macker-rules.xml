@@ -1,11 +1,35 @@
 <?xml version="1.0"?>
 <!DOCTYPE macker PUBLIC "-//innig//DTD Macker 0.4//EN" "http://innig.net/macker/dtd/macker-0.4.dtd">
 <macker>
-    <ruleset name="Nobody should get paths directly, they should use LocalFileService">
+    <ruleset name="Filesystems and thread pool usage is allowed only through provided custom classes">
+        <pattern name="root" class="net.cserny.**"/>
+        <pattern name="fileService" class="net.cserny.filesystem.LocalFileService(**)"/>
+
         <access-rule>
+            <message>Should not access NIO Paths directly</message>
             <deny>
-                <from class="net.cserny.**"/>
+                <from pattern="root"/>
                 <to class="java.nio.file.Paths"/>
+            </deny>
+        </access-rule>
+        <access-rule>
+            <message>Should not access ExecutorService directly</message>
+            <deny>
+                <from pattern="root"/>
+                <to class="java.util.concurrent.ExecutorService"/>
+                <allow>
+                    <from class="net.cserny.VirtualExecutor"/>
+                </allow>
+            </deny>
+        </access-rule>
+        <access-rule>
+            <message>Should not access NIO Files directly</message>
+            <deny>
+                <from pattern="root"/>
+                <to class="java.nio.file.Files"/>
+                <allow>
+                    <from pattern="fileService"/>
+                </allow>
             </deny>
         </access-rule>
     </ruleset>

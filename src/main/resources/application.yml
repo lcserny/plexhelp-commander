@@ -1,0 +1,155 @@
+spring:
+  application:
+    name: commander
+  threads:
+    virtual:
+      enabled: true
+  data:
+    mongodb:
+      uri: mongodb://mongoConnectionString
+      database: videosmover_dev
+      auto-index-creation: true
+
+logging:
+  file:
+    name: vm-commander_dev.log
+
+togglz:
+  features:
+    AUTOMOVE:
+      enabled: true
+    FILESYSTEM_CACHE:
+      enabled: false
+    FILESYSTEM_CACHE_LOGGING:
+      enabled: false
+
+http:
+  client:
+    connection:
+      timeout:
+        ms: 5000
+    read:
+      timeout:
+        ms: 5000
+
+torrent:
+  webui:
+    baseUrl: <QTorrent Base URL>
+    username: <webUI username>
+    password: <webUI password>
+
+token:
+  security:
+    type: secret
+    secret:
+      hash: 67uzoULtouBbSpwjVvzVQ5D1APKTc3i9
+      algo: HMAC256
+    issuer: auth-service
+
+tmdb:
+  client:
+    api-key: myApiKey
+    base-url: https://api.themoviedb.org/3/
+    search-movies-url: "{baseUrl}search/movie?api_key={tmdbApiKey}&query={query}&year={year}"
+    movie-credits-url: "{baseUrl}movie/{movieId}/credits?api_key={tmdbApiKey}"
+    search-tv-url: "{baseUrl}search/tv?api_key={tmdbApiKey}&query={query}&year={year}"
+    tv-credits-url: "{baseUrl}tv/{tvId}/credits?api_key={tmdbApiKey}"
+
+online:
+  result-limit: 10
+  poster-base: http://image.tmdb.org/t/p/w92
+
+server:
+  command:
+    wsl: false
+    name: winlegion
+    listen-cron: "0/10 0/1 * 1/1 * ? *"
+
+filesystem:
+  downloads-path: /Downloads
+  movies-path: /Movies
+  tv-path: /TV
+  cache:
+    initial-delay-ms: 10000
+    cron-ms: 60000
+
+search:
+  max-depth: 2
+  exclude-paths:
+    - /a/path/to/exclude/from/media/search
+    - /another/path/to/exclude/from/media/search
+  video-min-size-bytes: 104857600
+  video-mime-types:
+    - video/x-matroska
+    - video/x-msvideo
+    - video/mp4
+    - video/x-flv
+    - video/quicktime
+    - video/x-ms-wmv
+    - video/vnd.dlna.mpeg-tts
+    - application/x-matroska
+
+rename:
+  trim-regex:
+    - .[sS](\d{1,2})([-]?[eE](\d{1,2}))?
+    - "[\\.\\s][sS][0-9]{1,2}[\\.\\s]?"
+    - 1080p
+    - 720p
+    - 2160p
+    - BluRay
+    - HDTV
+    - x264
+    - REPACK
+    - WEB-DL
+    - BRRip
+    - H264
+    - AAC
+    - XviD
+    - AC3
+    - HDRip
+    - DVDRip
+    - WEBRip
+    - DVDScr
+    - HQ
+    - KORSUB
+    - BDRip
+    - ".?RARBG"
+    - "(\\d|\\.){1,5}(GB|MB)"
+    - "\\.EXTENDED\\."
+    - MP3
+    - "(DD)?5\\.1"
+    - DTS
+    - "Season \\d{1}"
+    - DUBBED
+  similarity-percent: 80
+  max-depth: 2
+
+move:
+  restricted-remove-paths:
+    - someFolder1
+    - some/folder/to/exclude/from/delete/2
+  subs-ext:
+    - .srt
+    - .sub
+    - .ssa
+    - .ass
+    - .usf
+    - .idx
+    - .ssf
+    - .stl
+    - .smi
+    - .rt
+    - .psb
+    - .pjs
+    - .ttxt
+    - .jss
+    - .gsub
+    - .aqt
+    - .nfo
+  subs-max-depth: 5
+
+automove:
+  initial-delay-ms: 5000
+  cron-ms: 10000
+  limit: 50
+  similarityAccepted: 85

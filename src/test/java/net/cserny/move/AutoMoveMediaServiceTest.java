@@ -1,12 +1,13 @@
 package net.cserny.move;
 
-import net.cserny.AbstractInMemoryFileService;
+import net.cserny.download.DownloadedMediaRepository;
+import net.cserny.filesystem.AbstractInMemoryFileService;
 import net.cserny.MongoTestConfiguration;
 import net.cserny.TestConfig;
+import net.cserny.VirtualExecutor;
 import net.cserny.download.DownloadedMedia;
-import net.cserny.download.DownloadedMediaRepository;
 import net.cserny.filesystem.FilesystemProperties;
-import net.cserny.rename.MediaFileType;
+import net.cserny.generated.MediaFileType;
 import net.cserny.rename.OnlineCacheItem;
 import net.cserny.rename.OnlineCacheRepository;
 import org.jetbrains.annotations.NotNull;
@@ -22,14 +23,9 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.text.DateFormat;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoField;
-import java.util.Date;
 
 import static java.lang.String.format;
 import static java.time.ZoneOffset.UTC;
@@ -40,6 +36,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ContextConfiguration(classes = {
         MongoTestConfiguration.class,
         TestConfig.class,
+        VirtualExecutor.class
 })
 @DataMongoTest
 @Testcontainers
@@ -82,7 +79,7 @@ class AutoMoveMediaServiceTest extends AbstractInMemoryFileService {
         service.autoMoveMedia();
 
         assertTrue(Files.exists(
-                fileService.toLocalPath(filesystemConfig.getMoviesPath(), title, video).path()));
+                fileService.toLocalPath(filesystemConfig.getMoviesPath(), title, title + ".mp4").path()));
         DownloadedMedia savedMedia = verifyDownloadedMedia(media);
         verifyAutoMovedMedia(savedMedia);
     }
@@ -98,7 +95,7 @@ class AutoMoveMediaServiceTest extends AbstractInMemoryFileService {
 
         service.autoMoveMedia();
 
-        assertTrue(Files.exists(fileService.toLocalPath(filesystemConfig.getTvPath(), name, video).path()));
+        assertTrue(Files.exists(fileService.toLocalPath(filesystemConfig.getTvPath(), name, name + ".mp4").path()));
         DownloadedMedia savedMedia = verifyDownloadedMedia(media);
         verifyAutoMovedMedia(savedMedia);
     }
@@ -124,7 +121,7 @@ class AutoMoveMediaServiceTest extends AbstractInMemoryFileService {
         String video = "video.mp4";
         String video2 = "video2.mp4";
         createMedia(name, video, 6L);
-        createFile(filesystemConfig.getDownloadsPath() + "/" + name + "/" + video2, (int) 6L);
+        createFile(6, filesystemConfig.getDownloadsPath() + "/" + name + "/" + video2);
 
         service.autoMoveMedia();
 
@@ -149,7 +146,7 @@ class AutoMoveMediaServiceTest extends AbstractInMemoryFileService {
 
         service.autoMoveMedia();
 
-        assertTrue(Files.exists(fileService.toLocalPath(filesystemConfig.getTvPath(), searchName, video).path()));
+        assertTrue(Files.exists(fileService.toLocalPath(filesystemConfig.getTvPath(), searchName, searchName + ".mp4").path()));
         assertFalse(Files.exists(fileService.toLocalPath(filesystemConfig.getMoviesPath(), format("%s (%s)", unsimilarName, ldt.format(ISO_LOCAL_DATE)), video).path()));
     }
 
@@ -159,7 +156,7 @@ class AutoMoveMediaServiceTest extends AbstractInMemoryFileService {
         cacheItem.setSearchYear(searchYear);
         cacheItem.setTitle(title);
         cacheItem.setDate(date);
-        cacheItem.setMediaType(type);
+        cacheItem.setMediaType(type.getValue());
         return onlineCacheRepository.save(cacheItem);
     }
 
@@ -180,12 +177,13 @@ class AutoMoveMediaServiceTest extends AbstractInMemoryFileService {
     }
 
     private DownloadedMedia createMedia(String initialName, String videoFile, long size) throws IOException {
-        createFile(filesystemConfig.getDownloadsPath() + "/" + initialName + "/" + videoFile, (int) size);
+        createFile((int) size, filesystemConfig.getDownloadsPath() + "/" + initialName + "/" + videoFile);
 
         DownloadedMedia downloadedMedia = new DownloadedMedia();
         downloadedMedia.setFileName(initialName + "/" + videoFile);
         downloadedMedia.setFileSize(size);
         downloadedMedia.setDateDownloaded(Instant.now(Clock.systemUTC()));
+        downloadedMedia.setDownloadComplete(true);
         return downloadedMediaRepository.save(downloadedMedia);
     }
 }

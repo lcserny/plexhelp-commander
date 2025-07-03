@@ -1,22 +1,56 @@
 package net.cserny.filesystem;
 
-import org.springframework.stereotype.Service;
+import lombok.extern.slf4j.Slf4j;
+import net.cserny.search.NoAttributes;
 
 import java.io.IOException;
-import java.nio.file.*;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.NotDirectoryException;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-@Service
+import static net.cserny.filesystem.ExcludingFileVisitor.WalkOptions.ONLY_FILES;
+
+@Slf4j
 public class LocalFileService {
 
-    public FileSystem fileSystem = FileSystems.getDefault();
+    protected FileSystem fileSystem = FileSystems.getDefault();
+
+    public LocalPath toLocalPath(BasicFileAttributes attributes, String root, String... segments) {
+        Path path = fileSystem.getPath(root, segments);
+        return toLocalPath(path, attributes);
+    }
 
     public LocalPath toLocalPath(String root, String... segments) {
-        return new LocalPath(fileSystem.getPath(root, segments));
+        Path path = fileSystem.getPath(root, segments);
+        return toLocalPath(path, null);
+    }
+
+    public LocalPath toLocalPath(Path path) {
+        return toLocalPath(path, null);
+    }
+
+    public LocalPath toLocalPath(Path path, BasicFileAttributes attr) {
+        if (attr == null) {
+            attr = getRealAttributes(path);
+        }
+        return new LocalPath(path, attr);
+    }
+
+    protected BasicFileAttributes getRealAttributes(Path path) {
+        try {
+            return Files.readAttributes(path, BasicFileAttributes.class);
+        } catch (NoSuchFileException ignore) {
+        } catch (IOException e) {
+            log.warn("Could not determine attributes of file {}", e.getMessage());
+        }
+        return new NoAttributes();
     }
 
     public void delete(LocalPath path) throws IOException {
@@ -50,12 +84,20 @@ public class LocalFileService {
         Files.move(source.path(), dest.path());
     }
 
-    public List<Path> walk(LocalPath path, int maxDepthFromPath) throws IOException {
-        return walk(path, maxDepthFromPath, WalkOptions.ONLY_FILES);
+    public List<LocalPath> walk(LocalPath path, int maxDepthFromPath, List<String> excludePaths) throws IOException {
+        return walk(path, maxDepthFromPath, excludePaths, ONLY_FILES);
     }
 
-    public List<Path> walk(LocalPath path, int maxDepthFromPath, WalkOptions options) throws IOException {
-        if (!Files.isDirectory(path.path())) {
+    public List<LocalPath> walk(LocalPath path, int maxDepthFromPath) throws IOException {
+        return walk(path, maxDepthFromPath, ONLY_FILES);
+    }
+
+    public List<LocalPath> walk(LocalPath path, int maxDepthFromPath, ExcludingFileVisitor.WalkOptions options) throws IOException {
+        return walk(path, maxDepthFromPath, List.of(), options);
+    }
+
+    public List<LocalPath> walk(LocalPath path, int maxDepthFromPath, List<String> excludePaths, ExcludingFileVisitor.WalkOptions options) throws IOException {
+        if (!path.attributes().isDirectory()) {
             throw new NotDirectoryException(path.path().toString());
         }
 
@@ -63,22 +105,10 @@ public class LocalFileService {
             throw new IllegalArgumentException("Max depth passed cannot be lower than 1");
         }
 
-        Predicate<Path> optionsPredicate = switch (options) {
-            case ONLY_DIRECTORIES -> Files::isDirectory;
-            case ONLY_FILES -> Files::isRegularFile;
-        };
-
-        List<Path> files;
-        try (Stream<Path> walkStream = Files.walk(path.path(), maxDepthFromPath, FileVisitOption.FOLLOW_LINKS)) {
-            files = walkStream.filter(optionsPredicate)
-                    .collect(Collectors.toList());
-        }
-
-        return files;
-    }
-
-    public enum WalkOptions {
-        ONLY_DIRECTORIES,
-        ONLY_FILES;
+        ExcludingFileVisitor excludingFileVisitor = new ExcludingFileVisitor(excludePaths, maxDepthFromPath, options);
+        Files.walkFileTree(path.path(), excludingFileVisitor);
+        return excludingFileVisitor.getAcceptedPaths().stream()
+                .map(this::toLocalPath)
+                .toList();
     }
 }

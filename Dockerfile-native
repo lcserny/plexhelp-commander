@@ -1,4 +1,4 @@
-FROM debian:trixie-slim
+FROM docker.io/library/debian:trixie
 COPY target/plexhelp-commander /commander
 RUN chmod 0777 /commander
 ENTRYPOINT ["sh", "-c", "/commander"]

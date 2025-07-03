@@ -2,6 +2,7 @@
 <configuration>
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
 
+    <property name="LOG_LEVEL" value="${LOG_LEVEL:-INFO}" />
     <property name="LOG_FILE" value="${LOG_FILE:-${LOG_PATH:-${LOG_TEMP:-${java.io.tmpdir:-/tmp}}}/spring.log}"/>
     <appender name="jsonFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
@@ -68,7 +69,7 @@
         </rollingPolicy>
     </appender>
 
-    <root level="INFO">
+    <root level="${LOG_LEVEL}">
         <appender-ref ref="console"/>
         <appender-ref ref="file"/>
     </root>

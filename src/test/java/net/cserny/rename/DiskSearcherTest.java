@@ -1,9 +1,11 @@
 package net.cserny.rename;
 
-import net.cserny.AbstractInMemoryFileService;
+import net.cserny.filesystem.AbstractInMemoryFileService;
 import net.cserny.MongoTestConfiguration;
 import net.cserny.filesystem.FilesystemProperties;
 import net.cserny.filesystem.LocalFileService;
+import net.cserny.generated.MediaDescriptionData;
+import net.cserny.generated.MediaFileType;
 import net.cserny.rename.NameNormalizer.NameYear;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -48,12 +50,12 @@ public class DiskSearcherTest extends AbstractInMemoryFileService {
 
         NameYear movie = new NameYear("My Coding Novie", 1918);
 
-        List<MediaDescription> results = searcher.search(movie, MediaFileType.MOVIE).mediaDescriptions();
+        List<MediaDescriptionData> results = searcher.search(movie, MediaFileType.MOVIE).getMediaDescriptions();
 
         assertEquals(2, results.size());
-        assertEquals("My Coding Movee", results.get(0).title());
-        assertEquals("2022", results.get(0).date());
-        assertEquals("My Codig Movee", results.get(1).title());
-        assertEquals("2022-12-01", results.get(1).date());
+        assertEquals("My Coding Movee", results.get(0).getTitle());
+        assertEquals("2022", results.get(0).getDate());
+        assertEquals("My Codig Movee", results.get(1).getTitle());
+        assertEquals("2022-12-01", results.get(1).getDate());
     }
 }

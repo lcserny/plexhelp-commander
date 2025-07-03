@@ -2,10 +2,13 @@ package net.cserny.rename;
 
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-import net.cserny.AbstractInMemoryFileService;
+import net.cserny.filesystem.AbstractInMemoryFileService;
 import net.cserny.MongoTestConfiguration;
 import net.cserny.filesystem.FilesystemProperties;
 import net.cserny.filesystem.LocalFileService;
+import net.cserny.generated.MediaFileType;
+import net.cserny.generated.MediaRenameOrigin;
+import net.cserny.generated.MediaRenameRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,6 +17,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.data.mongo.AutoConfigureDataMongo;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.client.RestTemplate;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -24,6 +28,7 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.is;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("test")
 @EnableAutoConfiguration
 @ContextConfiguration(classes = {
         MediaRenameController.class,
@@ -66,7 +71,7 @@ class MediaRenameControllerTest extends AbstractInMemoryFileService {
     @Test
     @DisplayName("Check that the endpoint can produce media rename options")
     public void testCanProduceMediaRenameOptions() {
-        MediaRenameRequest request = new MediaRenameRequest("My Movie (2022)", MediaFileType.MOVIE);
+        MediaRenameRequest request = new MediaRenameRequest().name("My Movie (2022)").type(MediaFileType.MOVIE);
 
         given()
                 .contentType(ContentType.JSON)
@@ -74,7 +79,7 @@ class MediaRenameControllerTest extends AbstractInMemoryFileService {
                 .when().post("/api/v1/media-renames")
                 .then()
                 .statusCode(200)
-                .body("origin", is(MediaRenameOrigin.NAME.toString()))
+                .body("origin", is(MediaRenameOrigin.NAME.getValue()))
                 .body("mediaDescriptions[0].title", is("My Movie"))
                 .body("mediaDescriptions[0].date", is("2022"));
     }
