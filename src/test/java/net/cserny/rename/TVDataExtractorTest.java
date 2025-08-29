@@ -34,5 +34,7 @@ class TVDataExtractorTest {
         assertNull(TVDataExtractor.findEpisode("Cinderella.S05.1080p.tgx"));
         assertEquals(1, TVDataExtractor.findEpisode("Cinderella.e1.1080p.tgx"));
         assertEquals(5, TVDataExtractor.findEpisode("Cinderella 2nd Season - 05 1080p.tgx"));
+        assertEquals(1, TVDataExtractor.findEpisode("[Anime Time] Solo Leveling - 001.mp4"));
+        assertNull(TVDataExtractor.findEpisode("[Anime Time] Solo Leveling - 1080.mp4"));
     }
 }

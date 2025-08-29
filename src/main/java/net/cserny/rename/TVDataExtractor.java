@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 public class TVDataExtractor {
 
     private static final Pattern seasonRegex = Pattern.compile("((?<season1>[0-9]{1,2})(nd|rd|st|th)\\s[sS]eason)|(([sS](eason[\\s.]{0,2})?)(?<season2>[0-9]{1,2}))");
-    private static final Pattern episodeRegex = Pattern.compile("([eE]|[sS]eason\\s-\\s)(?<episode>[0-9]{1,2})");
+    private static final Pattern episodeRegex = Pattern.compile("(?:[eE]|[sS]eason\\s-\\s|-\\s*)(?<episode>\\d{3}(?![pP0-9])|\\d{1,2})[.\\s]");
 
     public static Integer findSeason(String seriesName) {
         Matcher matcher = seasonRegex.matcher(seriesName);

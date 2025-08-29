@@ -111,15 +111,16 @@ public class DownloadedMediaRepository {
         List<DownloadedMedia> downloadedMedia = torrentFiles.stream()
                 .filter(TorrentFile::isMedia)
                 .map(torrentFile -> {
-            DownloadedMedia media = downloadedMediaList.stream().filter(dm -> dm.getFileName().equals(torrentFile.name())).findFirst()
-                    .orElse(new DownloadedMedia());
-            media.setFileName(torrentFile.name());
-            media.setFileSize(torrentFile.size());
-            media.setDateDownloaded(Instant.now(Clock.systemUTC()));
-            media.setTriedAutoMove(false);
-            media.setDownloadComplete(isDownloaded);
-            return media;
-        }).toList();
+                    DownloadedMedia media = downloadedMediaList.stream().filter(dm -> dm.getFileName().equals(torrentFile.name())).findFirst()
+                            .orElse(new DownloadedMedia());
+                    media.setFileName(torrentFile.name());
+                    media.setFileSize(torrentFile.size());
+                    media.setDateDownloaded(Instant.now(Clock.systemUTC()));
+                    media.setTriedAutoMove(false);
+                    media.setDownloadComplete(isDownloaded);
+                    return media;
+                })
+                .toList();
 
         return this.saveAll(downloadedMedia).size();
     }
