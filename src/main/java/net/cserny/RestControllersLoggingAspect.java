@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 
-import static net.cserny.CommanderApplication.toOneLineString;
+import static net.cserny.Utils.toOneLineString;
 
 @Slf4j
 @Aspect

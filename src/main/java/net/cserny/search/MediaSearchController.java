@@ -24,6 +24,7 @@ public class MediaSearchController implements ApiApi {
     @GetMapping
     @Override
     public ResponseEntity<List<MediaFileGroup>> searchMedia() {
+        log.debug("LEO Searching for media file groups");
         return ResponseEntity.ok(service.findMedia());
     }
 }

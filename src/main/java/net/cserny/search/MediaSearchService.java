@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.*;
 
-import static net.cserny.CommanderApplication.toOneLineString;
+import static net.cserny.Utils.toOneLineString;
 
 @Service
 @Slf4j

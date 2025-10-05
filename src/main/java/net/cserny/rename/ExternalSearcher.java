@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static net.cserny.CommanderApplication.toOneLineString;
+import static net.cserny.Utils.toOneLineString;
 
 @Order(2)
 @Component

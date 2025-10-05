@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static net.cserny.CommanderApplication.toOneLineString;
+import static net.cserny.Utils.toOneLineString;
 
 @Service
 @Slf4j

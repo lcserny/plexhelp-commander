@@ -13,6 +13,8 @@ spring:
 logging:
   file:
     name: vm-commander_dev.log
+  monitoring:
+    name: net.cserny
 
 togglz:
   features:

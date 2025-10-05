@@ -24,7 +24,7 @@ import java.util.stream.Stream;
 import static java.lang.String.format;
 import static java.util.Comparator.comparing;
 import static java.util.Comparator.reverseOrder;
-import static net.cserny.CommanderApplication.toOneLineString;
+import static net.cserny.Utils.toOneLineString;
 
 @Slf4j
 public class AutoMoveMediaService {

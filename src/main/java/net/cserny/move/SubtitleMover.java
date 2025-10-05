@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static net.cserny.CommanderApplication.toOneLineString;
+import static net.cserny.Utils.toOneLineString;
 import static net.cserny.filesystem.ExcludingFileVisitor.WalkOptions.ONLY_FILES;
 
 @Service
