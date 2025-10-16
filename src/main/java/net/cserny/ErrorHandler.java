@@ -16,7 +16,7 @@ public class ErrorHandler {
         log.error(e.getMessage());
 
         return new ResponseEntity<>(ApplicationErrorResponse.builder()
-                .error(e.getClass().getName())
+                .type(e.getClass().getName())
                 .message(e.getMessage())
                 .build(), HttpStatus.BAD_REQUEST);
     }

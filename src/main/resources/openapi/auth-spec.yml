@@ -311,7 +311,7 @@ components:
     ApplicationErrorResponse:
       type: object
       properties:
-        error:
+        type:
           type: string
           description: the error type
         message:
