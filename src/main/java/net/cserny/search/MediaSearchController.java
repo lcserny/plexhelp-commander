@@ -1,5 +1,6 @@
 package net.cserny.search;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.generated.ApiApi;
 import net.cserny.generated.MediaFileGroup;
@@ -14,12 +15,12 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping(value = "/api/v1/media-searches",
-        produces = MediaType.APPLICATION_JSON_VALUE)
+@RequiredArgsConstructor
+@RequestMapping(value = "/api/v1/media-searches", produces = MediaType.APPLICATION_JSON_VALUE)
 public class MediaSearchController implements ApiApi {
 
     @Autowired
-    MediaSearchService service;
+    private final MediaSearchService service;
 
     @GetMapping
     @Override
