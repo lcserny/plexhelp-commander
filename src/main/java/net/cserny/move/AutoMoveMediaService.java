@@ -26,6 +26,8 @@ import static java.util.Comparator.comparing;
 import static java.util.Comparator.reverseOrder;
 import static net.cserny.CommanderApplication.toOneLineString;
 
+// TODO this needs cleanup, too many deps
+
 @Slf4j
 public class AutoMoveMediaService {
 
