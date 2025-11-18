@@ -13,8 +13,7 @@ import java.util.List;
 @Setter
 public class AutoMoveProperties {
 
-    private int initialDelayMs;
-    private int cronMs;
+    private String cron;
     private int limit;
     private int similarityAccepted;
 }

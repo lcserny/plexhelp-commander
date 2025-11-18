@@ -20,7 +20,6 @@ public class FilesystemProperties {
     @Setter
     public static class CacheProperties {
 
-        private long initialDelayMs;
-        private long cronMs;
+        private String cron;
     }
 }

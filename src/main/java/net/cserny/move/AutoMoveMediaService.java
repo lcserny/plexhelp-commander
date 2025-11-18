@@ -67,7 +67,7 @@ public class AutoMoveMediaService {
         this.identificationService = identificationService;
     }
 
-    @Scheduled(initialDelayString = "${automove.initial-delay-ms}", fixedDelayString = "${automove.cron-ms}")
+    @Scheduled(cron = "${automove.cron}")
     public void autoMoveMedia() {
         log.info("Checking download cache to automatically move media files");
 

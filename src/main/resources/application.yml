@@ -70,8 +70,7 @@ filesystem:
   movies-path: /Movies
   tv-path: /TV
   cache:
-    initial-delay-ms: 10000
-    cron-ms: 60000
+    cron: "0 * * * * *"
 
 search:
   max-depth: 2
@@ -149,7 +148,6 @@ move:
   subs-max-depth: 5
 
 automove:
-  initial-delay-ms: 5000
-  cron-ms: 10000
+  cron: "*/10 * * * * *"
   limit: 50
   similarityAccepted: 85

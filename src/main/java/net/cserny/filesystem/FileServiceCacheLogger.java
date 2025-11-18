@@ -10,6 +10,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 @Slf4j
 public class FileServiceCacheLogger {
 
+    // TODO improve this
     private CachedLocalFileService fileService = null;
 
     @Autowired
@@ -19,7 +20,7 @@ public class FileServiceCacheLogger {
         }
     }
 
-    @Scheduled(initialDelayString = "${filesystem.cache.initial-delay-ms}", fixedDelayString = "${filesystem.cache.cron-ms}")
+    @Scheduled(cron = "${filesystem.cache.cron}")
     public void runCacheLogging() {
         if (this.fileService == null) {
             return;
