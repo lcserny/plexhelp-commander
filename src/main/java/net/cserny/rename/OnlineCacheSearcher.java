@@ -1,5 +1,6 @@
 package net.cserny.rename;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.generated.MediaDescriptionData;
 import net.cserny.generated.MediaFileType;
@@ -16,13 +17,14 @@ import java.util.List;
 
 @Slf4j
 @Order(1)
+@RequiredArgsConstructor
 @Component
 public class OnlineCacheSearcher implements Searcher {
 
     public static final DateTimeFormatter utcDateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneOffset.UTC);
 
     @Autowired
-    OnlineCacheRepository repository;
+    private final OnlineCacheRepository repository;
 
     @Override
     public RenamedMediaOptions search(NameYear nameYear, MediaFileType type) {

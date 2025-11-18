@@ -21,6 +21,7 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -49,9 +50,9 @@ public class ExternalSearcher implements Searcher {
             case TV -> searchTvShow(nameYear);
         };
 
-        List<OnlineCacheItem> items = convertAll(nameYear, mediaFound, type);
+        Set<OnlineCacheItem> items = convertAll(nameYear, mediaFound, type);
         log.info("Saving media found to cache {}", toOneLineString(items));
-        repository.saveAll(items);
+        items.forEach(item -> repository.saveIfNotExists(item));
 
         return new RenamedMediaOptions().origin(MediaRenameOrigin.EXTERNAL).mediaDescriptions(mediaFound);
     }
@@ -69,10 +70,10 @@ public class ExternalSearcher implements Searcher {
         return item;
     }
 
-    private List<OnlineCacheItem> convertAll(NameYear nameYear, List<MediaDescriptionData> descriptions, MediaFileType mediaType) {
+    private Set<OnlineCacheItem> convertAll(NameYear nameYear, List<MediaDescriptionData> descriptions, MediaFileType mediaType) {
         return descriptions.stream()
                 .map(description -> this.convert(nameYear, description, mediaType))
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
     }
 
     private List<MediaDescriptionData> searchTvShow(NameYear nameYear) {

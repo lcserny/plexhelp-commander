@@ -1,8 +1,10 @@
 package net.cserny.rename;
 
+import lombok.EqualsAndHashCode;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import lombok.Data;
@@ -11,20 +13,22 @@ import java.time.Instant;
 import java.util.List;
 
 @Data
+@CompoundIndexes({
+        @CompoundIndex(name = "nameType_idx", def = "{'searchName': 1, 'mediaType': 1}"),
+        @CompoundIndex(name = "nameYearType_idx", def = "{'searchName': 1, 'searchYear': 1, 'mediaType': 1}")
+})
 @Document(collection = "online_cache")
+@EqualsAndHashCode(exclude = {"id"})
 public class OnlineCacheItem {
 
     @Id
     private ObjectId id;
-    @Indexed(name = "searchName_idx")
     private String searchName;
-    @Indexed(name = "searchYear_idx")
     private Integer searchYear;
     private String coverPath;
     private String title;
     private Instant date;
     private String description;
     private List<String> cast;
-    @Indexed(name = "mediaType_idx")
     private String mediaType;
 }
