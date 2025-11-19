@@ -1,7 +1,7 @@
 package net.cserny.rename;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.cserny.DataMapper;
 import net.cserny.generated.MediaDescriptionData;
 import net.cserny.generated.MediaFileType;
 import net.cserny.generated.MediaRenameOrigin;
@@ -11,8 +11,8 @@ import net.cserny.rename.TmdbWrapper.Credits;
 import net.cserny.rename.TmdbWrapper.Movie;
 import net.cserny.rename.TmdbWrapper.Person;
 import net.cserny.rename.TmdbWrapper.Tv;
+import net.cserny.rename.internal.OnlineCacheRepository;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -29,17 +29,13 @@ import static net.cserny.CommanderApplication.toOneLineString;
 
 @Order(2)
 @Component
+@RequiredArgsConstructor
 @Slf4j
 public class ExternalSearcher implements Searcher {
 
-    @Autowired
-    OnlineCacheRepository repository;
-
-    @Autowired
-    OnlineProperties onlineConfig;
-
-    @Autowired
-    TmdbWrapper tmdbWrapper;
+    private final OnlineCacheRepository repository;
+    private final OnlineProperties onlineConfig;
+    private final TmdbWrapper tmdbWrapper;
 
     private final Pattern specialCharsRegex = Pattern.compile("[^a-zA-Z0-9-\s]");
 
@@ -52,7 +48,7 @@ public class ExternalSearcher implements Searcher {
 
         Set<OnlineCacheItem> items = convertAll(nameYear, mediaFound, type);
         log.info("Saving media found to cache {}", toOneLineString(items));
-        items.forEach(item -> repository.saveIfNotExists(item));
+        repository.saveAll(items);
 
         return new RenamedMediaOptions().origin(MediaRenameOrigin.EXTERNAL).mediaDescriptions(mediaFound);
     }
@@ -66,7 +62,7 @@ public class ExternalSearcher implements Searcher {
         item.setDate(StringUtils.isBlank(description.getDate()) ? null : LocalDate.parse(description.getDate()).atStartOfDay(ZoneOffset.UTC).toInstant());
         item.setDescription(description.getDescription());
         item.setCast(description.getCast());
-        item.setMediaType(mediaType.getValue());
+        item.setMediaType(mediaType);
         return item;
     }
 

@@ -4,6 +4,7 @@ import net.cserny.MongoTestConfiguration;
 import net.cserny.generated.MediaFileType;
 import net.cserny.generated.RenamedMediaOptions;
 import net.cserny.rename.NameNormalizer.NameYear;
+import net.cserny.rename.internal.OnlineCacheRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,8 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.List;
 
+import static net.cserny.generated.MediaFileType.MOVIE;
+import static net.cserny.generated.MediaFileType.TV;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ContextConfiguration(classes = {
@@ -39,18 +42,18 @@ public class OnlineCacheSearcherTest {
         OnlineCacheItem item1 = new OnlineCacheItem();
         item1.setSearchName(nameYear.name());
         item1.setSearchYear(nameYear.year());
-        item1.setMediaType(MediaFileType.MOVIE.getValue());
+        item1.setMediaType(MOVIE);
         item1.setDescription(desc);
 
         OnlineCacheItem item2 = new OnlineCacheItem();
         item2.setSearchName(nameYear.name());
         item2.setSearchYear(nameYear.year());
-        item2.setMediaType(MediaFileType.TV.getValue());
+        item2.setMediaType(TV);
         item2.setDescription(desc);
 
         repository.saveAll(List.of(item1, item2));
 
-        RenamedMediaOptions options = searcher.search(nameYear, MediaFileType.MOVIE);
+        RenamedMediaOptions options = searcher.search(nameYear, MOVIE);
 
         assertEquals(1, options.getMediaDescriptions().size());
         assertEquals(desc, options.getMediaDescriptions().getFirst().getDescription());
@@ -65,18 +68,18 @@ public class OnlineCacheSearcherTest {
         OnlineCacheItem item1 = new OnlineCacheItem();
         item1.setSearchName(nameYear.name());
         item1.setSearchYear(nameYear.year());
-        item1.setMediaType(MediaFileType.MOVIE.getValue());
+        item1.setMediaType(MOVIE);
         item1.setDescription(desc);
 
         OnlineCacheItem item2 = new OnlineCacheItem();
         item2.setSearchName(nameYear.name());
         item2.setSearchYear(2022);
-        item2.setMediaType(MediaFileType.MOVIE.getValue());
+        item2.setMediaType(MOVIE);
         item2.setDescription(desc);
 
         repository.saveAll(List.of(item1, item2));
 
-        RenamedMediaOptions options = searcher.search(nameYear, MediaFileType.MOVIE);
+        RenamedMediaOptions options = searcher.search(nameYear, MOVIE);
 
         assertEquals(2, options.getMediaDescriptions().size());
     }

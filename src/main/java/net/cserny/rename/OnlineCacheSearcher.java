@@ -7,7 +7,7 @@ import net.cserny.generated.MediaFileType;
 import net.cserny.generated.MediaRenameOrigin;
 import net.cserny.generated.RenamedMediaOptions;
 import net.cserny.rename.NameNormalizer.NameYear;
-import org.springframework.beans.factory.annotation.Autowired;
+import net.cserny.rename.internal.OnlineCacheRepository;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -23,19 +23,11 @@ public class OnlineCacheSearcher implements Searcher {
 
     public static final DateTimeFormatter utcDateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneOffset.UTC);
 
-    @Autowired
     private final OnlineCacheRepository repository;
 
     @Override
     public RenamedMediaOptions search(NameYear nameYear, MediaFileType type) {
-        List<OnlineCacheItem> items;
-        if (nameYear.year() == null) {
-            log.warn("No year specified, searching cache only by name {}", nameYear.name());
-            items = repository.findByNameAndType(nameYear.name(), type.getValue());
-        } else {
-            items = repository.findByNameYearAndType(nameYear.name(), nameYear.year(), type.getValue());
-        }
-
+        List<OnlineCacheItem> items = repository.findByNameTypeAndOptionalYear(nameYear, type);
         List<MediaDescriptionData> mediaDescriptions = items.stream().map(this::convert).toList();
 
         return new RenamedMediaOptions().origin(MediaRenameOrigin.CACHE)

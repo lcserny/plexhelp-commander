@@ -8,6 +8,7 @@ import net.cserny.rename.NameNormalizer.NameYear;
 import net.cserny.rename.TmdbWrapper.Credits;
 import net.cserny.rename.TmdbWrapper.Movie;
 import net.cserny.rename.TmdbWrapper.Tv;
+import net.cserny.rename.internal.OnlineCacheRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +44,9 @@ class ExternalSearcherTest {
     @Autowired
     OnlineCacheRepository repository;
 
+    @Autowired
+    TmdbWrapper tmdbWrapper;
+
     @Test
     @DisplayName("Check movie searched in third party API is retrieved and cached")
     void checkMovieGetAndCache() {
@@ -56,9 +60,9 @@ class ExternalSearcherTest {
         credits.setCast(Collections.emptyList());
 
         NameYear movie = new NameYear(title, 2000);
-        when(searcher.tmdbWrapper.searchMovies(eq(movie.name()), eq(movie.year())))
+        when(tmdbWrapper.searchMovies(eq(movie.name()), eq(movie.year())))
                 .thenReturn(results);
-        when(searcher.tmdbWrapper.movieCredits(eq(movieId)))
+        when(tmdbWrapper.movieCredits(eq(movieId)))
                 .thenReturn(credits);
 
         RenamedMediaOptions options = searcher.search(movie, MediaFileType.MOVIE);
@@ -67,7 +71,7 @@ class ExternalSearcherTest {
         assertEquals(1, options.getMediaDescriptions().size());
         assertEquals(title, options.getMediaDescriptions().getFirst().getTitle());
 
-        List<OnlineCacheItem> onlineCacheItems = repository.findByNameYearAndType(movie.name(), movie.year(), MediaFileType.MOVIE.getValue());
+        List<OnlineCacheItem> onlineCacheItems = repository.findByNameTypeAndOptionalYear(movie, MediaFileType.MOVIE);
         assertEquals(1, onlineCacheItems.size());
         assertEquals(title, onlineCacheItems.getFirst().getTitle());
     }
@@ -85,9 +89,9 @@ class ExternalSearcherTest {
         credits.setCast(Collections.emptyList());
 
         NameYear tvShow = new NameYear(title, 2011);
-        when(searcher.tmdbWrapper.searchTvShows(eq(tvShow.name()), eq(tvShow.year())))
+        when(tmdbWrapper.searchTvShows(eq(tvShow.name()), eq(tvShow.year())))
                 .thenReturn(results);
-        when(searcher.tmdbWrapper.tvShowCredits(eq(tvId)))
+        when(tmdbWrapper.tvShowCredits(eq(tvId)))
                 .thenReturn(credits);
 
         RenamedMediaOptions options = searcher.search(tvShow, MediaFileType.TV);
@@ -96,7 +100,7 @@ class ExternalSearcherTest {
         assertEquals(1, options.getMediaDescriptions().size());
         assertEquals(title, options.getMediaDescriptions().getFirst().getTitle());
 
-        List<OnlineCacheItem> onlineCacheItems = repository.findByNameYearAndType(tvShow.name(), tvShow.year(), MediaFileType.TV.getValue());
+        List<OnlineCacheItem> onlineCacheItems = repository.findByNameTypeAndOptionalYear(tvShow, MediaFileType.TV);
         assertEquals(1, onlineCacheItems.size());
         assertEquals(title, onlineCacheItems.getFirst().getTitle());
     }

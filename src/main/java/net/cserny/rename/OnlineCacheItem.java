@@ -1,6 +1,7 @@
 package net.cserny.rename;
 
 import lombok.EqualsAndHashCode;
+import net.cserny.generated.MediaFileType;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
@@ -30,5 +31,5 @@ public class OnlineCacheItem {
     private Instant date;
     private String description;
     private List<String> cast;
-    private String mediaType;
+    private MediaFileType mediaType;
 }

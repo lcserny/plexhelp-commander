@@ -3,7 +3,7 @@ package net.cserny.rename;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
@@ -13,14 +13,12 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.List;
 
+@RequiredArgsConstructor
 @Component
 public class TmdbWrapper {
 
-    @Autowired
-    TmdbProperties tmdbConfig;
-
-    @Autowired
-    RestTemplate restTemplate;
+    private final TmdbProperties tmdbConfig;
+    private final RestTemplate restTemplate;
 
     public List<Tv> searchTvShows(String query, Integer year) {
         UriComponents uriComponents =
