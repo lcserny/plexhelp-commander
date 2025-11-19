@@ -3,6 +3,7 @@ package net.cserny.rename;
 import net.cserny.MongoTestConfiguration;
 import net.cserny.filesystem.FilesystemProperties;
 import net.cserny.filesystem.LocalFileService;
+import net.cserny.rename.internal.OnlineCacheRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
         MongoTestConfiguration.class,
         DiskSearcher.class,
         OnlineCacheSearcher.class,
+        OnlineCacheRepository.class,
         ExternalSearcher.class,
         NameNormalizer.class,
         FilesystemProperties.class,

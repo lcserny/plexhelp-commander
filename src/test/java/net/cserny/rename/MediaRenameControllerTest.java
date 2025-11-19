@@ -9,6 +9,7 @@ import net.cserny.filesystem.LocalFileService;
 import net.cserny.generated.MediaFileType;
 import net.cserny.generated.MediaRenameOrigin;
 import net.cserny.generated.MediaRenameRequest;
+import net.cserny.rename.internal.OnlineCacheRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -36,6 +37,7 @@ import static org.hamcrest.CoreMatchers.is;
         MediaRenameService.class,
         DiskSearcher.class,
         OnlineCacheSearcher.class,
+        OnlineCacheRepository.class,
         ExternalSearcher.class,
         NameNormalizer.class,
         FilesystemProperties.class,

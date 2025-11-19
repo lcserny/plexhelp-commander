@@ -1,5 +1,6 @@
-package net.cserny.download;
+package net.cserny.download.internal;
 
+import net.cserny.download.DownloadedMedia;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.MongoRepository;
 

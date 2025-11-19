@@ -1,5 +1,6 @@
 package net.cserny.download;
 
+import net.cserny.download.internal.DownloadedMediaRepository;
 import net.cserny.generated.DownloadedMediaData;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,7 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ContextConfiguration(classes = {
         DownloadedMediaRepository.class,
-        InternalDownloadedMediaRepository.class,
         MongoTestConfiguration.class,
         MediaDownloadService.class
 })

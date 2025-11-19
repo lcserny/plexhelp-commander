@@ -1,6 +1,7 @@
 package net.cserny.download;
 
 import net.cserny.MongoTestConfiguration;
+import net.cserny.download.internal.DownloadedMediaRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ContextConfiguration(classes = {
         MongoTestConfiguration.class,
-        DownloadedMediaRepository.class,
-        InternalDownloadedMediaRepository.class
+        DownloadedMediaRepository.class
 })
 @DataMongoTest
 @Testcontainers

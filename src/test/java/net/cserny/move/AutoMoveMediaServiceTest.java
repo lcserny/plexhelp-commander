@@ -1,6 +1,6 @@
 package net.cserny.move;
 
-import net.cserny.download.DownloadedMediaRepository;
+import net.cserny.download.internal.DownloadedMediaRepository;
 import net.cserny.filesystem.AbstractInMemoryFileService;
 import net.cserny.MongoTestConfiguration;
 import net.cserny.TestConfig;

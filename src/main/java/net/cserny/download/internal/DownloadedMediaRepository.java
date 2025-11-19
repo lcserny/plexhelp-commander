@@ -1,8 +1,9 @@
-package net.cserny.download;
+package net.cserny.download.internal;
 
+import lombok.RequiredArgsConstructor;
+import net.cserny.download.DownloadedMedia;
 import net.cserny.qtorrent.TorrentFile;
 import org.bson.types.ObjectId;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -19,14 +20,12 @@ import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 
+@RequiredArgsConstructor
 @Repository
 public class DownloadedMediaRepository {
 
-    @Autowired
-    MongoTemplate mongoTemplate;
-
-    @Autowired
-    InternalDownloadedMediaRepository repository;
+    private final MongoTemplate mongoTemplate;
+    private final InternalDownloadedMediaRepository repository;
 
     public Optional<DownloadedMedia> findById(ObjectId id) {
         return this.repository.findById(id);

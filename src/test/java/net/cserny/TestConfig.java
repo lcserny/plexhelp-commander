@@ -1,7 +1,7 @@
 package net.cserny;
 
 import io.micrometer.tracing.Tracer;
-import net.cserny.download.DownloadedMediaRepository;
+import net.cserny.download.internal.DownloadedMediaRepository;
 import net.cserny.filesystem.FilesystemProperties;
 import net.cserny.filesystem.LocalFileService;
 import net.cserny.move.AutoMoveMediaRepository;
@@ -17,7 +17,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.web.client.RestTemplate;
-import org.togglz.core.manager.FeatureManager;
 
 @Profile("test")
 @Configuration

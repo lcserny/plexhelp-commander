@@ -1,7 +1,7 @@
 package net.cserny;
 
 import lombok.extern.slf4j.Slf4j;
-import net.cserny.download.DownloadedMediaRepository;
+import net.cserny.download.internal.DownloadedMediaRepository;
 import net.cserny.filesystem.CachedLocalFileService;
 import net.cserny.filesystem.FileServiceCacheLogger;
 import net.cserny.filesystem.FilesystemProperties;
@@ -24,12 +24,6 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.togglz.core.manager.FeatureManager;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.time.Duration;
 
 @Slf4j

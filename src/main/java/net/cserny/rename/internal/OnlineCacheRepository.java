@@ -15,7 +15,7 @@ import java.util.List;
 @Repository
 public class OnlineCacheRepository {
 
-    private final InternalOnlineCacheRepository internalOnlineCacheRepository;
+    private final InternalOnlineCacheRepository repository;
 
     public List<OnlineCacheItem> findByNameTypeAndOptionalYear(NameYear nameYear, MediaFileType type) {
         return findByNameTypeAndOptionalYear(nameYear.name(), nameYear.year(), type);
@@ -23,9 +23,9 @@ public class OnlineCacheRepository {
 
     public List<OnlineCacheItem> findByNameTypeAndOptionalYear(String name, Integer year, MediaFileType type) {
         if (year == null) {
-            return internalOnlineCacheRepository.findByNameAndType(name, type);
+            return repository.findByNameAndType(name, type);
         }
-        return internalOnlineCacheRepository.findByNameYearAndType(name, year, type);
+        return repository.findByNameYearAndType(name, year, type);
     }
 
     public List<OnlineCacheItem> saveAll(Collection<OnlineCacheItem> items) {
@@ -35,12 +35,12 @@ public class OnlineCacheRepository {
     public OnlineCacheItem save(OnlineCacheItem item) {
         List<OnlineCacheItem> existing = findByNameTypeAndOptionalYear(item.getSearchName(), item.getSearchYear(), item.getMediaType());
         if (existing.isEmpty()) {
-            return internalOnlineCacheRepository.save(item);
+            return repository.save(item);
         }
 
         boolean existingEqual = existing.stream().anyMatch(existingItem -> existingItem.equals(item));
         if (!existingEqual) {
-            return internalOnlineCacheRepository.save(item);
+            return repository.save(item);
         }
 
         return existing.getFirst();

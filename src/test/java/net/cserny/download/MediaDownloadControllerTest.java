@@ -4,6 +4,7 @@ import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import net.cserny.MongoTestConfiguration;
 
+import net.cserny.download.internal.DownloadedMediaRepository;
 import net.cserny.generated.SearchDownloadedMedia;
 import net.cserny.generated.SearchDownloadedMediaDate;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,7 +36,6 @@ import static org.hamcrest.CoreMatchers.is;
 @ActiveProfiles("test")
 @ContextConfiguration(classes = {
         DownloadedMediaRepository.class,
-        InternalDownloadedMediaRepository.class,
         MongoTestConfiguration.class,
         MediaDownloadController.class,
         MediaDownloadService.class

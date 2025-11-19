@@ -2,7 +2,7 @@ package net.cserny.move;
 
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.VirtualExecutor;
-import net.cserny.download.DownloadedMediaRepository;
+import net.cserny.download.internal.DownloadedMediaRepository;
 import net.cserny.download.DownloadedMedia;
 import net.cserny.filesystem.FilesystemProperties;
 import net.cserny.filesystem.LocalFileService;

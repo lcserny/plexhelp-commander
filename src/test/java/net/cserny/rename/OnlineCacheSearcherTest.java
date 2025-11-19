@@ -1,7 +1,6 @@
 package net.cserny.rename;
 
 import net.cserny.MongoTestConfiguration;
-import net.cserny.generated.MediaFileType;
 import net.cserny.generated.RenamedMediaOptions;
 import net.cserny.rename.NameNormalizer.NameYear;
 import net.cserny.rename.internal.OnlineCacheRepository;
