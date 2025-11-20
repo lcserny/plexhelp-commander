@@ -16,6 +16,7 @@ import java.util.Objects;
 @AllArgsConstructor
 @Builder
 @Data
+@EqualsAndHashCode(exclude = {"id"})
 @CompoundIndexes({
         @CompoundIndex(name = "nameType_idx", def = "{'searchName': 1, 'mediaType': 1}"),
         @CompoundIndex(name = "nameYearType_idx", def = "{'searchName': 1, 'searchYear': 1, 'mediaType': 1}")
@@ -33,17 +34,4 @@ public class OnlineCacheItem {
     private String description;
     private List<String> cast;
     private MediaFileType mediaType;
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        OnlineCacheItem that = (OnlineCacheItem) o;
-        return Objects.equals(searchName, that.searchName) &&
-                Objects.equals(searchYear, that.searchYear) && mediaType == that.mediaType;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(searchName, searchYear, mediaType);
-    }
 }

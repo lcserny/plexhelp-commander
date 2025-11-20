@@ -33,16 +33,9 @@ public class OnlineCacheRepository {
     }
 
     public OnlineCacheItem save(OnlineCacheItem item) {
-        List<OnlineCacheItem> existing = findByNameTypeAndOptionalYear(item.getSearchName(), item.getSearchYear(), item.getMediaType());
-        if (existing.isEmpty()) {
-            return repository.save(item);
-        }
-
-        boolean existingEqual = existing.stream().anyMatch(existingItem -> existingItem.equals(item));
-        if (!existingEqual) {
-            return repository.save(item);
-        }
-
-        return existing.getFirst();
+        return findByNameTypeAndOptionalYear(item.getSearchName(), item.getSearchYear(), item.getMediaType()).stream()
+                .filter(existingItem -> existingItem.equals(item))
+                .findFirst()
+                .orElseGet(() -> repository.save(item));
     }
 }
