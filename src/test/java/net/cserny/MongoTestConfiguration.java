@@ -9,7 +9,6 @@ import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 
 @TestConfiguration(proxyBeanMethods = false)
-@EnableMongoRepositories
 public class MongoTestConfiguration {
 
     private static final String MONGO_URI_KEY = "spring.data.mongodb.uri";

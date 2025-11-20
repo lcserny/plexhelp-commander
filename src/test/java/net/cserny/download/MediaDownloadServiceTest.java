@@ -1,15 +1,11 @@
 package net.cserny.download;
 
+import net.cserny.IntegrationTest;
 import net.cserny.download.internal.DownloadedMediaRepository;
 import net.cserny.generated.DownloadedMediaData;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
-import org.springframework.test.context.ContextConfiguration;
-import org.testcontainers.junit.jupiter.Testcontainers;
-
-import net.cserny.MongoTestConfiguration;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -21,14 +17,7 @@ import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@ContextConfiguration(classes = {
-        DownloadedMediaRepository.class,
-        MongoTestConfiguration.class,
-        MediaDownloadService.class
-})
-@DataMongoTest
-@Testcontainers
-public class MediaDownloadServiceTest {
+public class MediaDownloadServiceTest extends IntegrationTest {
 
     @Autowired
     MediaDownloadService service;

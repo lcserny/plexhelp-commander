@@ -1,6 +1,6 @@
 package net.cserny.rename;
 
-import net.cserny.MongoTestConfiguration;
+import net.cserny.IntegrationTest;
 import net.cserny.generated.MediaFileType;
 import net.cserny.generated.MediaRenameOrigin;
 import net.cserny.generated.RenamedMediaOptions;
@@ -12,31 +12,18 @@ import net.cserny.rename.internal.OnlineCacheRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.web.client.RestTemplate;
-import org.testcontainers.junit.jupiter.Testcontainers;
+import org.springframework.context.annotation.Import;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
-@ContextConfiguration(classes = {
-        ExternalSearcher.class,
-        MongoTestConfiguration.class,
-        OnlineCacheRepository.class,
-        OnlineProperties.class,
-        TmdbProperties.class,
-        RestTemplate.class,
-        TMDBSetupMock.class
-})
-@DataMongoTest
-@Testcontainers
-class ExternalSearcherTest {
+@Import(TMDBSetupMock.class)
+class ExternalSearcherTest extends IntegrationTest {
 
     @Autowired
     ExternalSearcher searcher;

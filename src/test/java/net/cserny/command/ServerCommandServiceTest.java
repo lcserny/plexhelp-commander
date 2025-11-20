@@ -1,33 +1,18 @@
 package net.cserny.command;
 
+import net.cserny.IntegrationTest;
 import org.jboss.logging.Logger;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
-import org.springframework.test.context.ContextConfiguration;
-import org.testcontainers.junit.jupiter.Testcontainers;
-
-import net.cserny.MongoTestConfiguration;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@ContextConfiguration(classes = {
-        ServerCommandService.class,
-        MongoTestConfiguration.class,
-        ServerCommandRepository.class,
-        TestCommand.class,
-        ServerCommandProperties.class
-})
-@DataMongoTest(properties = {
-        "server.command.name=test-server",
-        "server.command.listen-cron=disabled"
-})
-@Testcontainers
-public class ServerCommandServiceTest {
+public class ServerCommandServiceTest extends IntegrationTest {
 
     private static final Logger LOGGER = Logger.getLogger(ServerCommandServiceTest.class);
 
@@ -42,6 +27,11 @@ public class ServerCommandServiceTest {
 
     @Autowired
     TestCommand testCommand;
+
+    @BeforeEach
+    public void setUp() {
+        testCommand.reset();
+    }
 
     @Test
     @DisplayName("Check that commands are executed ok from scheduled job")

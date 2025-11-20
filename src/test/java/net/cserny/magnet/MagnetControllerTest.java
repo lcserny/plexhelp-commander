@@ -1,24 +1,11 @@
 package net.cserny.magnet;
 
-import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-import net.cserny.MongoTestConfiguration;
-import net.cserny.QTorrentTestConfiguration;
-import net.cserny.qtorrent.QTorrentRestClient;
-import net.cserny.qtorrent.TorrentProperties;
-import org.junit.jupiter.api.BeforeEach;
+import net.cserny.IntegrationTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.test.autoconfigure.data.mongo.AutoConfigureDataMongo;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.web.client.RestTemplate;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.List;
 
@@ -27,36 +14,10 @@ import static java.lang.String.format;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("test")
-@ContextConfiguration(classes = {
-        MagnetController.class,
-        MagnetService.class,
-        MagnetRepository.class,
-        QTorrentRestClient.class,
-        RestTemplate.class,
-        TorrentProperties.class,
-        QTorrentTestConfiguration.class,
-        MongoTestConfiguration.class
-})
-@EnableAutoConfiguration
-@AutoConfigureDataMongo
-@Testcontainers
-class MagnetControllerTest {
-
-    private final static String BASE_URI = "http://localhost";
-
-    @LocalServerPort
-    private int port;
+class MagnetControllerTest extends IntegrationTest {
 
     @Autowired
     MagnetRepository repository;
-
-    @BeforeEach
-    public void configureRestAssured() {
-        RestAssured.baseURI = BASE_URI;
-        RestAssured.port = port;
-    }
 
     @Test
     @DisplayName("GET on /magnets should return all magnets from db paginated")

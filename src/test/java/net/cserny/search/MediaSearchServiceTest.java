@@ -1,38 +1,19 @@
 package net.cserny.search;
 
-import net.cserny.filesystem.AbstractInMemoryFileService;
+import net.cserny.IntegrationTest;
 import net.cserny.filesystem.FilesystemProperties;
-import net.cserny.filesystem.LocalFileService;
 import net.cserny.generated.MediaFileGroup;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ContextConfiguration;
 
 import java.io.IOException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@SpringBootTest({
-        "server.command.name=test-server",
-        "server.command.listen-cron=disabled",
-        "search.video-min-size-bytes=5",
-        "search.exclude-paths[0]=Excluded Folder 1",
-        "filesystem.cache.enabled=false"
-})
-@ContextConfiguration(classes = {
-        MediaSearchService.class,
-        FilesystemProperties.class,
-        SearchProperties.class,
-        LocalFileService.class,
-        MediaIdentificationService.class
-})
-@EnableAutoConfiguration(exclude = MongoAutoConfiguration.class)
-public class MediaSearchServiceTest extends AbstractInMemoryFileService {
+public class MediaSearchServiceTest extends IntegrationTest {
 
     @Autowired
     MediaSearchService service;
@@ -42,6 +23,12 @@ public class MediaSearchServiceTest extends AbstractInMemoryFileService {
 
     @Autowired
     SearchProperties searchConfig;
+
+    @BeforeEach
+    public void resetDownloads() throws IOException {
+        deleteDirectory(filesystemConfig.getDownloadsPath());
+        createDirectories(filesystemConfig.getDownloadsPath());
+    }
 
     /*
     [
@@ -100,9 +87,9 @@ public class MediaSearchServiceTest extends AbstractInMemoryFileService {
         List<MediaFileGroup> media = service.findMedia();
 
         assertEquals(3, media.size());
-        assertEquals(downloadPath, media.get(0).getPath());
-        assertEquals("video1", media.get(0).getName());
-        assertEquals(true, media.get(0).getNoParent());
+        assertEquals(downloadPath, media.getFirst().getPath());
+        assertEquals("video1", media.getFirst().getName());
+        assertEquals(true, media.getFirst().getNoParent());
         assertEquals(downloadPath + "/some tvShow", media.get(2).getPath());
         assertEquals("some tvShow", media.get(2).getName());
         assertEquals("video1.mp4", media.get(2).getVideos().get(0));
@@ -114,14 +101,14 @@ public class MediaSearchServiceTest extends AbstractInMemoryFileService {
     @DisplayName("Check search finds correct media with season info")
     public void checkSearchFindsCorrectMediaWithSeason() throws IOException {
         String downloadPath = filesystemConfig.getDownloadsPath();
-        String video3 = downloadPath + "/some tvShow s05/video3.mp4";
+        String video3 = downloadPath + "/blaaaa tvShow s05/video3.mp4";
         createFile(6, video3);
 
         List<MediaFileGroup> media = service.findMedia();
 
         assertEquals(1, media.size());
-        assertEquals(downloadPath + "/some tvShow s05", media.getFirst().getPath());
-        assertEquals("some tvShow s05", media.getFirst().getName());
+        assertEquals(downloadPath + "/blaaaa tvShow s05", media.getFirst().getPath());
+        assertEquals("blaaaa tvShow s05", media.getFirst().getName());
         assertEquals("video3.mp4", media.getFirst().getVideos().getFirst());
         assertEquals(5, media.getFirst().getSeason());
     }

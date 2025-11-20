@@ -1,15 +1,12 @@
 package net.cserny.rename;
 
-import net.cserny.MongoTestConfiguration;
+import net.cserny.IntegrationTest;
 import net.cserny.generated.RenamedMediaOptions;
 import net.cserny.rename.NameNormalizer.NameYear;
 import net.cserny.rename.internal.OnlineCacheRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
-import org.springframework.test.context.ContextConfiguration;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.List;
 
@@ -17,14 +14,7 @@ import static net.cserny.generated.MediaFileType.MOVIE;
 import static net.cserny.generated.MediaFileType.TV;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@ContextConfiguration(classes = {
-        MongoTestConfiguration.class,
-        OnlineCacheSearcher.class,
-        OnlineCacheRepository.class
-})
-@DataMongoTest
-@Testcontainers
-public class OnlineCacheSearcherTest {
+public class OnlineCacheSearcherTest extends IntegrationTest {
 
     @Autowired
     OnlineCacheSearcher searcher;

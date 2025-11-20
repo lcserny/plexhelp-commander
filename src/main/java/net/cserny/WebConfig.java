@@ -24,6 +24,8 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.togglz.core.manager.FeatureManager;
 
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.time.Duration;
 
 @Slf4j
@@ -59,8 +61,8 @@ public class WebConfig implements WebMvcConfigurer {
     @Bean
     public RestTemplate restTemplate(RestTemplateBuilder restTemplateBuilder) {
         return restTemplateBuilder
-                .setConnectTimeout(Duration.ofMillis(this.connectionTimeoutMs))
-                .setReadTimeout(Duration.ofMillis(this.readTimeoutMs))
+                .connectTimeout(Duration.ofMillis(this.connectionTimeoutMs))
+                .readTimeout(Duration.ofMillis(this.readTimeoutMs))
                 .build();
     }
 
@@ -75,13 +77,18 @@ public class WebConfig implements WebMvcConfigurer {
     }
 
     @Bean
-    LocalFileService fileService(FeatureManager featureManager) {
+    FileSystem fileSystem() {
+        return FileSystems.getDefault();
+    }
+
+    @Bean
+    LocalFileService fileService(FeatureManager featureManager, FileSystem fileSystem) {
         if (featureManager.isActive(Features.FILESYSTEM_CACHE)) {
             log.info("Filesystem cache feature activated");
-            return new CachedLocalFileService();
+            return new CachedLocalFileService(fileSystem);
         }
         log.info("Filesystem cache feature not activated");
-        return new LocalFileService();
+        return new LocalFileService(fileSystem);
     }
 
     @Bean

@@ -15,6 +15,10 @@ public class CachedLocalFileService extends LocalFileService {
 
     private final LRUCache<String, BasicFileAttributes> fileAttrCache = new LRUCache<>(CACHE_LIMIT);
 
+    public CachedLocalFileService(FileSystem fileSystem) {
+        super(fileSystem);
+    }
+
     // FIXME: buggy impl, if parent folder is scanned and contains X items first time, doesn't matter if more items
     //  are added in that folder later, folder data is taken from cache and it can't see new items
     //  Maybe check dateModified when getting from cache, if different, getRealAttr and update cache

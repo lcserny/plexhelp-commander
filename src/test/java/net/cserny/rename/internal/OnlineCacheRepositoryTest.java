@@ -1,27 +1,18 @@
 package net.cserny.rename.internal;
 
-import net.cserny.MongoTestConfiguration;
+import net.cserny.IntegrationTest;
 import net.cserny.generated.MediaFileType;
 import net.cserny.rename.OnlineCacheItem;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
-import org.springframework.test.context.ContextConfiguration;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@ContextConfiguration(classes = {
-        MongoTestConfiguration.class,
-        OnlineCacheRepository.class
-})
-@DataMongoTest
-@Testcontainers
-public class OnlineCacheRepositoryTest {
+public class OnlineCacheRepositoryTest extends IntegrationTest {
 
     @Autowired
     OnlineCacheRepository repository;

@@ -1,27 +1,14 @@
 package net.cserny.rename;
 
-import net.cserny.MongoTestConfiguration;
+import net.cserny.IntegrationTest;
 import net.cserny.rename.NameNormalizer.NameYear;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@SpringBootTest(properties = {
-        "filesystem.cache.enabled=false"
-})
-@EnableAutoConfiguration
-@ContextConfiguration(classes = {
-        NameNormalizer.class,
-        RenameConfig.class,
-        MongoTestConfiguration.class
-})
-class NameNormalizerTest {
+class NameNormalizerTest extends IntegrationTest {
 
     @Autowired
     NameNormalizer normalizer;

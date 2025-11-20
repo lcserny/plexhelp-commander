@@ -1,6 +1,6 @@
 package net.cserny.magnet;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
@@ -14,14 +14,12 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
 
+@RequiredArgsConstructor
 @Repository
 public class MagnetRepository {
 
-    @Autowired
-    MongoTemplate mongoTemplate;
-
-    @Autowired
-    MagnetRepositoryInternal internalRepository;
+    private final MongoTemplate mongoTemplate;
+    private final MagnetRepositoryInternal internalRepository;
 
     public Magnet save(Magnet magnet) {
         return internalRepository.save(magnet);

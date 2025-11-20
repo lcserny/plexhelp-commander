@@ -1,70 +1,30 @@
 package net.cserny.rename;
 
-import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-import net.cserny.filesystem.AbstractInMemoryFileService;
-import net.cserny.MongoTestConfiguration;
+import net.cserny.IntegrationTest;
 import net.cserny.filesystem.FilesystemProperties;
-import net.cserny.filesystem.LocalFileService;
 import net.cserny.generated.MediaFileType;
 import net.cserny.generated.MediaRenameOrigin;
 import net.cserny.generated.MediaRenameRequest;
-import net.cserny.rename.internal.OnlineCacheRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.test.autoconfigure.data.mongo.AutoConfigureDataMongo;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.web.client.RestTemplate;
-import org.testcontainers.junit.jupiter.Testcontainers;
+import org.springframework.context.annotation.Import;
 
 import java.io.IOException;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.is;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("test")
-@EnableAutoConfiguration
-@ContextConfiguration(classes = {
-        MediaRenameController.class,
-        MongoTestConfiguration.class,
-        MediaRenameService.class,
-        DiskSearcher.class,
-        OnlineCacheSearcher.class,
-        OnlineCacheRepository.class,
-        ExternalSearcher.class,
-        NameNormalizer.class,
-        FilesystemProperties.class,
-        RenameConfig.class,
-        OnlineProperties.class,
-        TmdbProperties.class,
-        RestTemplate.class,
-        TMDBSetupMock.class,
-        LocalFileService.class
-})
-@AutoConfigureDataMongo
-@Testcontainers
-class MediaRenameControllerTest extends AbstractInMemoryFileService {
-
-    private final static String BASE_URI = "http://localhost";
-
-    @LocalServerPort
-    private int port;
+@Import(TMDBSetupMock.class)
+class MediaRenameControllerTest extends IntegrationTest {
 
     @Autowired
     FilesystemProperties filesystemConfig;
 
     @BeforeEach
     public void init() throws IOException {
-        RestAssured.baseURI = BASE_URI;
-        RestAssured.port = port;
-
         createDirectories(filesystemConfig.getDownloadsPath());
         createDirectories(filesystemConfig.getTvPath());
         createDirectories(filesystemConfig.getMoviesPath());

@@ -1,13 +1,12 @@
 package net.cserny.filesystem;
 
+import net.cserny.IntegrationTest;
 import net.cserny.filesystem.FilesystemProperties.CacheProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.io.IOException;
@@ -20,12 +19,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-@SpringBootTest
-@ContextConfiguration(classes = {
-        LocalFileService.class,
-        FilesystemProperties.class
-})
-public class LocalFileServiceTest extends AbstractInMemoryFileService {
+public class LocalFileServiceTest extends IntegrationTest {
 
     @MockitoBean
     private FilesystemProperties properties;

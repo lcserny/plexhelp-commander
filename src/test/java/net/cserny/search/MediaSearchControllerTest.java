@@ -1,60 +1,31 @@
 package net.cserny.search;
 
-import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-import net.cserny.filesystem.AbstractInMemoryFileService;
+import net.cserny.IntegrationTest;
 import net.cserny.filesystem.FilesystemProperties;
-import net.cserny.filesystem.LocalFileService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
 
 import java.io.IOException;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.is;
 
-@SpringBootTest(value = {
-        "server.command.name=test-server",
-        "server.command.listen-cron=disabled",
-        "search.video-min-size-bytes=5",
-        "search.exclude-paths[0]=Excluded Folder 1"
-}, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("test")
-@ContextConfiguration(classes = {
-        MediaSearchController.class,
-        MediaSearchService.class,
-        FilesystemProperties.class,
-        SearchProperties.class,
-        LocalFileService.class,
-        MediaIdentificationService.class
-})
-@EnableAutoConfiguration(exclude = MongoAutoConfiguration.class)
-public class MediaSearchControllerTest extends AbstractInMemoryFileService {
-
-    private final static String BASE_URI = "http://localhost";
-
-    @LocalServerPort
-    private int port;
-
-    @BeforeEach
-    public void configureRestAssured() {
-        RestAssured.baseURI = BASE_URI;
-        RestAssured.port = port;
-    }
+public class MediaSearchControllerTest extends IntegrationTest {
 
     @Autowired
     FilesystemProperties filesystemConfig;
 
     @Autowired
     SearchProperties searchConfig;
+
+    @BeforeEach
+    public void setUp() throws IOException {
+        deleteDirectory(filesystemConfig.getDownloadsPath());
+        createDirectories(filesystemConfig.getDownloadsPath());
+    }
 
     @Test
     @DisplayName("Check search finds correct media")

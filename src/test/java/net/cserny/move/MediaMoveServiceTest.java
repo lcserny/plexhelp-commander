@@ -1,22 +1,14 @@
 package net.cserny.move;
 
-import net.cserny.filesystem.AbstractInMemoryFileService;
-import net.cserny.MongoTestConfiguration;
+import net.cserny.IntegrationTest;
 import net.cserny.filesystem.FilesystemProperties;
-import net.cserny.filesystem.LocalFileService;
 import net.cserny.generated.MediaFileGroup;
 import net.cserny.generated.MediaFileType;
 import net.cserny.generated.MediaMoveError;
-import net.cserny.search.MediaIdentificationService;
-import net.cserny.search.SearchProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -25,29 +17,13 @@ import java.util.List;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.*;
 
-@ActiveProfiles("test")
-@ContextConfiguration(classes = {
-        MediaMoveService.class,
-        SubtitleMover.class,
-        FilesystemProperties.class,
-        MoveProperties.class,
-        LocalFileService.class,
-        MongoTestConfiguration.class,
-        MediaIdentificationService.class,
-        SearchProperties.class,
-        DefaultVideosGrouper.class
-})
-@DataMongoTest
-@Testcontainers
-public class MediaMoveServiceTest extends AbstractInMemoryFileService {
+public class MediaMoveServiceTest extends IntegrationTest {
 
     @Autowired
     MediaMoveService service;
 
     @Autowired
     FilesystemProperties filesystemConfig;
-    @Autowired
-    private LocalFileService localFileService;
 
     @BeforeEach
     public void init() throws IOException {
@@ -76,9 +52,9 @@ public class MediaMoveServiceTest extends AbstractInMemoryFileService {
     @Test
     @DisplayName("Existing tv will get merged moved tv show")
     public void existingTvShowMerge() throws IOException {
-        String name = "some show";
-        String path = filesystemConfig.getDownloadsPath() + "/doesnt matter";
-        String show = "myShow.mp4";
+        String name = "some shiznit";
+        String path = filesystemConfig.getDownloadsPath() + "/shiznit name";
+        String show = "myShiznit.mp4";
 
         createDirectories(filesystemConfig.getTvPath() + "/" + name);
         createFile(6, path + "/" + show);

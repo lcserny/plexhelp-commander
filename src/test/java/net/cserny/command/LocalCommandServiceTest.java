@@ -1,26 +1,26 @@
 package net.cserny.command;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
+import net.cserny.IntegrationTest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ContextConfiguration;
 
-@SpringBootTest
-@ContextConfiguration(classes = {
-    LocalCommandService.class,
-    TestCommand.class
-})
-public class LocalCommandServiceTest {
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+public class LocalCommandServiceTest extends IntegrationTest {
     
     @Autowired
     LocalCommandService commandService;
 
     @Autowired
     TestCommand testCommand;
+
+    @BeforeEach
+    public void setUp() {
+        testCommand.reset();
+    }
 
     @Test
     @DisplayName("command service can execute test command successfully")

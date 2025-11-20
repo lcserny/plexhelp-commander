@@ -1,12 +1,12 @@
 package net.cserny.magnet;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.generated.ApiApi;
 import net.cserny.generated.MagnetData;
 import net.cserny.generated.PaginatedBase1Page;
 import net.cserny.generated.PaginatedMagnets;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -16,15 +16,11 @@ import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
+@RequiredArgsConstructor
 @RequestMapping(value = "/api/v1/magnets", produces = MediaType.APPLICATION_JSON_VALUE)
 public class MagnetController implements ApiApi {
 
     private final MagnetService service;
-
-    @Autowired
-    public MagnetController(MagnetService service) {
-        this.service = service;
-    }
 
     @PostMapping
     @Override

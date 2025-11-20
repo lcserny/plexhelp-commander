@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 import static net.cserny.CommanderApplication.toOneLineString;
 
@@ -50,11 +52,14 @@ public class MediaMoveService {
 
     @PostConstruct
     public void init() {
-        this.importantFolders = List.of(
-            filesystemConfig.getDownloadsPath(),
-            filesystemConfig.getMoviesPath(),
-            filesystemConfig.getTvPath()
-        );
+        this.importantFolders = Stream.of(
+                        filesystemConfig.getDownloadsPath(),
+                        filesystemConfig.getMoviesPath(),
+                        filesystemConfig.getTvPath()
+                )
+                .filter(Objects::nonNull)
+                .toList();
+
         log.info("Important folders: {}", toOneLineString(this.importantFolders));
     }
 

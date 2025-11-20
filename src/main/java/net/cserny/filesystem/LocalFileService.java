@@ -1,11 +1,12 @@
 package net.cserny.filesystem;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.search.NoAttributes;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
@@ -17,10 +18,12 @@ import java.util.List;
 
 import static net.cserny.filesystem.ExcludingFileVisitor.WalkOptions.ONLY_FILES;
 
+@RequiredArgsConstructor
+@Component
 @Slf4j
 public class LocalFileService {
 
-    protected FileSystem fileSystem = FileSystems.getDefault();
+    private final FileSystem fileSystem;
 
     public LocalPath toLocalPath(BasicFileAttributes attributes, String root, String... segments) {
         Path path = fileSystem.getPath(root, segments);

@@ -1,9 +1,7 @@
 package net.cserny.move;
 
-import net.cserny.filesystem.AbstractInMemoryFileService;
-import net.cserny.MongoTestConfiguration;
+import net.cserny.IntegrationTest;
 import net.cserny.filesystem.FilesystemProperties;
-import net.cserny.filesystem.LocalFileService;
 import net.cserny.filesystem.LocalPath;
 import net.cserny.generated.MediaFileGroup;
 import net.cserny.generated.MediaFileType;
@@ -12,9 +10,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
-import org.springframework.test.context.ContextConfiguration;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -22,18 +17,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@ContextConfiguration(classes = {
-        SubtitleMover.class,
-        FilesystemProperties.class,
-        MoveProperties.class,
-        LocalFileService.class,
-        MongoTestConfiguration.class,
-})
-@DataMongoTest(properties = {
-        "filesystem.cache.enabled=false"
-})
-@Testcontainers
-class SubtitleMoverTest extends AbstractInMemoryFileService {
+class SubtitleMoverTest extends IntegrationTest {
 
     @Autowired
     SubtitleMover mover;

@@ -1,40 +1,15 @@
 package net.cserny.rename;
 
-import net.cserny.MongoTestConfiguration;
-import net.cserny.filesystem.FilesystemProperties;
-import net.cserny.filesystem.LocalFileService;
-import net.cserny.rename.internal.OnlineCacheRepository;
+import net.cserny.IntegrationTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.web.client.RestTemplate;
-import org.testcontainers.junit.jupiter.Testcontainers;
+import org.springframework.context.annotation.Import;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@ContextConfiguration(classes = {
-        MediaRenameService.class,
-        MongoTestConfiguration.class,
-        DiskSearcher.class,
-        OnlineCacheSearcher.class,
-        OnlineCacheRepository.class,
-        ExternalSearcher.class,
-        NameNormalizer.class,
-        FilesystemProperties.class,
-        RenameConfig.class,
-        OnlineProperties.class,
-        TmdbProperties.class,
-        RestTemplate.class,
-        TMDBSetupMock.class,
-        LocalFileService.class}
-)
-@DataMongoTest(properties = {
-        "filesystem.cache.enabled=false"
-})
-@Testcontainers
-class MediaRenameServiceTest {
+@Import(TMDBSetupMock.class)
+class MediaRenameServiceTest extends IntegrationTest {
 
     @Autowired
     MediaRenameService service;

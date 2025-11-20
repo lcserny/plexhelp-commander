@@ -1,11 +1,8 @@
 package net.cserny.move;
 
-import net.cserny.download.internal.DownloadedMediaRepository;
-import net.cserny.filesystem.AbstractInMemoryFileService;
-import net.cserny.MongoTestConfiguration;
-import net.cserny.TestConfig;
-import net.cserny.VirtualExecutor;
+import net.cserny.IntegrationTest;
 import net.cserny.download.DownloadedMedia;
+import net.cserny.download.internal.DownloadedMediaRepository;
 import net.cserny.filesystem.FilesystemProperties;
 import net.cserny.generated.MediaFileType;
 import net.cserny.rename.OnlineCacheItem;
@@ -15,11 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.data.domain.Example;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -32,15 +25,7 @@ import static java.time.ZoneOffset.UTC;
 import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE;
 import static org.junit.jupiter.api.Assertions.*;
 
-@ActiveProfiles("test")
-@ContextConfiguration(classes = {
-        MongoTestConfiguration.class,
-        TestConfig.class,
-        VirtualExecutor.class
-})
-@DataMongoTest
-@Testcontainers
-class AutoMoveMediaServiceTest extends AbstractInMemoryFileService {
+class AutoMoveMediaServiceTest extends IntegrationTest {
 
     @Autowired
     AutoMoveMediaService service;
@@ -103,7 +88,7 @@ class AutoMoveMediaServiceTest extends AbstractInMemoryFileService {
     @Test
     @DisplayName("media dir is cleaned if no other media in it")
     void automoveCleansDir() throws IOException, InterruptedException {
-        String name = "Superman";
+        String name = "SupermanZZZ";
         String video = "video.mp4";
         createMedia(name, video, 6L);
 

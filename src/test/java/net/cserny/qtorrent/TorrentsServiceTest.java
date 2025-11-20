@@ -1,11 +1,8 @@
 package net.cserny.qtorrent;
 
-import net.cserny.MongoTestConfiguration;
-import net.cserny.TestConfig;
-import net.cserny.VirtualExecutor;
+import net.cserny.IntegrationTest;
 import net.cserny.download.DownloadedMedia;
 import net.cserny.download.internal.DownloadedMediaRepository;
-import net.cserny.filesystem.AbstractInMemoryFileService;
 import net.cserny.filesystem.FilesystemProperties;
 import net.cserny.filesystem.LocalPath;
 import net.cserny.magnet.Magnet;
@@ -15,16 +12,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.web.client.RestTemplate;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.io.IOException;
 import java.time.Clock;
@@ -35,15 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-@ActiveProfiles("test")
-@ContextConfiguration(classes = {
-        MongoTestConfiguration.class,
-        TestConfig.class,
-        VirtualExecutor.class
-})
-@DataMongoTest
-@Testcontainers
-class TorrentsServiceTest extends AbstractInMemoryFileService {
+class TorrentsServiceTest extends IntegrationTest {
 
     @Autowired
     private TorrentsService service;
@@ -57,10 +42,10 @@ class TorrentsServiceTest extends AbstractInMemoryFileService {
     @Autowired
     FilesystemProperties filesystemConfig;
 
-    @MockBean
+    @MockitoBean
     private RestTemplate restTemplate;
 
-    @MockBean
+    @MockitoBean
     private MediaIdentificationService identificationService;
 
     @BeforeEach
