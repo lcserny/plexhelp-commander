@@ -1,18 +1,9 @@
 package net.cserny;
 
 import lombok.extern.slf4j.Slf4j;
-import net.cserny.download.internal.DownloadedMediaRepository;
-import net.cserny.filesystem.CachedLocalFileService;
-import net.cserny.filesystem.FileServiceCacheLogger;
-import net.cserny.filesystem.FilesystemProperties;
-import net.cserny.filesystem.LocalFileService;
 import net.cserny.move.*;
 import net.cserny.qtorrent.TorrentFile;
-import net.cserny.rename.MediaRenameService;
-import net.cserny.rename.NameNormalizer;
 import net.cserny.rename.TmdbWrapper;
-import net.cserny.search.MediaIdentificationService;
-import net.cserny.search.MediaSearchService;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -22,7 +13,6 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.togglz.core.manager.FeatureManager;
 
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -67,50 +57,7 @@ public class WebConfig implements WebMvcConfigurer {
     }
 
     @Bean
-    FileServiceCacheLogger fileServiceCacheLogger(FeatureManager featureManager, LocalFileService fileService) {
-        if (featureManager.isActive(Features.FILESYSTEM_CACHE_LOGGING)) {
-            log.info("Filesystem cache logging feature activated");
-            return new FileServiceCacheLogger(fileService);
-        }
-        log.info("Filesystem cache logging feature not activated");
-        return null;
-    }
-
-    @Bean
     FileSystem fileSystem() {
         return FileSystems.getDefault();
-    }
-
-    @Bean
-    LocalFileService fileService(FeatureManager featureManager, FileSystem fileSystem) {
-        if (featureManager.isActive(Features.FILESYSTEM_CACHE)) {
-            log.info("Filesystem cache feature activated");
-            return new CachedLocalFileService(fileSystem);
-        }
-        log.info("Filesystem cache feature not activated");
-        return new LocalFileService(fileSystem);
-    }
-
-    @Bean
-    AutoMoveMediaService autoMoveMediaService(FeatureManager featureManager,
-                                              DownloadedMediaRepository downloadedMediaRepository,
-                                              AutoMoveMediaRepository autoMoveMediaRepository,
-                                              MediaSearchService searchService,
-                                              MediaRenameService renameService,
-                                              MediaMoveService moveService,
-                                              NameNormalizer normalizer,
-                                              LocalFileService fileService,
-                                              FilesystemProperties filesystemProperties,
-                                              AutoMoveProperties properties,
-                                              VirtualExecutor threadpool,
-                                              MediaIdentificationService identificationService) {
-        if (featureManager.isActive(Features.AUTOMOVE)) {
-            log.info("Automove feature activated");
-            return new AutoMoveMediaService(downloadedMediaRepository, autoMoveMediaRepository,
-                    searchService, renameService, moveService, normalizer, fileService,
-                    filesystemProperties, properties, threadpool, identificationService);
-        }
-        log.info("Automove feature not activated");
-        return null;
     }
 }

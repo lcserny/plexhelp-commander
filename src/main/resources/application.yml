@@ -14,15 +14,6 @@ logging:
   file:
     name: vm-commander_dev.log
 
-togglz:
-  features:
-    AUTOMOVE:
-      enabled: true
-    FILESYSTEM_CACHE:
-      enabled: false
-    FILESYSTEM_CACHE_LOGGING:
-      enabled: false
-
 http:
   client:
     connection:

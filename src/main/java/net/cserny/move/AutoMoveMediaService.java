@@ -1,6 +1,8 @@
 package net.cserny.move;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.cserny.Features;
 import net.cserny.VirtualExecutor;
 import net.cserny.download.internal.DownloadedMediaRepository;
 import net.cserny.download.DownloadedMedia;
@@ -13,6 +15,8 @@ import net.cserny.rename.NameNormalizer.NameYear;
 import net.cserny.search.MediaIdentificationService;
 import net.cserny.search.MediaSearchService;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+import org.togglz.core.manager.FeatureManager;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -28,8 +32,12 @@ import static net.cserny.CommanderApplication.toOneLineString;
 
 // TODO this needs cleanup, too many deps
 
+@Service
+@RequiredArgsConstructor
 @Slf4j
 public class AutoMoveMediaService {
+
+    private final FeatureManager featureManager;
 
     private final DownloadedMediaRepository downloadedMediaRepository;
     private final AutoMoveMediaRepository autoMoveMediaRepository;
@@ -43,32 +51,12 @@ public class AutoMoveMediaService {
     private final VirtualExecutor threadpool;
     private final MediaIdentificationService identificationService;
 
-    public AutoMoveMediaService(DownloadedMediaRepository downloadedMediaRepository,
-                                AutoMoveMediaRepository autoMoveMediaRepository,
-                                MediaSearchService searchService,
-                                MediaRenameService renameService,
-                                MediaMoveService moveService,
-                                NameNormalizer normalizer,
-                                LocalFileService fileService,
-                                FilesystemProperties filesystemProperties,
-                                AutoMoveProperties properties,
-                                VirtualExecutor threadpool,
-                                MediaIdentificationService identificationService) {
-        this.downloadedMediaRepository = downloadedMediaRepository;
-        this.autoMoveMediaRepository = autoMoveMediaRepository;
-        this.searchService = searchService;
-        this.renameService = renameService;
-        this.moveService = moveService;
-        this.normalizer = normalizer;
-        this.fileService = fileService;
-        this.filesystemProperties = filesystemProperties;
-        this.properties = properties;
-        this.threadpool = threadpool;
-        this.identificationService = identificationService;
-    }
-
     @Scheduled(cron = "${automove.cron}")
     public void autoMoveMedia() {
+        if (!featureManager.isActive(Features.AUTOMOVE)) {
+            return;
+        }
+
         log.info("Checking download cache to automatically move media files");
 
         List<DownloadedMedia> medias = downloadedMediaRepository.findForAutoMove(properties.getLimit());
