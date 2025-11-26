@@ -1,5 +1,7 @@
 package net.cserny.rename;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.generated.MediaDescriptionData;
 import net.cserny.generated.MediaFileType;
@@ -17,6 +19,7 @@ import java.util.stream.Collectors;
 
 import static net.cserny.CommanderApplication.toOneLineString;
 
+@RequiredArgsConstructor
 @Slf4j
 @Service
 public class MediaRenameService {
@@ -24,11 +27,10 @@ public class MediaRenameService {
     private static final Pattern titleRegex = Pattern
             .compile("^\\s*(?<name>[a-zA-Z0-9-\\s]+)\\s\\((?<date>(\\d{4})(-\\d{1,2}-\\d{1,2})?)\\)$");
 
-    @Autowired
-    NameNormalizer normalizer;
+    private final NameNormalizer normalizer;
 
-    @Autowired
-    List<Searcher> searchers;
+    @Getter
+    private final List<Searcher> searchers;
 
     public static List<MediaDescriptionData> generateDescDataFrom(List<String> titles) {
         return titles.stream()

@@ -1,8 +1,8 @@
 package net.cserny.rename;
 
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.text.WordUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -10,11 +10,11 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@RequiredArgsConstructor
 @Component
 public class NameNormalizer {
 
-    @Autowired
-    RenameConfig renameConfig;
+    private final RenameConfig renameConfig;
 
     private final Pattern preNormalizedNameRegex = Pattern.compile("^\s*(?<name>[a-zA-Z0-9-\s]+)\s\\((?<year>\\d{4})(-\\d{1,2}-\\d{1,2})?\\)$");
     private final Pattern specialCharsRegex = Pattern.compile("[^a-zA-Z0-9-\s]");

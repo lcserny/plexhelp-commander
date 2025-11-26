@@ -7,13 +7,9 @@ import net.cserny.CommanderApplication;
 import net.cserny.Features;
 import net.cserny.download.internal.DownloadedMediaRepository;
 import net.cserny.download.DownloadedMedia;
-import net.cserny.filesystem.FilesystemProperties;
-import net.cserny.filesystem.LocalFileService;
-import net.cserny.filesystem.LocalPath;
 import net.cserny.generated.*;
 import net.cserny.rename.*;
 import net.cserny.rename.NameNormalizer.NameYear;
-import net.cserny.search.MediaIdentificationService;
 import net.cserny.search.MediaSearchService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -23,7 +19,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
@@ -33,26 +28,22 @@ import static java.util.Comparator.comparing;
 import static java.util.Comparator.reverseOrder;
 import static net.cserny.CommanderApplication.toOneLineString;
 
-// TODO this needs cleanup, too many deps
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class AutoMoveMediaService {
 
     private final FeatureManager featureManager;
+    private final AutoMoveProperties properties;
+    private final ExecutorService executorService;
 
     private final DownloadedMediaRepository downloadedMediaRepository;
     private final AutoMoveMediaRepository autoMoveMediaRepository;
+
+    private final NameNormalizer normalizer;
     private final MediaSearchService searchService;
     private final MediaRenameService renameService;
     private final MediaMoveService moveService;
-    private final NameNormalizer normalizer;
-    private final LocalFileService fileService;
-    private final FilesystemProperties filesystemProperties;
-    private final AutoMoveProperties properties;
-    private final ExecutorService executorService;
-    private final MediaIdentificationService identificationService;
 
     @SneakyThrows
     @Scheduled(cron = "${automove.cron}")
@@ -81,41 +72,26 @@ public class AutoMoveMediaService {
     }
 
     private void processMedia(DownloadedMedia media) {
-        try {
-            LocalPath path = fileService.toLocalPath(filesystemProperties.getDownloadsPath(), media.getFileName());
-            if (!fileService.exists(path)) {
-                log.info("Path doesn't exist: {}, skipping...", path);
-                return;
-            }
-
-            if (!identificationService.isMedia(path)) {
-                log.info("Path is not a valid media file: {}, skipping...", path);
-                return;
-            }
-
-            List<MediaFileGroup> groups = searchService.generateMediaFileGroups(List.of(path));
-            if (groups.isEmpty()) {
-                log.info("No media groups generated, skipping...");
-                return;
-            }
-
-            MediaFileGroup group = groups.getFirst();
-            NameYear nameYear = normalizer.normalize(group.getName());
-
-            Optional<AutoMoveOption> autoMoveOptional = processOptions(group, nameYear);
-            if (autoMoveOptional.isEmpty()) {
-                log.info("No options were similar enough to automove media");
-                return;
-            }
-
-            AutoMoveOption option = autoMoveOptional.get();
-            log.info("Using first option to move media {}", toOneLineString(option));
-
-            String movedName = moveMedia(option, group);
-            saveAutoMove(media, movedName, option);
-        } catch (Exception e) {
-            log.error("Error occurred in virtual thread: {}", e.getMessage());
+        List<MediaFileGroup> groups = searchService.generateMediaFileGroupsFromDownloads(media.getFileName());
+        if (groups.isEmpty()) {
+            log.info("No media groups generated, skipping...");
+            return;
         }
+
+        MediaFileGroup group = groups.getFirst();
+        NameYear nameYear = normalizer.normalize(group.getName());
+
+        Optional<AutoMoveOption> autoMoveOptional = processOptions(group, nameYear);
+        if (autoMoveOptional.isEmpty()) {
+            log.info("No options were similar enough to automove media");
+            return;
+        }
+
+        AutoMoveOption option = autoMoveOptional.get();
+        log.info("Using first option to move media {}", toOneLineString(option));
+
+        String movedName = moveMedia(option, group);
+        saveAutoMove(media, movedName, option);
     }
 
     @SneakyThrows

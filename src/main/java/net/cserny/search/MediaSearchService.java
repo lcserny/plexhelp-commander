@@ -1,5 +1,6 @@
 package net.cserny.search;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.filesystem.FilesystemProperties;
 import net.cserny.filesystem.LocalFileService;
@@ -8,7 +9,6 @@ import net.cserny.filesystem.LocalPath;
 import net.cserny.generated.MediaFileGroup;
 import net.cserny.rename.TVDataExtractor;
 import org.apache.commons.lang3.tuple.Pair;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -17,21 +17,15 @@ import java.util.*;
 
 import static net.cserny.CommanderApplication.toOneLineString;
 
+@RequiredArgsConstructor
 @Service
 @Slf4j
 public class MediaSearchService {
 
-    @Autowired
-    LocalFileService fileService;
-
-    @Autowired
-    FilesystemProperties filesystemConfig;
-
-    @Autowired
-    SearchProperties searchConfig;
-
-    @Autowired
-    MediaIdentificationService identificationService;
+    private final LocalFileService fileService;
+    private final FilesystemProperties filesystemConfig;
+    private final SearchProperties searchConfig;
+    private final MediaIdentificationService identificationService;
 
     public List<MediaFileGroup> findMedia() {
         LocalPath walkPath = fileService.toLocalPath(filesystemConfig.getDownloadsPath());
@@ -50,6 +44,10 @@ public class MediaSearchService {
         }
     }
 
+    public List<MediaFileGroup> generateMediaFileGroupsFromDownloads(String mediaName) {
+        return generateMediaFileGroups(List.of(fileService.toLocalPath(filesystemConfig.getDownloadsPath(), mediaName)));
+    }
+
     public List<MediaFileGroup> generateMediaFileGroups(List<LocalPath> allVideos) {
         List<MediaFileGroup> mediaFileGroups = new ArrayList<>();
 
@@ -59,6 +57,11 @@ public class MediaSearchService {
         Map<Pair<String, NameBundle>, List<String>> tmpMap = new TreeMap<>();
 
         for (LocalPath localPath : allVideos) {
+            if (!identificationService.isMedia(localPath)) {
+                log.info("Path is not a valid media file: {}, skipping...", localPath);
+                continue;
+            }
+
             Path videoPath = localPath.path();
             int videoPathSegments = videoPath.getNameCount();
 
@@ -95,7 +98,9 @@ public class MediaSearchService {
             mediaFileGroups.add(mediaFileGroup);
         }
 
-        log.info("Generated media file groups: {}", toOneLineString(mediaFileGroups));
+        if (!mediaFileGroups.isEmpty()) {
+            log.info("Generated media file groups: {}", toOneLineString(mediaFileGroups));
+        }
 
         return mediaFileGroups;
     }

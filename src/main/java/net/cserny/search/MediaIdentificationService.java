@@ -1,6 +1,8 @@
 package net.cserny.search;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.cserny.filesystem.LocalFileService;
 import net.cserny.filesystem.LocalPath;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -9,14 +11,20 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+@RequiredArgsConstructor
 @Service
 @Slf4j
 public class MediaIdentificationService {
 
-    @Autowired
-    private SearchProperties searchConfig;
+    private final LocalFileService localFileService;
+    private final SearchProperties searchConfig;
 
     public boolean isMedia(LocalPath path) {
+        if (!localFileService.exists(path)) {
+            log.info("Path doesn't exist: {}, skipping...", path);
+            return false;
+        }
+
         if (!excludeNonVideosByContentType(path)) {
             return false;
         }
