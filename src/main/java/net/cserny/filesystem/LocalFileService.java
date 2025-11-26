@@ -2,6 +2,7 @@ package net.cserny.filesystem;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.cserny.FeatureConfiguration;
 import net.cserny.search.NoAttributes;
 import org.springframework.stereotype.Component;
 
@@ -23,6 +24,7 @@ import static net.cserny.filesystem.ExcludingFileVisitor.WalkOptions.ONLY_FILES;
 @Slf4j
 public class LocalFileService {
 
+    private final FeatureConfiguration featureConfiguration;
     private final CachedLocalPathProvider cachedLocalPathProvider;
     private final FileSystem fileSystem;
 
@@ -41,7 +43,7 @@ public class LocalFileService {
     }
 
     public LocalPath toLocalPath(Path path, BasicFileAttributes attr) {
-        if (cachedLocalPathProvider.isFilesystemCacheEnabled()) {
+        if (featureConfiguration.isFilesystemCacheEnabled()) {
             return cachedLocalPathProvider.toLocalPath(path, attr, this::getRealAttributes);
         } else {
             if (attr == null) {

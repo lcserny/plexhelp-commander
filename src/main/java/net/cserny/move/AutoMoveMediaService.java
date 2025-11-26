@@ -1,9 +1,8 @@
 package net.cserny.move;
 
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.cserny.Features;
+import net.cserny.FeatureConfiguration;
 import net.cserny.VirtualExecutor;
 import net.cserny.download.internal.DownloadedMediaRepository;
 import net.cserny.download.DownloadedMedia;
@@ -17,9 +16,6 @@ import net.cserny.search.MediaIdentificationService;
 import net.cserny.search.MediaSearchService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.togglz.core.manager.FeatureManager;
-import org.togglz.core.repository.FeatureState;
-import org.togglz.core.repository.listener.FeatureStateChangedListener;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -38,11 +34,9 @@ import static net.cserny.CommanderApplication.toOneLineString;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class AutoMoveMediaService implements FeatureStateChangedListener {
+public class AutoMoveMediaService {
 
-    private volatile boolean automoveCronEnabled;
-
-    private final FeatureManager featureManager;
+    private final FeatureConfiguration featureConfiguration;
 
     private final DownloadedMediaRepository downloadedMediaRepository;
     private final AutoMoveMediaRepository autoMoveMediaRepository;
@@ -56,26 +50,9 @@ public class AutoMoveMediaService implements FeatureStateChangedListener {
     private final VirtualExecutor threadpool;
     private final MediaIdentificationService identificationService;
 
-    @PostConstruct
-    public void init() {
-        automoveCronEnabled = featureManager.isActive(Features.AUTOMOVE);
-    }
-
-    @Override
-    public void onFeatureStateChanged(FeatureState fromState, FeatureState toState) {
-        if (toState.getFeature().name().equals(Features.AUTOMOVE.name())) {
-            this.automoveCronEnabled = toState.isEnabled();
-        }
-    }
-
-    @Override
-    public int priority() {
-        return 0;
-    }
-
     @Scheduled(cron = "${automove.cron}")
     public void autoMoveMedia() {
-        if (!automoveCronEnabled) {
+        if (!featureConfiguration.isAutomoveCronEnabled()) {
             return;
         }
 
