@@ -3,6 +3,7 @@ package net.cserny;
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.togglz.core.manager.FeatureManager;
 import org.togglz.core.repository.FeatureState;
@@ -10,6 +11,7 @@ import org.togglz.core.repository.listener.FeatureStateChangedListener;
 
 @RequiredArgsConstructor
 @Component
+@Slf4j
 public class FeatureConfiguration implements FeatureStateChangedListener {
 
     private final FeatureManager featureManager;
@@ -30,6 +32,8 @@ public class FeatureConfiguration implements FeatureStateChangedListener {
 
     @Override
     public void onFeatureStateChanged(FeatureState fromState, FeatureState toState) {
+        log.info("Feature state changed for {} from {} to {}", fromState.getFeature(), fromState.isEnabled(), toState.isEnabled());
+
         if (toState.getFeature().name().equals(Features.FILESYSTEM_CACHE.name())) {
             this.filesystemCacheEnabled = toState.isEnabled();
         }
