@@ -23,6 +23,9 @@ http:
       timeout:
         ms: 5000
 
+togglz:
+  features-file-min-check-interval: 60000
+
 torrent:
   webui:
     baseUrl: <QTorrent Base URL>

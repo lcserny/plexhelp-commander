@@ -1,7 +1,6 @@
 package net.cserny;
 
 import lombok.extern.slf4j.Slf4j;
-import net.cserny.move.*;
 import net.cserny.qtorrent.TorrentFile;
 import net.cserny.rename.TmdbWrapper;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
@@ -31,7 +30,7 @@ import java.time.Duration;
         DataMapperImpl.class,
         TorrentFile.class
 })
-public class WebConfig implements WebMvcConfigurer {
+public class ApplicationConfiguration implements WebMvcConfigurer {
 
     @Value("${http.client.connection.timeout.ms}")
     private int connectionTimeoutMs;

@@ -2,7 +2,7 @@ package net.cserny.move;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.cserny.FeatureConfiguration;
+import net.cserny.Features;
 import net.cserny.VirtualExecutor;
 import net.cserny.download.internal.DownloadedMediaRepository;
 import net.cserny.download.DownloadedMedia;
@@ -16,6 +16,7 @@ import net.cserny.search.MediaIdentificationService;
 import net.cserny.search.MediaSearchService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.togglz.core.manager.FeatureManager;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -36,7 +37,7 @@ import static net.cserny.CommanderApplication.toOneLineString;
 @Slf4j
 public class AutoMoveMediaService {
 
-    private final FeatureConfiguration featureConfiguration;
+    private final FeatureManager featureManager;
 
     private final DownloadedMediaRepository downloadedMediaRepository;
     private final AutoMoveMediaRepository autoMoveMediaRepository;
@@ -52,7 +53,7 @@ public class AutoMoveMediaService {
 
     @Scheduled(cron = "${automove.cron}")
     public void autoMoveMedia() {
-        if (!featureConfiguration.isAutomoveCronEnabled()) {
+        if (!featureManager.isActive(Features.AUTOMOVE)) {
             return;
         }
 

@@ -2,10 +2,11 @@ package net.cserny.filesystem;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.cserny.FeatureConfiguration;
+import net.cserny.Features;
 import net.cserny.LRUCache;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.togglz.core.manager.FeatureManager;
 
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -19,7 +20,7 @@ public class CachedLocalPathProvider {
     private static final int CACHE_LIMIT = 10000;
 
     private final LRUCache<String, BasicFileAttributes> fileAttrCache = new LRUCache<>(CACHE_LIMIT);
-    private final FeatureConfiguration featureConfiguration;
+    private final FeatureManager featureManager;
 
     // FIXME: buggy impl, if parent folder is scanned and contains X items first time, doesn't matter if more items
     //  are added in that folder later, folder data is taken from cache and it can't see new items
@@ -41,7 +42,7 @@ public class CachedLocalPathProvider {
 
     @Scheduled(cron = "${filesystem.cache.cron}")
     public void runCacheLogging() {
-        if (featureConfiguration.isFilesystemCacheLoggingEnabled()) {
+        if (featureManager.isActive(Features.FILESYSTEM_CACHE_LOGGING)) {
             log.info("Current FileService cache size {} and cacheMisses {}", fileAttrCache.size(), fileAttrCache.cacheMisses());
         }
     }
