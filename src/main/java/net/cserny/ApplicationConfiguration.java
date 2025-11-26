@@ -1,5 +1,8 @@
 package net.cserny;
 
+import io.micrometer.context.ContextExecutorService;
+import io.micrometer.context.ContextSnapshotFactory;
+import io.micrometer.tracing.Tracer;
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.qtorrent.TorrentFile;
 import net.cserny.rename.TmdbWrapper;
@@ -16,6 +19,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.time.Duration;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Slf4j
 @Configuration
@@ -58,5 +63,11 @@ public class ApplicationConfiguration implements WebMvcConfigurer {
     @Bean
     FileSystem fileSystem() {
         return FileSystems.getDefault();
+    }
+
+    @Bean
+    public ExecutorService tracedExecutor() {
+        ExecutorService delegate = Executors.newVirtualThreadPerTaskExecutor();
+        return ContextExecutorService.wrap(delegate, ContextSnapshotFactory.builder().build());
     }
 }

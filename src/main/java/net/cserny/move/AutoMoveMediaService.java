@@ -1,9 +1,10 @@
 package net.cserny.move;
 
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import net.cserny.CommanderApplication;
 import net.cserny.Features;
-import net.cserny.VirtualExecutor;
 import net.cserny.download.internal.DownloadedMediaRepository;
 import net.cserny.download.DownloadedMedia;
 import net.cserny.filesystem.FilesystemProperties;
@@ -22,8 +23,10 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static java.lang.String.format;
 import static java.util.Comparator.comparing;
@@ -48,9 +51,10 @@ public class AutoMoveMediaService {
     private final LocalFileService fileService;
     private final FilesystemProperties filesystemProperties;
     private final AutoMoveProperties properties;
-    private final VirtualExecutor threadpool;
+    private final ExecutorService executorService;
     private final MediaIdentificationService identificationService;
 
+    @SneakyThrows
     @Scheduled(cron = "${automove.cron}")
     public void autoMoveMedia() {
         if (!featureManager.isActive(Features.AUTOMOVE)) {
@@ -66,10 +70,10 @@ public class AutoMoveMediaService {
         }
 
         log.info("Trying to automatically move {} media file", medias.size());
-        threadpool.executeWithNewSpans(medias.stream().<Callable<Void>>map(m -> () -> {
+        executorService.invokeAll(medias.stream().<Callable<Void>>map(m -> () -> {
             processMedia(m);
             return null;
-        }));
+        }).toList());
 
         updateDownloadedMedia(medias);
 
@@ -114,12 +118,13 @@ public class AutoMoveMediaService {
         }
     }
 
+    @SneakyThrows
     private Optional<AutoMoveOption> processOptions(MediaFileGroup group, NameYear nameYear) {
-        List<List<AutoMoveOption>> listOfAllOptions = this.threadpool.executeWithCurrentSpan(Stream.of(
+        List<Future<List<AutoMoveOption>>> listOfAllOptions = executorService.invokeAll(List.of(
                 () -> produceOptions(group.getName(), MediaFileType.MOVIE, nameYear.name()),
                 () -> produceOptions(group.getName(), MediaFileType.TV, nameYear.name())
         ));
-        List<AutoMoveOption> allOptions = listOfAllOptions.stream().flatMap(List::stream).toList();
+        List<AutoMoveOption> allOptions = listOfAllOptions.stream().map(CommanderApplication::getUnchecked).flatMap(List::stream).toList();
 
         log.info("Options parsed: {}", toOneLineString(allOptions));
 

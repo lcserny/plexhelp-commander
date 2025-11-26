@@ -13,16 +13,6 @@
             </deny>
         </access-rule>
         <access-rule>
-            <message>Should not access ExecutorService directly</message>
-            <deny>
-                <from pattern="root"/>
-                <to class="java.util.concurrent.ExecutorService"/>
-                <allow>
-                    <from class="net.cserny.VirtualExecutor"/>
-                </allow>
-            </deny>
-        </access-rule>
-        <access-rule>
             <message>Should not access NIO Files directly</message>
             <deny>
                 <from pattern="root"/>

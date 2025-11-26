@@ -1,19 +1,20 @@
 package net.cserny.qtorrent;
 
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import net.cserny.VirtualExecutor;
 import net.cserny.download.internal.DownloadedMediaRepository;
 import net.cserny.filesystem.FilesystemProperties;
 import net.cserny.filesystem.LocalFileService;
 import net.cserny.filesystem.LocalPath;
 import net.cserny.magnet.MagnetRepository;
 import net.cserny.search.MediaIdentificationService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Stream;
+import java.util.concurrent.ExecutorService;
 
+@RequiredArgsConstructor
 @Slf4j
 @Service
 public class TorrentsService {
@@ -24,24 +25,7 @@ public class TorrentsService {
     private final TorrentRestClient restClient;
     private final LocalFileService localFileService;
     private final MediaIdentificationService mediaIdentificationService;
-    private final VirtualExecutor threadpool;
-
-    @Autowired
-    public TorrentsService(FilesystemProperties filesystemProperties,
-                           DownloadedMediaRepository downloadedMediaRepository,
-                           MagnetRepository magnetRepository,
-                           TorrentRestClient restClient,
-                           LocalFileService localFileService,
-                           MediaIdentificationService mediaIdentificationService,
-                           VirtualExecutor threadpool) {
-        this.filesystemProperties = filesystemProperties;
-        this.downloadedMediaRepository = downloadedMediaRepository;
-        this.magnetRepository = magnetRepository;
-        this.restClient = restClient;
-        this.localFileService = localFileService;
-        this.mediaIdentificationService = mediaIdentificationService;
-        this.threadpool = threadpool;
-    }
+    private final ExecutorService executorService;
 
     public void addTorrent(String hash) {
         String sid = this.restClient.generateSid();
@@ -56,6 +40,7 @@ public class TorrentsService {
         log.info("Added {} torrent files to downloads cache", count);
     }
 
+    @SneakyThrows
     public void downloadTorrent(String hash) {
         String sid = this.restClient.generateSid();
 
@@ -65,7 +50,7 @@ public class TorrentsService {
         List<TorrentFile> mediaTorrentFiles = processMediaTorrents(torrentFiles);
         log.info("{} torrent files are media files", mediaTorrentFiles.stream().filter(TorrentFile::isMedia).count());
 
-        this.threadpool.executeWithCurrentSpan(Stream.of(
+        this.executorService.invokeAll(List.of(
                 () -> {
                     var count = this.downloadedMediaRepository.upsertTorrents(mediaTorrentFiles, true);
                     log.info("Updated {} torrent files to 'downloaded' in download cache", count);
