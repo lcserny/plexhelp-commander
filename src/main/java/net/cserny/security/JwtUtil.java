@@ -7,6 +7,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.generated.UserPerm;
 import net.cserny.generated.UserRole;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.EncodedKeySpec;
 import java.security.spec.InvalidKeySpecException;
@@ -26,7 +29,7 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static net.cserny.security.KnownAlgorithms.RSA_FAMILY;
+import static net.cserny.security.KnownAlgorithms.*;
 
 @Slf4j
 @Component
@@ -49,25 +52,27 @@ public class JwtUtil {
 
     private Algorithm initAlgorithm(SecurityProperties properties) throws IOException {
         return switch (properties.getType()) {
-            case KEYS -> this.getRSAAlgorithm(properties);
-            case SECRET -> this.getHMACAlgorithm(properties);
+            case KEYS -> this.getAsymmetricAlgorithm(properties);
+            case SECRET -> this.getSymmetricAlgorithm(properties);
         };
     }
 
-    private Algorithm getRSAAlgorithm(SecurityProperties properties) throws IOException {
+    private Algorithm getAsymmetricAlgorithm(SecurityProperties properties) throws IOException {
         byte[] bytes = parsePEMFile(new File(properties.getPublicKey().getPath()));
         return switch (properties.getPublicKey().getAlgo()) {
-            case RSA256 -> Algorithm.RSA256(getPublicKey(bytes, RSA_FAMILY));
-            case RSA384 -> Algorithm.RSA384(getPublicKey(bytes, RSA_FAMILY));
-            case RSA512 -> Algorithm.RSA512(getPublicKey(bytes, RSA_FAMILY));
+            case RSA256 -> Algorithm.RSA256((RSAPublicKey) getPublicKey(bytes, RSA_FAMILY));
+            case RSA384 -> Algorithm.RSA384((RSAPublicKey) getPublicKey(bytes, RSA_FAMILY));
+            case RSA512 -> Algorithm.RSA512((RSAPublicKey) getPublicKey(bytes, RSA_FAMILY));
+            case ECDSA256 -> Algorithm.ECDSA256((ECPublicKey) getPublicKey(bytes, ECDSA_FAMILY));
         };
     }
 
-    private Algorithm getHMACAlgorithm(SecurityProperties properties) {
+    private Algorithm getSymmetricAlgorithm(SecurityProperties properties) {
         return switch (properties.getSecret().getAlgo()) {
             case HMAC256 -> Algorithm.HMAC256(properties.getSecret().getHash());
             case HMAC384 -> Algorithm.HMAC384(properties.getSecret().getHash());
             case HMAC512 -> Algorithm.HMAC512(properties.getSecret().getHash());
+            case NONE -> Algorithm.none();
         };
     }
 
@@ -81,16 +86,16 @@ public class JwtUtil {
         }
     }
 
-    private RSAPublicKey getPublicKey(byte[] keyBytes, String algorithm) {
-        RSAPublicKey publicKey = null;
+    private PublicKey getPublicKey(byte[] keyBytes, String algorithm) {
+        PublicKey publicKey = null;
         try {
-            KeyFactory kf = KeyFactory.getInstance(algorithm);
+            KeyFactory kf = KeyFactory.getInstance(algorithm, new BouncyCastleProvider());
             EncodedKeySpec keySpec = new X509EncodedKeySpec(keyBytes);
-            publicKey = (RSAPublicKey) kf.generatePublic(keySpec);
+            publicKey = kf.generatePublic(keySpec);
         } catch (NoSuchAlgorithmException e) {
-            log.error("Could not reconstruct the public key, the given algorithm could not be found.");
+            log.error("Could not reconstruct the public key, the given algorithm could not be found.", e);
         } catch (InvalidKeySpecException e) {
-            log.error("Could not reconstruct the public key");
+            log.error("Could not reconstruct the public key", e);
         }
 
         return publicKey;

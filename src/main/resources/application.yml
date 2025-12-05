@@ -34,11 +34,10 @@ torrent:
 
 token:
   security:
-    type: secret
+    type: SECRET
     secret:
-      hash: 67uzoULtouBbSpwjVvzVQ5D1APKTc3i9
-      algo: HMAC256
-    issuer: auth-service
+      algo: NONE
+    issuer: auth-service-dev
 
 tmdb:
   client:
