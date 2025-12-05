@@ -7,7 +7,6 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.generated.UserPerm;
 import net.cserny.generated.UserRole;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,7 +88,7 @@ public class JwtUtil {
     private PublicKey getPublicKey(byte[] keyBytes, String algorithm) {
         PublicKey publicKey = null;
         try {
-            KeyFactory kf = KeyFactory.getInstance(algorithm, new BouncyCastleProvider());
+            KeyFactory kf = KeyFactory.getInstance(algorithm);
             EncodedKeySpec keySpec = new X509EncodedKeySpec(keyBytes);
             publicKey = kf.generatePublic(keySpec);
         } catch (NoSuchAlgorithmException e) {
