@@ -1,6 +1,7 @@
 package net.cserny.move;
 
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.filesystem.FilesystemProperties;
 import net.cserny.filesystem.LocalFileService;
@@ -21,6 +22,7 @@ import java.util.stream.Stream;
 
 import static net.cserny.CommanderApplication.toOneLineString;
 
+@RequiredArgsConstructor
 @Service
 @Slf4j
 public class MediaMoveService {
@@ -29,26 +31,14 @@ public class MediaMoveService {
 
     private List<String> importantFolders = new ArrayList<>();
 
-    @Autowired
-    LocalFileService fileService;
-
-    @Autowired
-    SubtitleMover subtitleMover;
-
-    @Autowired
-    SearchProperties searchConfig;
-
-    @Autowired
-    FilesystemProperties filesystemConfig;
-
-    @Autowired
-    MoveProperties moveConfig;
-
-    @Autowired
-    MediaIdentificationService identificationService;
-
-    @Autowired
-    VideosGrouper videosGrouper;
+    private final LocalFileService fileService;
+    private final SubtitleMover subtitleMover;
+    private final SearchProperties searchConfig;
+    private final FilesystemProperties filesystemConfig;
+    private final MoveProperties moveConfig;
+    private final MediaIdentificationService identificationService;
+    private final VideosGrouper videosGrouper;
+    private final MovedMediaRepository movedMediaRepository;
 
     @PostConstruct
     public void init() {
@@ -92,6 +82,12 @@ public class MediaMoveService {
 
                 log.info("Moving video {} to {}", srcPath, destPath);
                 fileService.move(srcPath, destPath);
+                movedMediaRepository.save(MovedMedia.builder()
+                        .source(srcPath.path().toString())
+                        .destination(destPath.path().toString())
+                        .sizeBytes(destPath.attributes().size())
+                        .mediaType(type)
+                        .build());
             } catch (IOException e) {
                 log.warn("Could not move media: {}", e.getMessage());
                 errors.add(new MediaMoveError().mediaPath(srcPath.path().toString()).error(e.getMessage()));
