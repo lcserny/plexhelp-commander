@@ -2,14 +2,13 @@ package net.cserny.move;
 
 import lombok.Builder;
 import lombok.Data;
-import net.cserny.filesystem.LocalPath;
 import net.cserny.generated.MediaFileType;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-import java.time.Instant;
+import java.time.LocalDate;
 
 @Builder
 @Data
@@ -27,6 +26,18 @@ public class MovedMedia {
 
     @Field
     private long sizeBytes;
+
+    @Field
+    private String mediaName;
+
+    @Field
+    private LocalDate date;
+
+    @Field
+    private Integer season;
+
+    @Field
+    private Integer episode;
 
     @Field
     private MediaFileType mediaType;

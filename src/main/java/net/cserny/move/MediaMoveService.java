@@ -9,9 +9,9 @@ import net.cserny.filesystem.LocalPath;
 import net.cserny.generated.MediaFileGroup;
 import net.cserny.generated.MediaFileType;
 import net.cserny.generated.MediaMoveError;
+import net.cserny.move.MediaInfoExtractor.MediaInfo;
 import net.cserny.search.MediaIdentificationService;
 import net.cserny.search.SearchProperties;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -72,8 +72,9 @@ public class MediaMoveService {
             LocalPath srcPath = fileService.toLocalPath(fileGroup.getPath(), video);
 
             String videoNameOnly = fileService.toLocalPath(video).path().getFileName().toString();
-            DestinationProducer dest = new DestinationProducer(fileGroup, type, videoNameOnly);
-            LocalPath destPath = fileService.toLocalPath(destRoot, dest.getDestSegments());
+            MediaInfoExtractor extractor = new MediaInfoExtractor(fileGroup.getName(), fileGroup.getSeason(), type, videoNameOnly);
+            MediaInfo mediaInfo = extractor.extractMediaInfo();
+            LocalPath destPath = fileService.toLocalPath(destRoot, mediaInfo.destinationPathSegments());
 
             try {
                 if (fileService.exists(destPath)) {
@@ -82,10 +83,15 @@ public class MediaMoveService {
 
                 log.info("Moving video {} to {}", srcPath, destPath);
                 fileService.move(srcPath, destPath);
+
                 movedMediaRepository.save(MovedMedia.builder()
                         .source(srcPath.path().toString())
                         .destination(destPath.path().toString())
                         .sizeBytes(destPath.attributes().size())
+                        .mediaName(mediaInfo.baseName())
+                        .date(mediaInfo.date())
+                        .season(mediaInfo.season())
+                        .episode(mediaInfo.episode())
                         .mediaType(type)
                         .build());
             } catch (IOException e) {

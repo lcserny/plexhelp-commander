@@ -5,6 +5,7 @@ import net.cserny.filesystem.FilesystemProperties;
 import net.cserny.filesystem.LocalFileService;
 import net.cserny.filesystem.LocalPath;
 import net.cserny.generated.MediaMoveError;
+import net.cserny.move.MediaInfoExtractor.MediaInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -68,8 +69,9 @@ public class SubtitleMover {
             LocalPath subSrc = fileService.toLocalPath(sub.toString());
 
             String subNameOnly = sub.path().getFileName().toString();
-            DestinationProducer dest = new DestinationProducer(operation.group(), operation.type(), subNameOnly);
-            LocalPath subDest = fileService.toLocalPath(operation.destRoot(), dest.getDestSegments());
+            MediaInfoExtractor extractor = new MediaInfoExtractor(operation.group().getName(), operation.group().getSeason(), operation.type(), subNameOnly);
+            MediaInfo mediaInfo = extractor.extractMediaInfo();
+            LocalPath subDest = fileService.toLocalPath(operation.destRoot(), mediaInfo.destinationPathSegments());
 
             try {
                 log.info("Moving sub {} to {}", subSrc, subDest);
