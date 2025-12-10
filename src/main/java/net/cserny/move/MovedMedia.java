@@ -8,7 +8,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-import java.time.LocalDate;
+import java.time.Instant;
 
 @Builder
 @Data
@@ -31,7 +31,7 @@ public class MovedMedia {
     private String mediaName;
 
     @Field
-    private LocalDate date;
+    private Instant date;
 
     @Field
     private Integer season;

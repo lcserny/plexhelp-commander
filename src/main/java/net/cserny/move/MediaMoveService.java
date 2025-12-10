@@ -15,6 +15,7 @@ import net.cserny.search.SearchProperties;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -87,9 +88,9 @@ public class MediaMoveService {
                 movedMediaRepository.save(MovedMedia.builder()
                         .source(srcPath.path().toString())
                         .destination(destPath.path().toString())
-                        .sizeBytes(destPath.attributes().size())
+                        .sizeBytes(srcPath.attributes().size())
                         .mediaName(mediaInfo.baseName())
-                        .date(mediaInfo.date())
+                        .date(mediaInfo.date().atStartOfDay(ZoneOffset.UTC).toInstant())
                         .season(mediaInfo.season())
                         .episode(mediaInfo.episode())
                         .mediaType(type)

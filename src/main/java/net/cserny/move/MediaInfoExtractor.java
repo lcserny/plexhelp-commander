@@ -56,7 +56,7 @@ public class MediaInfoExtractor {
         int dateEndIndex = groupName.lastIndexOf(")");
 
         if (dateStartIndex != -1 && dateEndIndex != -1) {
-            String substring = groupName.substring(dateStartIndex + 1, dateEndIndex);
+            String substring = groupName.substring(dateStartIndex + 2, dateEndIndex);
             try {
                 return LocalDate.parse(substring);
             } catch (Exception e) {
