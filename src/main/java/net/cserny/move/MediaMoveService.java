@@ -90,7 +90,7 @@ public class MediaMoveService {
                         .destination(destPath.path().toString())
                         .sizeBytes(srcPath.attributes().size())
                         .mediaName(mediaInfo.baseName())
-                        .date(mediaInfo.date().atStartOfDay(ZoneOffset.UTC).toInstant())
+                        .date(mediaInfo.date() != null ? mediaInfo.date().atStartOfDay(ZoneOffset.UTC).toInstant() : null)
                         .season(mediaInfo.season())
                         .episode(mediaInfo.episode())
                         .mediaType(type)
