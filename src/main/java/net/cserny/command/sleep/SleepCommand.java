@@ -1,19 +1,27 @@
 package net.cserny.command.sleep;
 
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.command.AbstractOSCommand;
+import net.cserny.command.DummyProcess;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.Arrays;
 
 @SuppressWarnings("LoggingSimilarMessage")
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class SleepCommand extends AbstractOSCommand {
 
     private static final String NAME = "sleep";
+
+    private final TaskScheduler scheduler;
 
     @Override
     public String name() {
@@ -37,14 +45,25 @@ public class SleepCommand extends AbstractOSCommand {
         }
     }
 
+    private String[] getCommandParts() {
+        return new String[]{"systemctl", "suspend"};
+    }
+
     private Process execWithoutDelay(Runtime runtime) throws IOException {
         log.info("Sleeping system without delay");
-        return runtime.exec(new String[]{"systemctl", "suspend"});
+        return runtime.exec(getCommandParts());
     }
 
     private Process execWithDelay(Runtime runtime, int minutes) throws IOException {
         log.info("Sleeping system in {} minutes", minutes);
-        return runtime.exec(new String[]{"sleep", minutes + "m" , "&&", "systemctl", "suspend"});
+        scheduler.scheduleWithFixedDelay(() -> {
+            try {
+                runtime.exec(getCommandParts());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }, Duration.ofMinutes(minutes));
+        return DummyProcess.INSTANCE;
     }
 
     @Override
