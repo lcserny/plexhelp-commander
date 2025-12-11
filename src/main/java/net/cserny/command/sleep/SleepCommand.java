@@ -23,15 +23,28 @@ public class SleepCommand extends AbstractOSCommand {
     @Override
     protected Process executeInternalLinux(Runtime runtime, String[] params) throws IOException {
         if (params.length == 0) {
-            log.info("Sleeping system without delay");
-            return runtime.exec(new String[]{"systemctl", "suspend"});
+            return execWithoutDelay(runtime);
         } else if (params.length == 1 && StringUtils.isNumeric(params[0])) {
-            log.info("Sleeping system in {} minutes", params[0]);
-            return runtime.exec(new String[]{"sleep", Integer.parseInt(params[0]) + "m" , "&&", "systemctl", "suspend"});
+            int minutes = Integer.parseInt(params[0]);
+            if (minutes == 0) {
+                return execWithoutDelay(runtime);
+            } else {
+                return execWithDelay(runtime, minutes);
+            }
         } else {
             log.info("Sleeping system with params: {}", Arrays.toString(params));
             throw new UnsupportedOperationException("Sleeping with random params not supported");
         }
+    }
+
+    private Process execWithoutDelay(Runtime runtime) throws IOException {
+        log.info("Sleeping system without delay");
+        return runtime.exec(new String[]{"systemctl", "suspend"});
+    }
+
+    private Process execWithDelay(Runtime runtime, int minutes) throws IOException {
+        log.info("Sleeping system in {} minutes", minutes);
+        return runtime.exec(new String[]{"sleep", minutes + "m" , "&&", "systemctl", "suspend"});
     }
 
     @Override
