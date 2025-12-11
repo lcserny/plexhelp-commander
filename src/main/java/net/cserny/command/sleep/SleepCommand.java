@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Arrays;
 
 @SuppressWarnings("LoggingSimilarMessage")
@@ -56,13 +57,13 @@ public class SleepCommand extends AbstractOSCommand {
 
     private Process execWithDelay(Runtime runtime, int minutes) throws IOException {
         log.info("Sleeping system in {} minutes", minutes);
-        scheduler.scheduleWithFixedDelay(() -> {
+        scheduler.schedule(() -> {
             try {
                 runtime.exec(getCommandParts());
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-        }, Duration.ofMinutes(minutes));
+        }, Instant.now().plus(Duration.ofMinutes(minutes)));
         return DummyProcess.INSTANCE;
     }
 
