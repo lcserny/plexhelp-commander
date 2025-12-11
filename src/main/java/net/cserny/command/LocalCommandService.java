@@ -1,21 +1,21 @@
 package net.cserny.command;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.generated.CommandResponse;
 import net.cserny.generated.Status;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 import static net.cserny.CommanderApplication.toOneLineString;
 
+@RequiredArgsConstructor
 @Service
 @Slf4j
 public class LocalCommandService {
 
-    @Autowired
-    List<Command> commands;
+    private final List<Command> commands;
 
     public CommandResponse execute(String name, String[] params) {
         for (Command command : commands) {
