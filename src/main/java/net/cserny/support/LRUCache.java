@@ -1,4 +1,4 @@
-package net.cserny;
+package net.cserny.support;
 
 import java.util.Deque;
 import java.util.HashMap;

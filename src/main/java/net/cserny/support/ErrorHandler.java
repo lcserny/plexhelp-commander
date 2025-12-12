@@ -1,4 +1,4 @@
-package net.cserny;
+package net.cserny.support;
 
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.generated.ApplicationErrorResponse;

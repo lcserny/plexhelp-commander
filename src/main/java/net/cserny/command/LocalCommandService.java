@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static net.cserny.CommanderApplication.toOneLineString;
+import static net.cserny.support.UtilityProvider.toOneLineString;
 
 @RequiredArgsConstructor
 @Service

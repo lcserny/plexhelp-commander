@@ -1,7 +1,9 @@
-package net.cserny.security;
+package net.cserny.config;
 
 import net.cserny.generated.UserPerm;
 import net.cserny.generated.UserRole;
+import net.cserny.security.JwtAuthenticationFilter;
+import net.cserny.security.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

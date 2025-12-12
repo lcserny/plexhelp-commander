@@ -1,9 +1,9 @@
-package net.cserny;
+package net.cserny.config;
 
 import io.micrometer.context.ContextExecutorService;
 import io.micrometer.context.ContextSnapshotFactory;
-import io.micrometer.tracing.Tracer;
 import lombok.extern.slf4j.Slf4j;
+import net.cserny.DataMapperImpl;
 import net.cserny.qtorrent.TorrentFile;
 import net.cserny.rename.TmdbWrapper;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;

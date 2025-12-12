@@ -3,14 +3,14 @@ package net.cserny.move;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import net.cserny.CommanderApplication;
-import net.cserny.Features;
+import net.cserny.support.Features;
 import net.cserny.download.internal.DownloadedMediaRepository;
 import net.cserny.download.DownloadedMedia;
 import net.cserny.generated.*;
 import net.cserny.rename.*;
 import net.cserny.rename.NameNormalizer.NameYear;
 import net.cserny.search.MediaSearchService;
+import net.cserny.support.UtilityProvider;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.togglz.core.manager.FeatureManager;
@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 import static java.lang.String.format;
 import static java.util.Comparator.comparing;
 import static java.util.Comparator.reverseOrder;
-import static net.cserny.CommanderApplication.toOneLineString;
+import static net.cserny.support.UtilityProvider.toOneLineString;
 
 @Service
 @RequiredArgsConstructor
@@ -100,7 +100,7 @@ public class AutoMoveMediaService {
                 () -> produceOptions(group.getName(), MediaFileType.MOVIE, nameYear.name()),
                 () -> produceOptions(group.getName(), MediaFileType.TV, nameYear.name())
         ));
-        List<AutoMoveOption> allOptions = listOfAllOptions.stream().map(CommanderApplication::getUnchecked).flatMap(List::stream).toList();
+        List<AutoMoveOption> allOptions = listOfAllOptions.stream().map(UtilityProvider::getUnchecked).flatMap(List::stream).toList();
 
         log.info("Options parsed: {}", toOneLineString(allOptions));
 

@@ -1,4 +1,4 @@
-package net.cserny;
+package net.cserny.support;
 
 import org.togglz.core.Feature;
 import org.togglz.core.annotation.Label;

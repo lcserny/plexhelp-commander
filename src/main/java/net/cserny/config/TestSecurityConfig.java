@@ -1,4 +1,4 @@
-package net.cserny.security;
+package net.cserny.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

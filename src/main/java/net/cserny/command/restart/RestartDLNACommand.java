@@ -1,4 +1,4 @@
-package net.cserny.command.sleep;
+package net.cserny.command.restart;
 
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -18,9 +18,9 @@ import java.util.Arrays;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class SleepCommand extends AbstractOSCommand {
+public class RestartDLNACommand extends AbstractOSCommand {
 
-    private static final String NAME = "sleep";
+    private static final String NAME = "restart-dlna";
 
     private final TaskScheduler scheduler;
 
@@ -41,25 +41,36 @@ public class SleepCommand extends AbstractOSCommand {
                 return execWithDelay(runtime, minutes);
             }
         } else {
-            log.info("Sleeping system with params: {}", Arrays.toString(params));
-            throw new UnsupportedOperationException("Sleeping with random params not supported");
+            log.info("Restarting DLNA Media Server with params: {}", Arrays.toString(params));
+            throw new UnsupportedOperationException("Restarting DLNA Media Server with random params not supported");
         }
     }
 
-    private String[] getCommandParts() {
-        return new String[]{"systemctl", "suspend"};
+    private String[] getStopCommandParts() {
+        return new String[]{"systemctl", "--user", "stop", "ums"};
     }
 
+    private String[] getStartCommandParts() {
+        return new String[]{"systemctl", "--user", "start", "ums"};
+    }
+
+    @SneakyThrows
     private Process execWithoutDelay(Runtime runtime) throws IOException {
-        log.info("Sleeping system without delay");
-        return runtime.exec(getCommandParts());
+        log.info("Restarting DLNA Media Server without delay");
+        Process stopProcess = runtime.exec(getStopCommandParts());
+        int stopExitCode = stopProcess.waitFor();
+        if (stopExitCode == 0) {
+            return runtime.exec(getStartCommandParts());
+        }
+        return stopProcess;
     }
 
     private Process execWithDelay(Runtime runtime, int minutes) throws IOException {
-        log.info("Sleeping system in {} minutes", minutes);
+        log.info("Restarting DLNA Media Server in {} minutes", minutes);
         scheduler.schedule(() -> {
             try {
-                runtime.exec(getCommandParts()).waitFor();
+                runtime.exec(getStopCommandParts()).waitFor();
+                runtime.exec(getStartCommandParts()).waitFor();
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

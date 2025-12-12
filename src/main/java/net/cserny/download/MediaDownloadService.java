@@ -1,6 +1,6 @@
 package net.cserny.download;
 
-import net.cserny.DataMapper;
+import net.cserny.support.DataMapper;
 import net.cserny.download.internal.DownloadedMediaRepository;
 import net.cserny.generated.DownloadedMediaData;
 import org.springframework.beans.factory.annotation.Autowired;

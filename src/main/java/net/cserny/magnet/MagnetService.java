@@ -1,7 +1,7 @@
 package net.cserny.magnet;
 
 import lombok.extern.slf4j.Slf4j;
-import net.cserny.DataMapper;
+import net.cserny.support.DataMapper;
 import net.cserny.generated.MagnetData;
 import net.cserny.qtorrent.TorrentRestClient;
 import org.springframework.beans.factory.annotation.Autowired;

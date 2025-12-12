@@ -1,4 +1,4 @@
-package net.cserny;
+package net.cserny.support;
 
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 
-import static net.cserny.CommanderApplication.toOneLineString;
+import static net.cserny.support.UtilityProvider.toOneLineString;
 
 @Slf4j
 @Aspect

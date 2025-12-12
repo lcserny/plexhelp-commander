@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-import static net.cserny.CommanderApplication.toOneLineString;
+import static net.cserny.support.UtilityProvider.toOneLineString;
 
 @RequiredArgsConstructor
 @Service

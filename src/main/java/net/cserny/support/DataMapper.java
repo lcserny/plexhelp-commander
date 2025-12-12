@@ -1,4 +1,4 @@
-package net.cserny;
+package net.cserny.support;
 
 import net.cserny.download.DownloadedMedia;
 import net.cserny.generated.DownloadedMediaData;

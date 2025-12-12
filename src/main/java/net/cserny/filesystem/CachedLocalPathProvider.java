@@ -2,8 +2,8 @@ package net.cserny.filesystem;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.cserny.Features;
-import net.cserny.LRUCache;
+import net.cserny.support.Features;
+import net.cserny.support.LRUCache;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.togglz.core.manager.FeatureManager;
