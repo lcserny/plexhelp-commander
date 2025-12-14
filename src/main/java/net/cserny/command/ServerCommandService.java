@@ -1,27 +1,23 @@
 package net.cserny.command;
 
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@RequiredArgsConstructor
 @Deprecated
 @Service
 @Slf4j
 public class ServerCommandService {
 
-    @Autowired
-    ServerCommandRepository repository;
-
-    @Autowired
-    ServerCommandProperties config;
-
-    @Autowired
-    List<Command> commands;
+    private final ServerCommandRepository repository;
+    private final ServerCommandProperties config;
+    private final List<Command> commands;
 
     @PostConstruct
     public void initServerCommand() {
