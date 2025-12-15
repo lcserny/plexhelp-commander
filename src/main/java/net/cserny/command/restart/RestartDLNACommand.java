@@ -1,7 +1,6 @@
 package net.cserny.command.restart;
 
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.command.AbstractOSCommand;
 import net.cserny.command.DummyProcess;
@@ -46,31 +45,20 @@ public class RestartDLNACommand extends AbstractOSCommand {
         }
     }
 
-    private String[] getStopCommandParts() {
-        return new String[]{"systemctl", "--user", "stop", "ums"};
+    private String[] getCommandParts() {
+        return new String[]{"systemctl", "--user", "restart", "ums"};
     }
 
-    private String[] getStartCommandParts() {
-        return new String[]{"systemctl", "--user", "start", "ums"};
-    }
-
-    @SneakyThrows
     private Process execWithoutDelay(Runtime runtime) throws IOException {
         log.info("Restarting DLNA Media Server without delay");
-        Process stopProcess = runtime.exec(getStopCommandParts());
-        int stopExitCode = stopProcess.waitFor();
-        if (stopExitCode == 0) {
-            return runtime.exec(getStartCommandParts());
-        }
-        return stopProcess;
+        return runtime.exec(getCommandParts());
     }
 
     private Process execWithDelay(Runtime runtime, int minutes) throws IOException {
         log.info("Restarting DLNA Media Server in {} minutes", minutes);
         scheduler.schedule(() -> {
             try {
-                runtime.exec(getStopCommandParts()).waitFor();
-                runtime.exec(getStartCommandParts()).waitFor();
+                runtime.exec(getCommandParts()).waitFor();
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
