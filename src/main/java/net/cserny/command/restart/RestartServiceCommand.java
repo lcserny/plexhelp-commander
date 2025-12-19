@@ -17,9 +17,9 @@ import java.util.Arrays;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class RestartDLNACommand extends AbstractOSCommand {
+public class RestartServiceCommand extends AbstractOSCommand {
 
-    private static final String NAME = "restart-dlna";
+    private static final String NAME = "restart-service";
 
     private final TaskScheduler scheduler;
 
@@ -30,35 +30,34 @@ public class RestartDLNACommand extends AbstractOSCommand {
 
     @Override
     protected Process executeInternalLinux(Runtime runtime, String[] params) throws IOException {
-        if (params.length == 0) {
-            return execWithoutDelay(runtime);
-        } else if (params.length == 1 && StringUtils.isNumeric(params[0])) {
-            int minutes = Integer.parseInt(params[0]);
+        if (params.length == 1) {
+            return execWithoutDelay(runtime, params[0]);
+        } else if (params.length == 2 && StringUtils.isNumeric(params[1])) {
+            int minutes = Integer.parseInt(params[1]);
             if (minutes == 0) {
-                return execWithoutDelay(runtime);
+                return execWithoutDelay(runtime, params[0]);
             } else {
-                return execWithDelay(runtime, minutes);
+                return execWithDelay(runtime, params[0], minutes);
             }
-        } else {
-            log.info("Restarting DLNA Media Server with params: {}", Arrays.toString(params));
-            throw new UnsupportedOperationException("Restarting DLNA Media Server with random params not supported");
         }
+
+        throw new UnsupportedOperationException("Restarting Service with random params not supported " + Arrays.toString(params));
     }
 
-    private String[] getCommandParts() {
-        return new String[]{"systemctl", "--user", "restart", "ums"};
+    private String[] getCommandParts(String serviceName) {
+        return new String[]{"systemctl", "--user", "restart", serviceName};
     }
 
-    private Process execWithoutDelay(Runtime runtime) throws IOException {
-        log.info("Restarting DLNA Media Server without delay");
-        return runtime.exec(getCommandParts());
+    private Process execWithoutDelay(Runtime runtime, String serviceName) throws IOException {
+        log.info("Restarting {} Service without delay", serviceName);
+        return runtime.exec(getCommandParts(serviceName));
     }
 
-    private Process execWithDelay(Runtime runtime, int minutes) throws IOException {
-        log.info("Restarting DLNA Media Server in {} minutes", minutes);
+    private Process execWithDelay(Runtime runtime, String serviceName, int minutes) throws IOException {
+        log.info("Restarting {} Service in {} minutes", serviceName, minutes);
         scheduler.schedule(() -> {
             try {
-                runtime.exec(getCommandParts()).waitFor();
+                runtime.exec(getCommandParts(serviceName)).waitFor();
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
