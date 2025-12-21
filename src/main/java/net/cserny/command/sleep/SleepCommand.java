@@ -70,7 +70,6 @@ public class SleepCommand extends AbstractOSCommand {
     @Override
     protected Process executeInternalWindows(Runtime runtime, String[] params) throws IOException {
         log.warn("Params not supported for Windows, ignoring them for sleep/suspend operation {}", Arrays.toString(params));
-        String commandBase = getCommandPrefix() + "Rundll32.exe";
-        return runtime.exec(new String[]{commandBase, "powrprof.dll,SetSuspendState 0,1,0"});
+        return runtime.exec("Rundll32.exe powrprof.dll,SetSuspendState 0,1,0");
     }
 }
