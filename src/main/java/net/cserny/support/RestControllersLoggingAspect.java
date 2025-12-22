@@ -25,7 +25,7 @@ public class RestControllersLoggingAspect {
     @Before("controllerMethods()")
     public void logBefore(JoinPoint joinPoint) {
         log.info("Entering method: {} with arguments = {}",
-                joinPoint.getSignature().toShortString(), toOneLineString(Arrays.toString(joinPoint.getArgs())));
+                joinPoint.getSignature().toShortString(), toOneLineString(joinPoint.getArgs()));
     }
 
     @AfterReturning(pointcut = "controllerMethods()", returning = "result")

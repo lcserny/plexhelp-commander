@@ -2,19 +2,22 @@ package net.cserny.command.shutdown;
 
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.command.AbstractOSCommand;
-import org.apache.commons.lang3.StringUtils;
+import net.cserny.command.ServerCommandProperties;
+import org.springframework.core.task.TaskExecutor;
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-@Slf4j
 @Component
+@Slf4j
 public class ShutdownCommand extends AbstractOSCommand {
 
-    public static final String NAME = "shutdown";
+    private static final String NAME = "shutdown";
+
+    public ShutdownCommand(ServerCommandProperties properties, TaskExecutor taskExecutor, TaskScheduler taskScheduler) {
+        super(properties, taskExecutor, taskScheduler);
+    }
 
     @Override
     public String name() {
@@ -22,40 +25,12 @@ public class ShutdownCommand extends AbstractOSCommand {
     }
 
     @Override
-    protected Process executeInternalLinux(Runtime runtime, String[] params) throws IOException {
-        if (params.length == 0) {
-            log.info("Shutting down system without delay");
-            return runtime.exec(new String[]{"shutdown", "now"});
-        } else if (params.length == 1 && StringUtils.isNumeric(params[0])) {
-            log.info("Shutting down system in {} minutes", params[0]);
-            return runtime.exec(new String[]{"shutdown", "+" + Integer.parseInt(params[0])});
-        } else {
-            log.info("Shutting down system with params: {}", Arrays.toString(params));
-            List<String> execParams = new ArrayList<>();
-            execParams.add("shutdown");
-            execParams.addAll(List.of(params));
-
-            return runtime.exec(execParams.toArray(new String[0]));
-        }
+    protected List<String> produceCommandLinux(String[] params) {
+        return List.of("shutdown", "now");
     }
 
     @Override
-    protected Process executeInternalWindows(Runtime runtime, String[] params) throws IOException {
-        String commandBase = getCommandPrefix() + "shutdown.exe";
-
-        if (params.length == 0) {
-            log.info("Shutting down system without delay");
-            return runtime.exec(new String[]{commandBase, "-s", "-f"});
-        } else if (params.length == 1 && StringUtils.isNumeric(params[0])) {
-            log.info("Shutting down system in {} minutes", params[0]);
-            return runtime.exec(new String[]{commandBase, "-s", "-f", "-t", String.valueOf(60 * Integer.parseInt(params[0]))});
-        } else {
-            log.info("Shutting down system with params: {}", Arrays.toString(params));
-            List<String> execParams = new ArrayList<>();
-            execParams.add(commandBase);
-            execParams.addAll(List.of(params));
-
-            return runtime.exec(execParams.toArray(new String[0]));
-        }
+    protected List<String> produceCommandWindows(String[] params) {
+        return List.of(getCommandPrefix() + "shutdown.exe");
     }
 }
