@@ -31,6 +31,6 @@ public class RestartCommand extends AbstractOSCommand {
 
     @Override
     protected List<String> produceCommandWindows(String[] params) {
-        return List.of(getCommandPrefix() + "shutdown.exe");
+        return List.of(getCommandPrefix() + "shutdown.exe", "-r", "-f");
     }
 }
