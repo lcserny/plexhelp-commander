@@ -24,6 +24,7 @@
         <logback-log.version>0.1.6</logback-log.version>
         <java-jwt.version>4.5.0</java-jwt.version>
         <bouncycastle.version>1.80</bouncycastle.version>
+        <jsch.version>0.1.55</jsch.version>
         <openapi-plugin.version>7.9.0</openapi-plugin.version>
         <mapstruct.version>1.6.2</mapstruct.version>
         <mapstruct-lombok.version>0.2.0</mapstruct-lombok.version>
@@ -55,6 +56,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.jcraft</groupId>
+            <artifactId>jsch</artifactId>
+            <version>${jsch.version}</version>
         </dependency>
         <dependency>
             <groupId>org.togglz</groupId>
