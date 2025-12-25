@@ -2,35 +2,29 @@ package net.cserny.command;
 
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
-import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import net.cserny.command.ServerCommandProperties.SshProperties;
+import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class SshExecutor {
+public class SshExecutor implements OsExecutor {
 
-    // TODO externalize this
-    //  - rename AbstractOSCommand in AbstractSSHOSCommand
-    //  - adapt abstract command to use SshExecutor
+    private final ServerCommandProperties properties;
 
-    private static final String user = "someUser";
-    private static final String pass = "somePass";
-    private static final String host = "192.168.1.10";
-    private static final int port = 22;
+    public ExecutionResponse execute(String command) throws Exception {
+        SshProperties sshProperties = properties.getSsh();
 
-    public SshResponse execute(String command) throws IOException, JSchException {
+        // TODO is this expensive to create?
         JSch jsch = new JSch();
-        Session session = jsch.getSession(user, host, port);
-        session.setPassword(pass);
+        Session session = jsch.getSession(sshProperties.getUsername(), sshProperties.getHost(), sshProperties.getPort());
+        session.setPassword(sshProperties.getPassword());
 
         session.setConfig("StrictHostKeyChecking", "no");
         session.connect();
@@ -55,8 +49,6 @@ public class SshExecutor {
         channel.disconnect();
         session.disconnect();
 
-        return new SshResponse(exitCode, response);
+        return new ExecutionResponse(exitCode, response);
     }
-
-    public record SshResponse(int exitCode, String response) {}
 }

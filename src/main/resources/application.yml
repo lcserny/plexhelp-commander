@@ -54,9 +54,17 @@ online:
 
 server:
   command:
-    wsl: false
     name: winlegion
     listen-cron: "0/10 0/1 * 1/1 * ? *"
+    wsl:
+      enabled: false
+      system32-path: "/mnt/c/Windows/System32/"
+    ssh:
+      enabled: true
+      port: 22
+      host: changeMe
+      username: changeMe
+      password: changeMe
 
 filesystem:
   downloads-path: /Downloads

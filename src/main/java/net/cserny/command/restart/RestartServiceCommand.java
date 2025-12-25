@@ -3,6 +3,7 @@ package net.cserny.command.restart;
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.command.AbstractOSCommand;
 import net.cserny.command.ServerCommandProperties;
+import net.cserny.command.SshExecutor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.TaskScheduler;
@@ -17,8 +18,11 @@ public class RestartServiceCommand extends AbstractOSCommand {
 
     private static final String NAME = "restart-service";
 
-    public RestartServiceCommand(ServerCommandProperties properties, TaskExecutor taskExecutor, TaskScheduler taskScheduler) {
-        super(properties, taskExecutor, taskScheduler);
+    public RestartServiceCommand(ServerCommandProperties properties,
+                                 TaskExecutor taskExecutor,
+                                 TaskScheduler taskScheduler,
+                                 SshExecutor sshExecutor) {
+        super(properties, taskExecutor, taskScheduler, sshExecutor);
     }
 
     @Override

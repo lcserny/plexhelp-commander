@@ -1,0 +1,47 @@
+package net.cserny.command;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class ProcessExecutor implements OsExecutor {
+
+    private final ExecutorService executorService;
+
+    public ExecutionResponse execute(String command) throws Exception {
+        ProcessBuilder builder = new ProcessBuilder();
+        builder.redirectErrorStream(true);
+        builder.command(command);
+
+        Process process = builder.start();
+        Future<String> futureResponse = captureOutput(process);
+        int exitCode = process.waitFor();
+
+        return new ExecutionResponse(exitCode, futureResponse.get());
+    }
+
+    private Future<String> captureOutput(Process process) {
+        return executorService.submit(() -> {
+            try (var reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                StringBuilder output = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    output.append(line);
+                    output.append(System.lineSeparator());
+                }
+                return output.toString();
+            } catch (IOException e) {
+                return e.getMessage();
+            }
+        });
+    }
+}

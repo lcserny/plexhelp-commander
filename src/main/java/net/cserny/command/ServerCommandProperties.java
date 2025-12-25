@@ -15,5 +15,25 @@ public class ServerCommandProperties {
 
     private String name;
     private String listenCron;
-    private boolean wsl;
+    private WslProperties wsl;
+    private SshProperties ssh;
+
+    @Getter
+    @Setter
+    public static class WslProperties {
+
+        private boolean enabled;
+        private String system32Path;
+    }
+
+    @Getter
+    @Setter
+    public static class SshProperties {
+
+        private boolean enabled;
+        private String host;
+        private int port;
+        private String username;
+        private String password;
+    }
 }
