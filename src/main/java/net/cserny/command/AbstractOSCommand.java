@@ -3,7 +3,6 @@ package net.cserny.command;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,25 +39,23 @@ public abstract class AbstractOSCommand implements Command {
             throw new RuntimeException("Unsupported operating system: " + SystemUtils.OS_NAME);
         }
 
-        Callable<ExecutionResponse> callable = () -> osExecutor.execute(commands);
-
         try {
             if (params.length == 0) {
                 log.info("Executing commands without delay");
-                executeInternal(callable);
+                executeInternal(commands);
             } else {
                 if (StringUtils.isNumeric(params[0])) {
                     int minutes = Integer.parseInt(params[0]);
                     if (minutes > 0) {
                         log.info("Executing commands in {} minutes", minutes);
-                        executeInternal(callable, minutes);
+                        executeInternal(commands, minutes);
                     } else {
                         log.info("Executing commands without delay");
-                        executeInternal(callable);
+                        executeInternal(commands);
                     }
                 } else {
                     log.info("Executing commands without delay");
-                    executeInternal(callable);
+                    executeInternal(commands);
                 }
             }
         } catch (Exception e) {
@@ -69,18 +66,18 @@ public abstract class AbstractOSCommand implements Command {
         return Command.EMPTY_OK;
     }
 
-    private void executeInternal(Callable<ExecutionResponse> callable) throws Exception {
-        ExecutionResponse response = callable.call();
+    private void executeInternal(List<String> commands) throws Exception {
+        ExecutionResponse response = osExecutor.execute(commands);
         if (response.exitCode() != 0) {
             log.warn("CMD executed and exited with non-zero exit code: {}", response.exitCode());
         }
         log.info("CMD output: {}", response.response());
     }
 
-    private void executeInternal(Callable<ExecutionResponse> callable, int minutes) throws Exception {
+    private void executeInternal(List<String> commands, int minutes) throws Exception {
         taskScheduler.schedule(() -> {
                 try {
-                    executeInternal(callable);
+                    executeInternal(commands);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
