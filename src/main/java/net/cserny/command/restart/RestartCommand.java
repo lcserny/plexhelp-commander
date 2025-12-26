@@ -2,6 +2,7 @@ package net.cserny.command.restart;
 
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.command.AbstractOSCommand;
+import net.cserny.command.OsExecutor;
 import net.cserny.command.ServerCommandProperties;
 import net.cserny.command.SshExecutor;
 import org.springframework.core.task.TaskExecutor;
@@ -17,10 +18,9 @@ public class RestartCommand extends AbstractOSCommand {
     private static final String NAME = "reboot";
 
     public RestartCommand(ServerCommandProperties properties,
-                          TaskExecutor taskExecutor,
                           TaskScheduler taskScheduler,
-                          SshExecutor sshExecutor) {
-        super(properties, taskExecutor, taskScheduler, sshExecutor);
+                          OsExecutor osExecutor) {
+        super(properties, taskScheduler, osExecutor);
     }
 
     @Override
