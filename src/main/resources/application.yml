@@ -50,17 +50,17 @@ tmdb:
 
 online:
   result-limit: 10
-  poster-base: http://image.tmdb.org/t/p/w92
+  poster-base: https://image.tmdb.org/t/p/w92
 
 server:
   command:
-    name: winlegion
+    name: winprime
     listen-cron: "0/10 0/1 * 1/1 * ? *"
     wsl:
       enabled: false
       system32-path: "/mnt/c/Windows/System32/"
     ssh:
-      enabled: true
+      enabled: false
       port: 22
       host: changeMe
       username: changeMe
