@@ -3,6 +3,10 @@ package net.cserny.config;
 import io.micrometer.context.ContextExecutorService;
 import io.micrometer.context.ContextSnapshotFactory;
 import lombok.extern.slf4j.Slf4j;
+import net.cserny.command.OsExecutor;
+import net.cserny.command.ProcessExecutor;
+import net.cserny.command.ServerCommandProperties;
+import net.cserny.command.SshExecutor;
 import net.cserny.qtorrent.TorrentFile;
 import net.cserny.rename.TmdbWrapper;
 import net.cserny.support.DataMapperImpl;
@@ -73,5 +77,13 @@ public class ApplicationConfiguration implements WebMvcConfigurer {
     public ExecutorService tracedExecutor() {
         ExecutorService delegate = Executors.newVirtualThreadPerTaskExecutor();
         return ContextExecutorService.wrap(delegate, ContextSnapshotFactory.builder().build());
+    }
+
+    @Bean
+    public OsExecutor osExecutor(ServerCommandProperties serverCommandProperties, ExecutorService executorService) {
+        if (serverCommandProperties.getSsh().isEnabled()) {
+            return new SshExecutor(serverCommandProperties);
+        }
+        return new ProcessExecutor(executorService);
     }
 }

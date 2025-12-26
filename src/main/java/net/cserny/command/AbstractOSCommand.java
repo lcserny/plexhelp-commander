@@ -21,9 +21,7 @@ public abstract class AbstractOSCommand implements Command {
 
     private final ServerCommandProperties properties;
     private final TaskScheduler taskScheduler;
-
-    private final SshExecutor sshExecutor;
-    private final ProcessExecutor processExecutor;
+    private final OsExecutor osExecutor;
 
     protected abstract List<String> produceCommandWindows(String[] params);
 
@@ -42,7 +40,6 @@ public abstract class AbstractOSCommand implements Command {
             throw new RuntimeException("Unsupported operating system: " + SystemUtils.OS_NAME);
         }
 
-        OsExecutor osExecutor = properties.getSsh().isEnabled() ? sshExecutor : processExecutor;
         Callable<ExecutionResponse> callable = () -> osExecutor.execute(commands);
 
         try {
