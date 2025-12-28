@@ -18,6 +18,8 @@ public class ProcessExecutor implements OsExecutor {
     private final ExecutorService executorService;
 
     public ExecutionResponse execute(String command) throws Exception {
+        log.info("Executing command: {}", command);
+
         ProcessBuilder builder = new ProcessBuilder();
         builder.redirectErrorStream(true);
         builder.command(command);

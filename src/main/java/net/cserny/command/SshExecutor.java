@@ -19,9 +19,10 @@ public class SshExecutor implements OsExecutor {
     private final ServerCommandProperties properties;
 
     public ExecutionResponse execute(String command) throws Exception {
+        log.info("Executing SSH command: {}", command);
+
         SshProperties sshProperties = properties.getSsh();
 
-        // TODO is this expensive to create?
         JSch jsch = new JSch();
         Session session = jsch.getSession(sshProperties.getUsername(), sshProperties.getHost(), sshProperties.getPort());
         session.setPassword(sshProperties.getPassword());
