@@ -69,7 +69,7 @@ public abstract class AbstractOSCommand implements Command {
     private void executeInternal(List<String> commands) throws Exception {
         ExecutionResponse response = osExecutor.execute(commands);
         if (response.exitCode() != 0) {
-            log.warn("CMD executed and exited with non-zero exit code: {}", response.exitCode());
+            throw new RuntimeException(response.response());
         }
         log.info("CMD output: {}", response.response());
     }
