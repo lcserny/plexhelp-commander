@@ -32,16 +32,21 @@ public class SshExecutor implements OsExecutor {
 
         ChannelExec channel = (ChannelExec) session.openChannel("exec");
         channel.setCommand(command);
-
-        InputStream input = channel.getInputStream();
+        channel.setPty(true);
+        channel.setExtOutputStream(System.out);
         channel.connect();
 
+        InputStream input = channel.getInputStream();
         BufferedReader reader = new BufferedReader(new InputStreamReader(input));
         StringBuilder output = new StringBuilder();
+
         String line;
         while ((line = reader.readLine()) != null) {
-            output.append(line);
-            output.append(System.lineSeparator());
+            output.append(line).append(System.lineSeparator());
+        }
+
+        while (!channel.isClosed()) {
+            Thread.sleep(50);
         }
 
         int exitCode = channel.getExitStatus();
