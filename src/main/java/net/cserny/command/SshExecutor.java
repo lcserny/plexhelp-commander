@@ -32,8 +32,8 @@ public class SshExecutor implements OsExecutor {
 
         ChannelExec channel = (ChannelExec) session.openChannel("exec");
         channel.setCommand(command);
-        channel.setPty(true);
         channel.setExtOutputStream(System.out);
+        channel.setPty(true);
         channel.connect();
 
         InputStream input = channel.getInputStream();
