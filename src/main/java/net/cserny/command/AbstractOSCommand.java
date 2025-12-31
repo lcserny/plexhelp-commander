@@ -3,8 +3,10 @@ package net.cserny.command;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.command.OsExecutor.ExecutionResponse;
 import net.cserny.generated.CommandResponse;
@@ -25,6 +27,10 @@ public abstract class AbstractOSCommand implements Command {
     protected abstract List<String> produceCommandWindows(String[] params);
 
     protected abstract List<String> produceCommandLinux(String[] params);
+
+    protected boolean waitForExecution() {
+        return false;
+    }
 
     @Override
     public CommandResponse execute(String[] params) {
@@ -66,24 +72,28 @@ public abstract class AbstractOSCommand implements Command {
         return Command.EMPTY_OK;
     }
 
-    private void executeInternal(List<String> commands) throws Exception {
-        ExecutionResponse response = osExecutor.execute(commands);
-        if (response.exitCode() != 0) {
-            throw new RuntimeException("Error executing command [code: %d] %s".formatted(response.exitCode(), response.response()));
+    private void executeInternal(List<String> commands) {
+        Runnable runnable = () -> {
+            try {
+                ExecutionResponse response = osExecutor.execute(commands);
+                if (response.exitCode() != 0) {
+                    throw new RuntimeException("Error executing command [code: %d] %s".formatted(response.exitCode(), response.response()));
+                }
+                log.info("CMD output: {}", response.response());
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        };
+
+        if (waitForExecution()) {
+            runnable.run();
+        } else {
+            taskScheduler.schedule(runnable, Instant.now().plusMillis(50));
         }
-        log.info("CMD output: {}", response.response());
     }
 
-    private void executeInternal(List<String> commands, int minutes) throws Exception {
-        taskScheduler.schedule(() -> {
-                try {
-                    executeInternal(commands);
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            },
-            Instant.now().plus(Duration.ofMinutes(minutes))
-        );
+    private void executeInternal(List<String> commands, int minutes) {
+        taskScheduler.schedule(() -> executeInternal(commands), Instant.now().plus(Duration.ofMinutes(minutes)));
     }
 
     protected String getSystem32Prefix() {

@@ -27,6 +27,11 @@ public class RestartServiceCommand extends AbstractOSCommand {
     }
 
     @Override
+    protected boolean waitForExecution() {
+        return true;
+    }
+
+    @Override
     protected List<String> produceCommandLinux(String[] params) {
         String serviceName = getServiceName(params);
         return List.of("systemctl", "--user", "restart", serviceName);
