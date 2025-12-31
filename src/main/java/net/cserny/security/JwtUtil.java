@@ -137,13 +137,13 @@ public class JwtUtil {
     public boolean validate(String username, DecodedJWT jwt) {
         String currentIssuer = this.extractIssuer(jwt);
         if (!currentIssuer.equals(this.issuer)) {
-            log.warn("User with id '{}' did not provide correct issuer, it provided: '{}'", username, currentIssuer);
+            log.error("User with id '{}' did not provide correct issuer, it provided: '{}'", username, currentIssuer);
             return false;
         }
 
         List<String> currentAudience = this.extractAudience(jwt);
         if (!currentAudience.contains(this.appName)) {
-            log.warn("Token for User with id '{}' did not come from correct application, audience provided: '{}'", username, currentAudience);
+            log.error("Token for User with id '{}' did not come from correct application, audience provided: '{}'", username, currentAudience);
             return false;
         }
 

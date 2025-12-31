@@ -44,7 +44,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 jwt = jwtUtil.verify(token);
                 username = jwtUtil.extractUsername(jwt);
             } catch (Exception e) {
-                log.error(format("JWT token error: '%s'", token), e);
+                log.warn("JWT token error: '{}'", token, e);
                 response.setStatus(HttpStatus.UNAUTHORIZED.value());
             }
         }

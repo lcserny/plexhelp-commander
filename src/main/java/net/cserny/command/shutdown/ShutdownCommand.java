@@ -1,18 +1,14 @@
 package net.cserny.command.shutdown;
 
-import lombok.extern.slf4j.Slf4j;
 import net.cserny.command.AbstractOSCommand;
 import net.cserny.command.OsExecutor;
 import net.cserny.command.ServerCommandProperties;
-import net.cserny.command.SshExecutor;
-import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Component
-@Slf4j
 public class ShutdownCommand extends AbstractOSCommand {
 
     private static final String NAME = "shutdown";
@@ -35,6 +31,6 @@ public class ShutdownCommand extends AbstractOSCommand {
 
     @Override
     protected List<String> produceCommandWindows(String[] params) {
-        return List.of(getCommandPrefix() + "shutdown.exe", "-s", "-f");
+        return List.of(getSystem32Prefix() + "shutdown.exe", "-s", "-f");
     }
 }

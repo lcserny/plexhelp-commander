@@ -59,7 +59,7 @@ public abstract class AbstractOSCommand implements Command {
                 }
             }
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            log.error("Error encountered while executing command", e);
             return new CommandResponse(Status.FAILED);
         }
 
@@ -69,7 +69,7 @@ public abstract class AbstractOSCommand implements Command {
     private void executeInternal(List<String> commands) throws Exception {
         ExecutionResponse response = osExecutor.execute(commands);
         if (response.exitCode() != 0) {
-            throw new RuntimeException(response.response());
+            throw new RuntimeException("Error executing command [code: %d] %s".formatted(response.exitCode(), response.response()));
         }
         log.info("CMD output: {}", response.response());
     }
@@ -86,7 +86,7 @@ public abstract class AbstractOSCommand implements Command {
         );
     }
 
-    protected String getCommandPrefix() {
+    protected String getSystem32Prefix() {
         if (properties.getWsl().isEnabled()) {
             return properties.getWsl().getSystem32Path();
         }

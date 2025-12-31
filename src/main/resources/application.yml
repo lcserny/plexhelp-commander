@@ -62,7 +62,7 @@ server:
     ssh:
       enabled: false
       port: 22
-      host: changeMe
+      host: localhost
       username: changeMe
       password: changeMe
 

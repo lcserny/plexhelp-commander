@@ -1,6 +1,5 @@
 package net.cserny.command.restart;
 
-import lombok.extern.slf4j.Slf4j;
 import net.cserny.command.AbstractOSCommand;
 import net.cserny.command.OsExecutor;
 import net.cserny.command.ServerCommandProperties;
@@ -12,7 +11,6 @@ import java.util.Arrays;
 import java.util.List;
 
 @Component
-@Slf4j
 public class RestartServiceCommand extends AbstractOSCommand {
 
     private static final String NAME = "restart-service";
@@ -37,7 +35,7 @@ public class RestartServiceCommand extends AbstractOSCommand {
     @Override
     protected List<String> produceCommandWindows(String[] params) {
         String serviceName = getServiceName(params);
-        return List.of(getCommandPrefix() + "powershell.exe", "-Command", "\"Restart-Service -Name '" + serviceName + "' -Force\"");
+        return List.of(getSystem32Prefix() + "WindowsPowerShell/v1.0/powershell.exe", "-Command", "\"Restart-Service -Name '" + serviceName + "' -Force\"");
     }
 
     private String getServiceName(String[] params) {

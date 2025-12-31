@@ -37,8 +37,7 @@ public class ProcessExecutor implements OsExecutor {
                 StringBuilder output = new StringBuilder();
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    output.append(line);
-                    output.append(System.lineSeparator());
+                    output.append(System.lineSeparator()).append(line);
                 }
                 return output.toString();
             } catch (IOException e) {

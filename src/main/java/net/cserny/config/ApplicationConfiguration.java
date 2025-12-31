@@ -82,7 +82,7 @@ public class ApplicationConfiguration implements WebMvcConfigurer {
     @Bean
     public OsExecutor osExecutor(ServerCommandProperties serverCommandProperties, ExecutorService executorService) {
         if (serverCommandProperties.getSsh().isEnabled()) {
-            return new SshExecutor(serverCommandProperties);
+            return new SshExecutor(executorService, serverCommandProperties);
         }
         return new ProcessExecutor(executorService);
     }
