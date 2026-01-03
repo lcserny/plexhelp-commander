@@ -26,7 +26,7 @@ public class UtilityProvider {
         }
     }
 
-    public static  <T> T getUnchecked(Future<T> future) {
+    public static  <T> T getUncheckedThrowing(Future<T> future) {
         try {
             return future.get();
         } catch (InterruptedException | ExecutionException e) {

@@ -1,24 +1,23 @@
 package net.cserny;
 
-import com.google.common.jimfs.Configuration;
-import com.google.common.jimfs.Jimfs;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 
 import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 
-@Import(IntegrationTest.TestConfig.class)
-public abstract class IntegrationTest extends BaseIntegrationTest {
+@Import(IntegrationTestWithRealFS.RealFSTestConfig.class)
+public abstract class IntegrationTestWithRealFS extends BaseIntegrationTest {
 
     @TestConfiguration(proxyBeanMethods = false)
-    static class TestConfig {
+    static class RealFSTestConfig {
 
         @Primary
         @Bean
         FileSystem testFileSystem() {
-            return Jimfs.newFileSystem(Configuration.unix());
+            return FileSystems.getDefault();
         }
     }
 }

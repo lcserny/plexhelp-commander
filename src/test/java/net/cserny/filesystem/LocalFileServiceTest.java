@@ -1,13 +1,10 @@
 package net.cserny.filesystem;
 
 import net.cserny.IntegrationTest;
-import net.cserny.filesystem.FilesystemProperties.CacheProperties;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -15,20 +12,9 @@ import java.nio.file.NotDirectoryException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class LocalFileServiceTest extends IntegrationTest {
-
-    @MockitoBean
-    private FilesystemProperties properties;
-
-    @BeforeEach
-    public void setUp() throws IOException {
-        CacheProperties cachePropsMock = mock(CacheProperties.class);
-        when(this.properties.getCache()).thenReturn(cachePropsMock);
-    }
 
     @Test
     @DisplayName("Service can delete a path")
@@ -57,14 +43,14 @@ public class LocalFileServiceTest extends IntegrationTest {
 
     @Test
     @DisplayName("Service can move a path")
-    public void moveWorks() throws IOException {
+    public void checkedMoveWorks() throws IOException {
         LocalPath localPath = createFile("/hmmm/test.txt");
         LocalPath destPath = fileService.toLocalPath("/someOther/path/text.txt");
 
         assertTrue(Files.exists(localPath.path()));
         assertFalse(Files.exists(destPath.path()));
 
-        fileService.move(localPath, destPath);
+        fileService.checkedMove(localPath, destPath);
 
         assertFalse(Files.exists(localPath.path()));
         assertTrue(Files.exists(destPath.path()));

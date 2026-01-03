@@ -78,23 +78,21 @@ public class MediaMoveService {
             LocalPath destPath = fileService.toLocalPath(destRoot, mediaInfo.destinationPathSegments());
 
             try {
-                if (fileService.exists(destPath)) {
-                    throw new IOException("Media already exists: " + destPath);
-                }
-
                 log.info("Moving video {} to {}", srcPath, destPath);
-                fileService.move(srcPath, destPath);
+                boolean moveSuccessful = fileService.checkedMove(srcPath, destPath);
 
-                movedMediaRepository.save(MovedMedia.builder()
-                        .source(srcPath.path().toString())
-                        .destination(destPath.path().toString())
-                        .sizeBytes(srcPath.attributes().size())
-                        .mediaName(mediaInfo.baseName())
-                        .date(mediaInfo.date() != null ? mediaInfo.date().atStartOfDay(ZoneOffset.UTC).toInstant() : null)
-                        .season(mediaInfo.season())
-                        .episode(mediaInfo.episode())
-                        .mediaType(type)
-                        .build());
+                if (!moveSuccessful) {
+                    movedMediaRepository.save(MovedMedia.builder()
+                            .source(srcPath.path().toString())
+                            .destination(destPath.path().toString())
+                            .sizeBytes(srcPath.attributes().size())
+                            .mediaName(mediaInfo.baseName())
+                            .date(mediaInfo.date() != null ? mediaInfo.date().atStartOfDay(ZoneOffset.UTC).toInstant() : null)
+                            .season(mediaInfo.season())
+                            .episode(mediaInfo.episode())
+                            .mediaType(type)
+                            .build());
+                }
             } catch (IOException e) {
                 log.warn("Could not move media: {}", e.getMessage());
                 errors.add(new MediaMoveError().mediaPath(srcPath.path().toString()).error(e.getMessage()));

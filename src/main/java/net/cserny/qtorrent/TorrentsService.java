@@ -9,9 +9,11 @@ import net.cserny.filesystem.LocalFileService;
 import net.cserny.filesystem.LocalPath;
 import net.cserny.magnet.MagnetRepository;
 import net.cserny.search.MediaIdentificationService;
+import net.cserny.support.UtilityProvider;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 
 @RequiredArgsConstructor
@@ -50,23 +52,26 @@ public class TorrentsService {
         List<TorrentFile> mediaTorrentFiles = processMediaTorrents(torrentFiles);
         log.info("{} torrent files are media files", mediaTorrentFiles.stream().filter(TorrentFile::isMedia).count());
 
-        this.executorService.invokeAll(List.of(
-                () -> {
-                    var count = this.downloadedMediaRepository.upsertTorrents(mediaTorrentFiles, true);
-                    log.info("Updated {} torrent files to 'downloaded' in download cache", count);
-                    return null;
-                },
-                () -> {
-                    this.restClient.deleteTorrent(sid, hash, false);
-                    log.info("Removed torrent from torrent client");
-                    return null;
-                },
-                () -> {
-                    this.magnetRepository.findByHashAndUpdateDownloaded(hash);
-                    log.info("Updated magnet with hash {} to downloaded", hash);
-                    return null;
-                }
-        ));
+        // needs improvements: what happens if torrentDeleted but upsertTorrents failed? and similar
+        Callable<Void> upsertTorrents = () -> {
+            var count = this.downloadedMediaRepository.upsertTorrents(mediaTorrentFiles, true);
+            log.info("Updated {} torrent files to 'downloaded' in download cache", count);
+            return null;
+        };
+
+        Callable<Void> deleteTorrent = () -> {
+            this.restClient.deleteTorrent(sid, hash, false);
+            log.info("Removed torrent from torrent client");
+            return null;
+        };
+
+        Callable<Void> updateDownloaded = () -> {
+            this.magnetRepository.findByHashAndUpdateDownloaded(hash);
+            log.info("Updated magnet with hash {} to downloaded", hash);
+            return null;
+        };
+
+        this.executorService.invokeAll(List.of(upsertTorrents, deleteTorrent, updateDownloaded)).forEach(UtilityProvider::getUncheckedThrowing);
     }
 
     private List<TorrentFile> processMediaTorrents(List<TorrentFile> torrentFiles) {

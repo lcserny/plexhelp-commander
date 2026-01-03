@@ -75,7 +75,7 @@ public class SubtitleMover {
 
             try {
                 log.info("Moving sub {} to {}", subSrc, subDest);
-                fileService.move(subSrc, subDest);
+                fileService.checkedMove(subSrc, subDest);
             } catch (IOException e) {
                 log.warn("Could not move sub: {}", e.getMessage());
                 errors.add(new MediaMoveError().mediaPath(subSrc.path().toString()).error(e.getMessage()));

@@ -61,10 +61,19 @@ public class AutoMoveMediaService {
         }
 
         log.info("Trying to automatically move {} media file", medias.size());
-        executorService.invokeAll(medias.stream().<Callable<Void>>map(m -> () -> {
+
+        List<Future<Void>> results = executorService.invokeAll(medias.stream().<Callable<Void>>map(m -> () -> {
             processMedia(m);
             return null;
         }).toList());
+
+        for (Future<Void> result : results) {
+            try {
+                result.get();
+            } catch (RuntimeException e) {
+                log.error("Automatic move media failed", e);
+            }
+        }
 
         updateDownloadedMedia(medias);
 
@@ -100,7 +109,7 @@ public class AutoMoveMediaService {
                 () -> produceOptions(group.getName(), MediaFileType.MOVIE, nameYear.name()),
                 () -> produceOptions(group.getName(), MediaFileType.TV, nameYear.name())
         ));
-        List<AutoMoveOption> allOptions = listOfAllOptions.stream().map(UtilityProvider::getUnchecked).flatMap(List::stream).toList();
+        List<AutoMoveOption> allOptions = listOfAllOptions.stream().map(UtilityProvider::getUncheckedThrowing).flatMap(List::stream).toList();
 
         log.info("Options parsed: {}", toOneLineString(allOptions));
 

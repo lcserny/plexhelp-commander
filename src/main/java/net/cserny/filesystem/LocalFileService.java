@@ -1,5 +1,6 @@
 package net.cserny.filesystem;
 
+import com.google.common.util.concurrent.Striped;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.support.Features;
@@ -8,15 +9,11 @@ import org.springframework.stereotype.Component;
 import org.togglz.core.manager.FeatureManager;
 
 import java.io.IOException;
-import java.nio.file.FileSystem;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.NoSuchFileException;
-import java.nio.file.NotDirectoryException;
-import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
+import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
 
 import static net.cserny.filesystem.ExcludingFileVisitor.WalkOptions.ONLY_FILES;
 
@@ -24,6 +21,10 @@ import static net.cserny.filesystem.ExcludingFileVisitor.WalkOptions.ONLY_FILES;
 @Component
 @Slf4j
 public class LocalFileService {
+
+    private static final int nrLocks = 32;
+
+    private final Striped<Lock> moveLocks = Striped.lock(nrLocks);
 
     private final FeatureManager featureManager;
     private final CachedLocalPathProvider cachedLocalPathProvider;
@@ -88,11 +89,35 @@ public class LocalFileService {
         });
     }
 
-    public void move(LocalPath source, LocalPath dest) throws IOException {
-        if (dest.path().getParent() != null) {
-            Files.createDirectories(dest.path().getParent());
+    public boolean checkedMove(LocalPath source, LocalPath dest) throws IOException {
+        String key = dest.path().toString();
+        Lock lock = moveLocks.get(key);
+
+        try {
+            if (lock.tryLock(5, TimeUnit.SECONDS)) {
+                try {
+                    if (dest.path().getParent() != null) {
+                        Files.createDirectories(dest.path().getParent());
+                    }
+
+                    if (Files.notExists(dest.path())) {
+                        Files.move(source.path(), dest.path(), StandardCopyOption.ATOMIC_MOVE);
+                        return true;
+                    } else {
+                        throw new FileAlreadyExistsException("Destination file '" + key + "' already exists");
+                    }
+                } finally {
+                    lock.unlock();
+                }
+            } else {
+                throw new IOException("Lock timed out trying to move file: " + key);
+            }
+        } catch (InterruptedException e) {
+            log.debug(e.getMessage(), e);
+            Thread.currentThread().interrupt();
         }
-        Files.move(source.path(), dest.path());
+
+        return false;
     }
 
     public List<LocalPath> walk(LocalPath path, int maxDepthFromPath, List<String> excludePaths) throws IOException {
