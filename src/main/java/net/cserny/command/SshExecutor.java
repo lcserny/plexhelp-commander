@@ -1,81 +1,50 @@
 package net.cserny.command;
 
-import com.jcraft.jsch.ChannelExec;
-import com.jcraft.jsch.JSch;
-import com.jcraft.jsch.Session;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.command.ServerCommandProperties.SshProperties;
+import net.schmizz.sshj.SSHClient;
+import net.schmizz.sshj.common.IOUtils;
+import net.schmizz.sshj.connection.channel.direct.Session;
+import net.schmizz.sshj.transport.verification.PromiscuousVerifier;
 
 @Slf4j
 @RequiredArgsConstructor
 public class SshExecutor implements OsExecutor {
 
-    private static final long timeoutMs = 2000;
-    private static final long intervalMs = 50;
+    private static final int TIMEOUT_SECONDS = 2;
 
-    private final ExecutorService executorService;
     private final ServerCommandProperties properties;
 
+    @Override
     public ExecutionResponse execute(String command) throws Exception {
-        log.info("Executing SSH command: {}", command);
+        log.info("Executing SSH command via SSHJ: {}", command);
 
         SshProperties sshProperties = properties.getSsh();
 
-        JSch jsch = new JSch();
-        Session session = jsch.getSession(sshProperties.getUsername(), sshProperties.getHost(), sshProperties.getPort());
-        session.setPassword(sshProperties.getPassword());
+        SSHClient ssh = new SSHClient();
+        try (ssh) {
+            ssh.addHostKeyVerifier(new PromiscuousVerifier());
+            ssh.connect(sshProperties.getHost(), sshProperties.getPort());
+            ssh.authPassword(sshProperties.getUsername(), sshProperties.getPassword());
 
-        session.setConfig("StrictHostKeyChecking", "no");
-        session.connect();
+            try (Session session = ssh.startSession()) {
+                final Session.Command cmd = session.exec(command);
 
-        ChannelExec channel = (ChannelExec) session.openChannel("exec");
-        channel.setCommand(command);
-        channel.connect();
+                String output = IOUtils.readFully(cmd.getInputStream()).toString() +
+                        IOUtils.readFully(cmd.getErrorStream()).toString();
 
-        Future<String> futureResponse = captureOutput(channel);
-        int exitCode = waitFor(channel);
+                cmd.join(TIMEOUT_SECONDS, TimeUnit.SECONDS);
 
-        channel.disconnect();
-        session.disconnect();
-
-        return new ExecutionResponse(exitCode, futureResponse.get());
-    }
-
-    private int waitFor(ChannelExec channel) throws InterruptedException {
-        long elapsed = 0;
-        while (!channel.isClosed() && elapsed < timeoutMs) {
-            Thread.sleep(intervalMs);
-            elapsed += intervalMs;
-        }
-        return channel.getExitStatus();
-    }
-
-    private Future<String> captureOutput(ChannelExec channel) {
-        return executorService.submit(() -> {
-            try (var inReader = new BufferedReader(new InputStreamReader(channel.getInputStream()));
-                 var errReader = new BufferedReader(new InputStreamReader(channel.getErrStream()));) {
-
-                StringBuilder output = new StringBuilder();
-                String line;
-
-                while ((line = inReader.readLine()) != null) {
-                    output.append(System.lineSeparator()).append(line);
-                }
-                while ((line = errReader.readLine()) != null) {
-                    output.append(System.lineSeparator()).append(line);
-                }
-
-                return output.toString();
-            } catch (IOException e) {
-                return e.getMessage();
+                Integer exitStatus = cmd.getExitStatus();
+                return new ExecutionResponse(exitStatus != null ? exitStatus : -1, output.trim());
             }
-        });
+        } finally {
+            if (ssh.isConnected()) {
+                ssh.disconnect();
+            }
+        }
     }
 }

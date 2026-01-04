@@ -20,7 +20,7 @@
         <logback-log.version>0.1.6</logback-log.version>
         <java-jwt.version>4.5.0</java-jwt.version>
         <bouncycastle.version>1.80</bouncycastle.version>
-        <jsch.version>2.27.7</jsch.version>
+        <sshj.version>0.40.0</sshj.version>
         <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
         <native-build-tools-plugin.version>0.10.6</native-build-tools-plugin.version>
         <openapi-plugin.version>7.9.0</openapi-plugin.version>
@@ -60,8 +60,8 @@
             <artifactId>guava</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.github.mwiede</groupId>
-            <artifactId>jsch</artifactId>
+            <groupId>com.hierynomus</groupId>
+            <artifactId>sshj</artifactId>
         </dependency>
         <dependency>
             <groupId>org.togglz</groupId>
@@ -176,9 +176,9 @@
                 <version>${guava.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.github.mwiede</groupId>
-                <artifactId>jsch</artifactId>
-                <version>${jsch.version}</version>
+                <groupId>com.hierynomus</groupId>
+                <artifactId>sshj</artifactId>
+                <version>${sshj.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.togglz</groupId>
