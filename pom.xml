@@ -22,6 +22,7 @@
         <bouncycastle.version>1.80</bouncycastle.version>
         <jsch.version>0.1.55</jsch.version>
         <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
+        <native-build-tools-plugin.version>0.10.6</native-build-tools-plugin.version>
         <openapi-plugin.version>7.9.0</openapi-plugin.version>
         <mapstruct.version>1.6.2</mapstruct.version>
         <mapstruct-lombok.version>0.2.0</mapstruct-lombok.version>
@@ -245,13 +246,50 @@
     <profiles>
         <profile>
             <id>native</id>
+            <properties>
+                <spring-boot.repackage.skip>true</spring-boot.repackage.skip>
+            </properties>
             <build>
                 <plugins>
                     <plugin>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-maven-plugin</artifactId>
+                        <version>${spring-boot.version}</version>
+                        <executions>
+                            <execution>
+                                <id>process-aot</id>
+                                <goals>
+                                    <goal>process-aot</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
                         <groupId>org.graalvm.buildtools</groupId>
                         <artifactId>native-maven-plugin</artifactId>
+                        <version>${native-build-tools-plugin.version}</version>
+                        <extensions>true</extensions>
+                        <executions>
+                            <execution>
+                                <id>add-reachability-metadata</id>
+                                <goals>
+                                    <goal>add-reachability-metadata</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>build-native</id>
+                                <goals>
+                                    <goal>build</goal>
+                                </goals>
+                                <phase>package</phase>
+                            </execution>
+                        </executions>
                         <configuration>
-                            <imageName>${project.artifactId}</imageName>
+                            <classesDirectory>${project.build.outputDirectory}</classesDirectory>
+                            <metadataRepository>
+                                <enabled>true</enabled>
+                            </metadataRepository>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -275,8 +313,9 @@
                 </configuration>
                 <executions>
                     <execution>
+                        <id>repackage</id>
                         <goals>
-                            <goal>process-aot</goal>
+                            <goal>repackage</goal>
                         </goals>
                     </execution>
                 </executions>
