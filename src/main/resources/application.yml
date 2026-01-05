@@ -4,6 +4,7 @@ spring:
   threads:
     virtual:
       enabled: true
+
   data:
     mongodb:
       uri: mongodb://mongoConnectionString
@@ -65,6 +66,10 @@ server:
       host: localhost
       username: changeMe
       password: changeMe
+  tomcat:
+    threads:
+      max: 10
+      min-spare: 3
 
 filesystem:
   downloads-path: /Downloads
