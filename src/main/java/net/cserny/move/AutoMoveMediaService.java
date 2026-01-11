@@ -11,16 +11,20 @@ import net.cserny.rename.*;
 import net.cserny.rename.NameNormalizer.NameYear;
 import net.cserny.search.MediaSearchService;
 import net.cserny.support.UtilityProvider;
+import org.jspecify.annotations.NonNull;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.togglz.core.manager.FeatureManager;
 
+import java.io.File;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.function.Function;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
@@ -32,6 +36,9 @@ import static net.cserny.support.UtilityProvider.toOneLineString;
 @RequiredArgsConstructor
 @Slf4j
 public class AutoMoveMediaService {
+
+    private static final String separator = File.separator;
+    private static final String quotedSeparator = Pattern.quote(separator);
 
     private final FeatureManager featureManager;
     private final AutoMoveProperties properties;
@@ -62,10 +69,8 @@ public class AutoMoveMediaService {
 
         log.info("Trying to automatically move {} media file", medias.size());
 
-        List<Future<Void>> results = executorService.invokeAll(medias.stream().<Callable<Void>>map(m -> () -> {
-            processMedia(m);
-            return null;
-        }).toList());
+        List<List<DownloadedMedia>> groupedMedias = new ArrayList<>(medias.stream().collect(Collectors.groupingBy(customMediaFileName())).values());
+        List<Future<Void>> results = executorService.invokeAll(groupedMedias.stream().map(mediaProcessingMapping()).toList());
 
         for (Future<Void> result : results) {
             try {
@@ -80,11 +85,34 @@ public class AutoMoveMediaService {
         log.info("Finished checking download cache to automatically move media files");
     }
 
-    private void processMedia(DownloadedMedia media) {
-        List<MediaFileGroup> groups = searchService.generateMediaFileGroupsFromDownloads(media.getFileName());
+    private @NonNull Function<List<DownloadedMedia>, Callable<Void>> mediaProcessingMapping() {
+        return mediaList -> () -> {
+            processMediaList(mediaList);
+            return null;
+        };
+    }
+
+    private static @NonNull Function<DownloadedMedia, String> customMediaFileName() {
+        return media -> {
+            String fileName = media.getFileName();
+            if (fileName.contains(separator)) {
+                return fileName.split(quotedSeparator)[0];
+            }
+            return fileName;
+        };
+    }
+
+    private void processMediaList(List<DownloadedMedia> mediaList) {
+        List<String> relativeMediaPaths = mediaList.stream().map(DownloadedMedia::getFileName).toList();
+
+        List<MediaFileGroup> groups = searchService.generateMediaFileGroupsFromDownloads(relativeMediaPaths);
         if (groups.isEmpty()) {
             log.info("No media groups generated, skipping...");
             return;
+        }
+
+        if (groups.size() > 1) {
+            throw new IllegalStateException("Multiple media groups generated for the same grouped downloaded media: " + relativeMediaPaths);
         }
 
         MediaFileGroup group = groups.getFirst();
@@ -100,7 +128,7 @@ public class AutoMoveMediaService {
         log.info("Using first option to move media {}", toOneLineString(option));
 
         String movedName = moveMedia(option, group);
-        saveAutoMove(media, movedName, option);
+        saveAutoMove(mediaList, movedName, option);
     }
 
     @SneakyThrows
@@ -141,15 +169,19 @@ public class AutoMoveMediaService {
         downloadedMediaRepository.saveAll(medias);
     }
 
-    private void saveAutoMove(DownloadedMedia media, String movedName, AutoMoveOption option) {
-        AutoMoveMedia autoMoveMedia = new AutoMoveMedia();
-        autoMoveMedia.setFileName(media.getFileName());
-        autoMoveMedia.setMovedName(movedName);
-        autoMoveMedia.setMoveDate(Instant.now(Clock.systemUTC()));
-        autoMoveMedia.setSimilarityPercent(option.similarity());
-        autoMoveMedia.setOrigin(option.origin().getValue());
-        autoMoveMedia.setType(option.type().getValue());
-        autoMoveMediaRepository.save(autoMoveMedia);
+    private void saveAutoMove(List<DownloadedMedia> medias, String movedName, AutoMoveOption option) {
+        List<AutoMoveMedia> automovedMedia = medias.stream().map(m -> {
+            AutoMoveMedia autoMoveMedia = new AutoMoveMedia();
+            autoMoveMedia.setFileName(m.getFileName());
+            autoMoveMedia.setMovedName(movedName);
+            autoMoveMedia.setMoveDate(Instant.now(Clock.systemUTC()));
+            autoMoveMedia.setSimilarityPercent(option.similarity());
+            autoMoveMedia.setOrigin(option.origin().getValue());
+            autoMoveMedia.setType(option.type().getValue());
+            return autoMoveMedia;
+        }).toList();
+
+        autoMoveMediaRepository.saveAll(automovedMedia);
     }
 
     private List<AutoMoveOption> produceOptions(String groupName, MediaFileType type, String compare) {

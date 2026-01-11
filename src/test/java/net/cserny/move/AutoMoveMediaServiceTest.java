@@ -16,13 +16,18 @@ import org.springframework.data.domain.Example;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.temporal.ChronoField;
 
 import static java.lang.String.format;
 import static java.time.ZoneOffset.UTC;
 import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE;
+import static net.cserny.support.UtilityProvider.toOneLineString;
 import static org.junit.jupiter.api.Assertions.*;
 
 class AutoMoveMediaServiceTest extends IntegrationTest {
@@ -57,7 +62,7 @@ class AutoMoveMediaServiceTest extends IntegrationTest {
         String name = "Beetlejuice";
         String video = "video.mp4";
         String title = format("%s (%s)", name, now.format(ISO_LOCAL_DATE));
-        DownloadedMedia media = createMedia(name + "." + year, video, 6L);
+        DownloadedMedia media = createMedia(name + "." + year, video, 6);
 
         saveToOnlineCache(name, year, name, now.toInstant(UTC), MediaFileType.MOVIE);
 
@@ -74,7 +79,7 @@ class AutoMoveMediaServiceTest extends IntegrationTest {
     void automoveTvShow() throws IOException, InterruptedException {
         String name = "Beetlejuice";
         String video = "video.mp4";
-        DownloadedMedia media = createMedia(name, video, 6L);
+        DownloadedMedia media = createMedia(name, video, 6);
 
         saveToOnlineCache(name, null, name, null, MediaFileType.TV);
 
@@ -90,7 +95,7 @@ class AutoMoveMediaServiceTest extends IntegrationTest {
     void automoveCleansDir() throws IOException, InterruptedException {
         String name = "SupermanZZZ";
         String video = "video.mp4";
-        createMedia(name, video, 6L);
+        createMedia(name, video, 6);
 
         saveToOnlineCache(name, null, name, null, MediaFileType.MOVIE);
 
@@ -105,7 +110,7 @@ class AutoMoveMediaServiceTest extends IntegrationTest {
         String name = "Superman";
         String video = "video.mp4";
         String video2 = "video2.mp4";
-        createMedia(name, video, 6L);
+        createMedia(name, video, 6);
         createFile(6, filesystemConfig.getDownloadsPath() + "/" + name + "/" + video2);
 
         service.autoMoveMedia();
@@ -122,7 +127,7 @@ class AutoMoveMediaServiceTest extends IntegrationTest {
 
         String name = "Lord of the Rings.2001";
         String video = "video.mp4";
-        createMedia(name, video, 6L);
+        createMedia(name, video, 6);
 
         saveToOnlineCache(searchName, searchYear, searchName, null, MediaFileType.TV);
 
@@ -133,6 +138,28 @@ class AutoMoveMediaServiceTest extends IntegrationTest {
 
         assertTrue(Files.exists(fileService.toLocalPath(filesystemConfig.getTvPath(), searchName, searchName + ".mp4").path()));
         assertFalse(Files.exists(fileService.toLocalPath(filesystemConfig.getMoviesPath(), format("%s (%s)", unsimilarName, ldt.format(ISO_LOCAL_DATE)), video).path()));
+    }
+
+    @Test
+    @DisplayName("With multiple episodes downloaded, automove service moves them as a group together")
+    void multipleTvEpisodesAreGrouped() throws IOException {
+        for (int i = 1; i <= 13; i++) {
+            String initialName = "[Judas] Magia Record - Puella Magi Madoka Magica Gaiden (Season 1) [1080p][HEVC x265 10bit][Eng-Subs]";
+            String videoName = "Magia Record - Puella Magi Madoka Magica Gaiden - S01E%02d.mkv".formatted(i);
+            createMedia(initialName, videoName, 6);
+        }
+        String madokaDestName = "Judas Magia Record Puella Magi Madoka Magica Gaiden";
+        saveToOnlineCache("Judas Magia Record - Puella Magi Madoka Magica Gaiden", null, madokaDestName, null, MediaFileType.TV);
+
+        String someMovieDestName = "Some video in downloads root";
+        createMedia("Some video in downloads root (2026).mp4", 6);
+        saveToOnlineCache("Some video in downloads root", 2026, someMovieDestName, null, MediaFileType.MOVIE);
+
+        service.autoMoveMedia();
+
+        assertTrue(Files.exists(fileService.toLocalPath(filesystemConfig.getMoviesPath(), someMovieDestName, someMovieDestName + ".mp4").path()));
+        assertTrue(Files.exists(fileService.toLocalPath(filesystemConfig.getTvPath(), madokaDestName, "Season 1", madokaDestName + " S01E01.mkv").path()));
+        assertTrue(Files.exists(fileService.toLocalPath(filesystemConfig.getTvPath(), madokaDestName, "Season 1", madokaDestName + " S01E13.mkv").path()));
     }
 
     private OnlineCacheItem saveToOnlineCache(String searchName, Integer searchYear, String title, Instant date, MediaFileType type) {
@@ -161,11 +188,15 @@ class AutoMoveMediaServiceTest extends IntegrationTest {
         return savedMedia;
     }
 
-    private DownloadedMedia createMedia(String initialName, String videoFile, long size) throws IOException {
-        createFile((int) size, filesystemConfig.getDownloadsPath() + "/" + initialName + "/" + videoFile);
+    private DownloadedMedia createMedia(String relativeVideoDir, String videoFile, int size) throws IOException {
+        return createMedia(relativeVideoDir + "/" + videoFile, size);
+    }
+
+    private DownloadedMedia createMedia(String relativeVideoPath, int size) throws IOException {
+        createFile(size, filesystemConfig.getDownloadsPath(), relativeVideoPath);
 
         DownloadedMedia downloadedMedia = new DownloadedMedia();
-        downloadedMedia.setFileName(initialName + "/" + videoFile);
+        downloadedMedia.setFileName(relativeVideoPath);
         downloadedMedia.setFileSize(size);
         downloadedMedia.setDateDownloaded(Instant.now(Clock.systemUTC()));
         downloadedMedia.setDownloadComplete(true);

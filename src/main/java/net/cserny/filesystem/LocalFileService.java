@@ -1,6 +1,6 @@
 package net.cserny.filesystem;
 
-import com.google.common.util.concurrent.Striped;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.support.Features;
@@ -12,8 +12,6 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Lock;
 
 import static net.cserny.filesystem.ExcludingFileVisitor.WalkOptions.ONLY_FILES;
 
@@ -22,12 +20,10 @@ import static net.cserny.filesystem.ExcludingFileVisitor.WalkOptions.ONLY_FILES;
 @Slf4j
 public class LocalFileService {
 
-    private static final int nrLocks = 32;
-
-    private final Striped<Lock> moveLocks = Striped.lock(nrLocks);
-
     private final FeatureManager featureManager;
     private final CachedLocalPathProvider cachedLocalPathProvider;
+
+    @Getter
     private final FileSystem fileSystem;
 
     public LocalPath toLocalPath(BasicFileAttributes attributes, String root, String... segments) {
@@ -89,32 +85,14 @@ public class LocalFileService {
         });
     }
 
-    public boolean checkedMove(LocalPath source, LocalPath dest) throws IOException {
-        String key = dest.path().toString();
-        Lock lock = moveLocks.get(key);
+    public boolean move(LocalPath source, LocalPath dest) throws IOException {
+        if (dest.path().getParent() != null) {
+            Files.createDirectories(dest.path().getParent());
+        }
 
-        try {
-            if (lock.tryLock(5, TimeUnit.SECONDS)) {
-                try {
-                    if (dest.path().getParent() != null) {
-                        Files.createDirectories(dest.path().getParent());
-                    }
-
-                    if (Files.notExists(dest.path())) {
-                        Files.move(source.path(), dest.path(), StandardCopyOption.ATOMIC_MOVE);
-                        return true;
-                    } else {
-                        throw new FileAlreadyExistsException("Destination file '" + key + "' already exists");
-                    }
-                } finally {
-                    lock.unlock();
-                }
-            } else {
-                throw new IOException("Lock timed out trying to move file: " + key);
-            }
-        } catch (InterruptedException e) {
-            log.debug(e.getMessage(), e);
-            Thread.currentThread().interrupt();
+        if (Files.notExists(dest.path())) {
+            Files.move(source.path(), dest.path(), StandardCopyOption.ATOMIC_MOVE);
+            return true;
         }
 
         return false;

@@ -79,7 +79,7 @@ public class MediaMoveService {
 
             try {
                 log.info("Moving video {} to {}", srcPath, destPath);
-                boolean moveSuccessful = fileService.checkedMove(srcPath, destPath);
+                boolean moveSuccessful = fileService.move(srcPath, destPath);
 
                 if (!moveSuccessful) {
                     movedMediaRepository.save(MovedMedia.builder()

@@ -43,14 +43,14 @@ public class LocalFileServiceTest extends IntegrationTest {
 
     @Test
     @DisplayName("Service can move a path")
-    public void checkedMoveWorks() throws IOException {
+    public void moveWorks() throws IOException {
         LocalPath localPath = createFile("/hmmm/test.txt");
         LocalPath destPath = fileService.toLocalPath("/someOther/path/text.txt");
 
         assertTrue(Files.exists(localPath.path()));
         assertFalse(Files.exists(destPath.path()));
 
-        fileService.checkedMove(localPath, destPath);
+        fileService.move(localPath, destPath);
 
         assertFalse(Files.exists(localPath.path()));
         assertTrue(Files.exists(destPath.path()));

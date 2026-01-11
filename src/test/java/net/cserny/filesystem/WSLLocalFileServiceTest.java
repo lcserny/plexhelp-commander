@@ -49,7 +49,7 @@ public class WSLLocalFileServiceTest extends IntegrationTestWithRealFS {
             final LocalPath finalDestFile = destFile;
             var callables = IntStream.range(0, 26).mapToObj(i -> (Callable<Boolean>) () -> {
                 log.info("Calling thread #{}", i);
-                boolean moved = fileService.checkedMove(finalSrcFile, finalDestFile);
+                boolean moved = fileService.move(finalSrcFile, finalDestFile);
                 log.info("On thread #{}: destination file moved successfully.", i);
                 return moved;
             }).toList();

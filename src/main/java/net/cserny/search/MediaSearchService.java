@@ -44,8 +44,9 @@ public class MediaSearchService {
         }
     }
 
-    public List<MediaFileGroup> generateMediaFileGroupsFromDownloads(String mediaName) {
-        return generateMediaFileGroups(List.of(fileService.toLocalPath(filesystemConfig.getDownloadsPath(), mediaName)));
+    public List<MediaFileGroup> generateMediaFileGroupsFromDownloads(List<String> relativeMediaPaths) {
+        List<LocalPath> mediaPaths = relativeMediaPaths.stream().map(p -> fileService.toLocalPath(filesystemConfig.getDownloadsPath(), p)).toList();
+        return generateMediaFileGroups(mediaPaths);
     }
 
     public List<MediaFileGroup> generateMediaFileGroups(List<LocalPath> allVideos) {
