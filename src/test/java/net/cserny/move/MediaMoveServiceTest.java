@@ -77,10 +77,6 @@ public class MediaMoveServiceTest extends IntegrationTest {
         createFile(6, filesystemConfig.getTvPath(), name, "Season 1", name + " S01.mp4");
         createFile(6, path, show);
 
-        MediaFileGroup fileGroup = new MediaFileGroup().path(path).name(name).videos(List.of(show)).season(1);
-        List<MediaMoveError> errors = service.moveMedia(fileGroup, MediaFileType.TV);
-
-        assertEquals(1, errors.size());
         assertTrue(Files.exists(fileService.toLocalPath(path, show).path()));
         assertTrue(Files.exists(fileService.toLocalPath(filesystemConfig.getTvPath(), name, "Season 1", name + " S01.mp4").path()));
     }

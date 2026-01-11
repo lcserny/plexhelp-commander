@@ -2,6 +2,7 @@ package net.cserny.filesystem;
 
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.IntegrationTestWithRealFS;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIf;
@@ -20,7 +21,8 @@ import java.util.concurrent.*;
 import java.util.stream.IntStream;
 
 @Slf4j
-@EnabledIf("inWslWithMountedHostDrive")
+@Disabled("Improved AutomoveService to group media so it should get move requests in multiple threads for the same TV show (episodes in same dir)")
+//@EnabledIf("inWslWithMountedHostDrive")
 @ExtendWith(MockitoExtension.class)
 public class WSLLocalFileServiceTest extends IntegrationTestWithRealFS {
 
