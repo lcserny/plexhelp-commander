@@ -73,8 +73,7 @@ public class DownloadedMediaRepository {
 
     public Page<DownloadedMedia> findAllPaginatedWith(LocalDate date, Boolean downloadComplete, List<String> names, Pageable pageable) {
         Query query = this.buildFindAllQuery(date, downloadComplete, names);
-        query.skip(pageable.getOffset());
-        query.limit(pageable.getPageSize());
+        query.with(pageable);
 
         List<DownloadedMedia> results = mongoTemplate.find(query, DownloadedMedia.class);
         long total = mongoTemplate.count(query.skip(0).limit(0), DownloadedMedia.class);
