@@ -9,9 +9,13 @@ import net.cserny.filesystem.LocalPath;
 import net.cserny.generated.MediaFileGroup;
 import net.cserny.generated.MediaFileType;
 import net.cserny.generated.MediaMoveError;
+import net.cserny.generated.MovedMediaData;
 import net.cserny.move.MediaInfoExtractor.MediaInfo;
 import net.cserny.search.MediaIdentificationService;
 import net.cserny.search.SearchProperties;
+import net.cserny.support.DataMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -91,6 +95,7 @@ public class MediaMoveService {
                             .season(mediaInfo.season())
                             .episode(mediaInfo.episode())
                             .mediaType(type)
+                            .deleted(false)
                             .build());
                 }
             } catch (IOException e) {
@@ -114,6 +119,11 @@ public class MediaMoveService {
         }
 
         return errors;
+    }
+
+    public Page<MovedMediaData> getAllMovedMedia(Pageable pageable) {
+        Page<MovedMedia> foundMedia = movedMediaRepository.findAll(pageable);
+        return foundMedia.map(DataMapper.INSTANCE::movedMediaToMovedMediaData);
     }
 
     private void cleanSourceMediaDir(MediaFileGroup mediaFileGroup, List<LocalPath> deletableVideos) throws IOException {

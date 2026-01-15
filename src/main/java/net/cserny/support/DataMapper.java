@@ -3,7 +3,9 @@ package net.cserny.support;
 import net.cserny.download.DownloadedMedia;
 import net.cserny.generated.DownloadedMediaData;
 import net.cserny.generated.MagnetData;
+import net.cserny.generated.MovedMediaData;
 import net.cserny.magnet.Magnet;
+import net.cserny.move.MovedMedia;
 import org.bson.types.ObjectId;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
@@ -18,6 +20,8 @@ public interface DataMapper {
     DataMapper INSTANCE = Mappers.getMapper(DataMapper.class);
 
     MagnetData magnetToMagnetData(Magnet magnet);
+
+    MovedMediaData movedMediaToMovedMediaData(MovedMedia movedMedia);
 
     DownloadedMediaData downloadedMediaToDownloadedMediaData(DownloadedMedia media);
 

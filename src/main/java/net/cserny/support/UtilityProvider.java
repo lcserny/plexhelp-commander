@@ -19,6 +19,7 @@ public class UtilityProvider {
         mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
     }
 
+    // FIXME this has poor performance
     public static String toOneLineString(Object obj) {
         if (obj == null) {
             return "null";

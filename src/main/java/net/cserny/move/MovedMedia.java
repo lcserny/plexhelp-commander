@@ -25,7 +25,7 @@ public class MovedMedia {
     private String destination;
 
     @Field
-    private long sizeBytes;
+    private Long sizeBytes;
 
     @Field
     private String mediaName;
@@ -41,4 +41,7 @@ public class MovedMedia {
 
     @Field
     private MediaFileType mediaType;
+
+    @Field
+    private Boolean deleted;
 }

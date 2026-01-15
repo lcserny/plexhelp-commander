@@ -127,6 +127,24 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApplicationErrorResponse'
+    get:
+      x-spring-paginated: true
+      tags:
+        - Moved Media Resource
+      operationId: getMovedMediaPaginated
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedMovedMedia'
+        "400":
+          description: error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationErrorResponse'
   /api/v1/media-moves/all:
     post:
       tags:
@@ -304,6 +322,33 @@ components:
           type: array
           items:
             type: string
+    MovedMediaData:
+      type: object
+      properties:
+        id:
+          type: string
+        source:
+          type: string
+        destination:
+          type: string
+        sizeBytes:
+          format: int64
+          type: integer
+        mediaName:
+          type: string
+        date:
+          format: date-time
+          type: string
+          example: 2022-03-10T12:15:50
+        season:
+          type: integer
+        episode:
+          type: integer
+        mediaType:
+          $ref: '#/components/schemas/MediaFileType'
+        deleted:
+          type: boolean
+          default: false
     MediaFileGroup:
       type: object
       properties:
@@ -455,6 +500,19 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/DownloadedMediaData'
+          required:
+            - content
+            - page
+    PaginatedMovedMedia:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/PaginatedBase'
+        - type: object
+          properties:
+            content:
+              type: array
+              items:
+                $ref: '#/components/schemas/MovedMediaData'
           required:
             - content
             - page
