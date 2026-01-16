@@ -20,6 +20,7 @@ import static net.cserny.support.UtilityProvider.toLoggableString;
 public class RestControllersLoggingAspect {
 
     private static final int maxItemsToShow = 100;
+    private static final String voidResponse = "<void>";
 
     @Around("within(@net.cserny.support.CommanderController *)")
     public Object logControllerMethodInfo(ProceedingJoinPoint joinPoint) throws Throwable {
@@ -61,13 +62,13 @@ public class RestControllersLoggingAspect {
                 Collection<?> content = (Collection<?>) ReflectionUtils.getField(field, o);
                 yield captureCollectionData(content);
             }
-            case null -> "";
+            case null -> voidResponse;
         };
     }
 
     private String captureCollectionData(Collection<?> collection) {
         if (CollectionUtils.isEmpty(collection)) {
-            return "";
+            return voidResponse;
         }
 
         int size = collection.size();
