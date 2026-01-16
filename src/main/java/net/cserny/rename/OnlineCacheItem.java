@@ -2,6 +2,7 @@ package net.cserny.rename;
 
 import lombok.*;
 import net.cserny.generated.MediaFileType;
+import net.cserny.support.BaseDocument;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
@@ -10,19 +11,18 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Objects;
 
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Data
-@EqualsAndHashCode(exclude = {"id"})
+@EqualsAndHashCode(exclude = {"id"}, callSuper = true)
 @CompoundIndexes({
         @CompoundIndex(name = "nameType_idx", def = "{'searchName': 1, 'mediaType': 1}"),
         @CompoundIndex(name = "nameYearType_idx", def = "{'searchName': 1, 'searchYear': 1, 'mediaType': 1}")
 })
 @Document(collection = "online_cache")
-public class OnlineCacheItem {
+public class OnlineCacheItem extends BaseDocument {
 
     @Id
     private ObjectId id;

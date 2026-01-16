@@ -2,6 +2,8 @@ package net.cserny.download;
 
 import java.time.Instant;
 
+import lombok.EqualsAndHashCode;
+import net.cserny.support.BaseDocument;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -11,8 +13,9 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import lombok.Data;
 
 @Data
+@EqualsAndHashCode(callSuper = true)
 @Document(collection = "download_cache")
-public class DownloadedMedia {
+public class DownloadedMedia extends BaseDocument {
 
     @Id
     private ObjectId id;

@@ -1,6 +1,8 @@
 package net.cserny.move;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import net.cserny.support.BaseDocument;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -9,8 +11,9 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import java.time.Instant;
 
 @Data
+@EqualsAndHashCode(callSuper = true)
 @Document(collection = "automove_media")
-public class AutoMoveMedia {
+public class AutoMoveMedia extends BaseDocument {
 
     @Id
     private ObjectId id;
