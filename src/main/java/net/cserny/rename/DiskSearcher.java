@@ -18,7 +18,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import static net.cserny.support.UtilityProvider.toOneLineString;
+import static net.cserny.support.UtilityProvider.toLoggableString;
 import static net.cserny.filesystem.ExcludingFileVisitor.WalkOptions.ONLY_DIRECTORIES;
 import static net.cserny.rename.MediaRenameService.generateDescDataFrom;
 
@@ -75,7 +75,7 @@ public class DiskSearcher implements Searcher {
         int simPercent = SimilarityService.getSimilarityPercent(diskPath.distance(), bigger);
         if (simPercent >= renameConfig.getSimilarityPercent()) {
             log.info("For path {}, the disk path {} is {}% similar with distance of {}",
-                    name, diskPath.trimmedLocalPpath(), simPercent, toOneLineString(diskPath.distance()));
+                    name, diskPath.trimmedLocalPpath(), simPercent, toLoggableString(diskPath.distance()));
             return true;
         }
         return false;

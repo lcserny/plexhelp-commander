@@ -1,9 +1,6 @@
 package net.cserny.config;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.micrometer.context.ContextExecutorService;
 import io.micrometer.context.ContextSnapshotFactory;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +10,9 @@ import net.cserny.command.ServerCommandProperties;
 import net.cserny.command.SshExecutor;
 import net.cserny.qtorrent.TorrentFile;
 import net.cserny.rename.TmdbWrapper;
+import net.cserny.support.CommanderController;
 import net.cserny.support.DataMapperImpl;
+import net.cserny.support.UtilityProvider;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -22,9 +21,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.filter.CommonsRequestLoggingFilter;
+import org.springframework.web.method.HandlerTypePredicate;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.nio.file.FileSystem;
@@ -32,6 +32,8 @@ import java.nio.file.FileSystems;
 import java.time.Duration;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import static net.cserny.support.CommanderController.BASE_PATH;
 
 @Slf4j
 @Configuration
@@ -65,6 +67,11 @@ public class ApplicationConfiguration implements WebMvcConfigurer {
                 .allowedHeaders("Content-Type", "Authorization");
     }
 
+    @Override
+    public void configurePathMatch(PathMatchConfigurer configurer) {
+        configurer.addPathPrefix(BASE_PATH, HandlerTypePredicate.forAnnotation(CommanderController.class));
+    }
+
     @Bean
     public RestTemplate restTemplate(RestTemplateBuilder restTemplateBuilder) {
         return restTemplateBuilder
@@ -80,12 +87,7 @@ public class ApplicationConfiguration implements WebMvcConfigurer {
 
     @Bean
     ObjectMapper objectMapper() {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new JavaTimeModule());
-        mapper.enable(SerializationFeature.INDENT_OUTPUT);
-        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-        return mapper;
+        return UtilityProvider.MAPPER;
     }
 
     @Bean
@@ -100,17 +102,5 @@ public class ApplicationConfiguration implements WebMvcConfigurer {
             return new SshExecutor(serverCommandProperties);
         }
         return new ProcessExecutor(executorService);
-    }
-
-    // TODO
-    @Bean
-    public CommonsRequestLoggingFilter logFilter() {
-        CommonsRequestLoggingFilter filter = new CommonsRequestLoggingFilter();
-        filter.setIncludeQueryString(true);
-        filter.setIncludePayload(true);
-        filter.setMaxPayloadLength(1000); // Truncate large bodies
-        filter.setIncludeHeaders(false);
-        filter.setAfterMessagePrefix("REQUEST DATA: ");
-        return filter;
     }
 }

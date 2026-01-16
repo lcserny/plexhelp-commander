@@ -92,6 +92,10 @@
             <artifactId>logback-jackson</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.fasterxml.jackson.module</groupId>
+            <artifactId>jackson-module-blackbird</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
             <scope>runtime</scope>
@@ -360,6 +364,7 @@
                                 <useSpringController>true</useSpringController>
                                 <useJakartaEe>true</useJakartaEe>
                                 <interfaceOnly>true</interfaceOnly>
+                                <parentOverriding>true</parentOverriding>
                             </configOptions>
                             <generateModelTests>false</generateModelTests>
                             <modelPackage>net.cserny.generated</modelPackage>

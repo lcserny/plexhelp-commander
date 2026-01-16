@@ -14,8 +14,6 @@ spring:
 logging:
   file:
     name: vm-commander_dev.log
-  level:
-    org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
 
 http:
   client:

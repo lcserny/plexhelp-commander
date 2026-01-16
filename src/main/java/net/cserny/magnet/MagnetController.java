@@ -7,17 +7,16 @@ import net.cserny.generated.ApiApi;
 import net.cserny.generated.MagnetData;
 import net.cserny.generated.PaginatedBase1Page;
 import net.cserny.generated.PaginatedMagnets;
+import net.cserny.support.CommanderController;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
-@RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/api/v1/magnets", produces = MediaType.APPLICATION_JSON_VALUE)
+@CommanderController("/magnets")
 public class MagnetController implements ApiApi {
 
     private final MagnetService service;

@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.*;
 
-import static net.cserny.support.UtilityProvider.toOneLineString;
+import static net.cserny.support.UtilityProvider.toLoggableString;
 
 @RequiredArgsConstructor
 @Service
@@ -100,7 +100,7 @@ public class MediaSearchService {
         }
 
         if (!mediaFileGroups.isEmpty()) {
-            log.info("Generated media file groups: {}", toOneLineString(mediaFileGroups));
+            log.info("Generated media file groups: {}", toLoggableString(mediaFileGroups));
         }
 
         return mediaFileGroups;

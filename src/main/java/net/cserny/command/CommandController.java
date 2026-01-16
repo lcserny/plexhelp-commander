@@ -6,23 +6,20 @@ import lombok.extern.slf4j.Slf4j;
 import net.cserny.generated.ApiApi;
 import net.cserny.generated.CommandRequest;
 import net.cserny.generated.CommandResponse;
+import net.cserny.support.CommanderController;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
-@RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/api/v1/commands",
-        produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+@CommanderController("/commands")
 public class CommandController implements ApiApi {
 
     private final LocalCommandService localCommandService;
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @Override
     public ResponseEntity<CommandResponse> executeCommand(@Valid @RequestBody CommandRequest commandRequest) {
         String[] params = null;

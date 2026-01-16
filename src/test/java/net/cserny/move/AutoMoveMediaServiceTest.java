@@ -16,18 +16,13 @@ import org.springframework.data.domain.Example;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.temporal.ChronoField;
 
 import static java.lang.String.format;
 import static java.time.ZoneOffset.UTC;
 import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE;
-import static net.cserny.support.UtilityProvider.toOneLineString;
 import static org.junit.jupiter.api.Assertions.*;
 
 class AutoMoveMediaServiceTest extends IntegrationTest {

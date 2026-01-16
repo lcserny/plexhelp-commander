@@ -1,12 +1,12 @@
 package net.cserny.download;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.generated.*;
-import org.springframework.beans.factory.annotation.Autowired;
+import net.cserny.support.CommanderController;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,13 +14,11 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Slf4j
-@RestController
-@RequestMapping(value = "/api/v1/media-downloads",
-        produces = MediaType.APPLICATION_JSON_VALUE)
+@RequiredArgsConstructor
+@CommanderController("/media-downloads")
 public class MediaDownloadController implements ApiApi {
 
-    @Autowired
-    MediaDownloadService service;
+    private final MediaDownloadService service;
 
     @PostMapping
     @Override

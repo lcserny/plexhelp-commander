@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-import static net.cserny.support.UtilityProvider.toOneLineString;
+import static net.cserny.support.UtilityProvider.toLoggableString;
 
 @RequiredArgsConstructor
 @Service
@@ -55,7 +55,7 @@ public class MediaMoveService {
                 .filter(Objects::nonNull)
                 .toList();
 
-        log.info("Important folders: {}", toOneLineString(this.importantFolders));
+        log.info("Important folders: {}", toLoggableString(this.importantFolders));
     }
 
     public List<MediaMoveError> moveMedia(MediaFileGroup fileGroup, MediaFileType type) {

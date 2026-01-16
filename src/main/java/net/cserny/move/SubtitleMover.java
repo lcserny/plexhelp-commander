@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static net.cserny.support.UtilityProvider.toOneLineString;
+import static net.cserny.support.UtilityProvider.toLoggableString;
 import static net.cserny.filesystem.ExcludingFileVisitor.WalkOptions.ONLY_FILES;
 
 @Service
@@ -55,7 +55,7 @@ public class SubtitleMover {
             return Collections.emptyList();
         }
 
-        log.info("{} type subs found {}", operation.type().toString(), toOneLineString(subs));
+        log.info("{} type subs found {}", operation.type().toString(), toLoggableString(subs));
 
         errors.addAll(moveSubs(operation, subs));
 

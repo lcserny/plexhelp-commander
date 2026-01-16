@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 import static java.lang.String.format;
 import static java.util.Comparator.comparing;
 import static java.util.Comparator.reverseOrder;
-import static net.cserny.support.UtilityProvider.toOneLineString;
+import static net.cserny.support.UtilityProvider.toLoggableString;
 
 @Service
 @RequiredArgsConstructor
@@ -125,7 +125,7 @@ public class AutoMoveMediaService {
         }
 
         AutoMoveOption option = autoMoveOptional.get();
-        log.info("Using first option to move media {}", toOneLineString(option));
+        log.info("Using first option to move media {}", toLoggableString(option));
 
         String movedName = moveMedia(option, group);
         saveAutoMove(mediaList, movedName, option);
@@ -139,7 +139,7 @@ public class AutoMoveMediaService {
         ));
         List<AutoMoveOption> allOptions = listOfAllOptions.stream().map(UtilityProvider::getUncheckedThrowing).flatMap(List::stream).toList();
 
-        log.info("Options parsed: {}", toOneLineString(allOptions));
+        log.info("Options parsed: {}", toLoggableString(allOptions));
 
         MediaTypeComparatorProvider compProvider = new MediaTypeComparatorProvider(group, nameYear);
         List<AutoMoveOption> sortedOptions = allOptions.stream()
@@ -149,7 +149,7 @@ public class AutoMoveMediaService {
                         .thenComparing(compProvider.provide()))
                 .collect(Collectors.toCollection(LinkedList::new));
 
-        log.info("Sorted options map by similarity: {}", toOneLineString(sortedOptions));
+        log.info("Sorted options map by similarity: {}", toLoggableString(sortedOptions));
         return sortedOptions.stream().findFirst();
     }
 

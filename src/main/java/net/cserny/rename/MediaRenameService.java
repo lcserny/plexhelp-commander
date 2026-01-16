@@ -16,7 +16,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static net.cserny.support.UtilityProvider.toOneLineString;
+import static net.cserny.support.UtilityProvider.toLoggableString;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -59,13 +59,13 @@ public class MediaRenameService {
             log.info("Searching options using: {}", searcher.getClass().getSimpleName());
             RenamedMediaOptions options = searcher.search(nameYear, type);
             if (options.getMediaDescriptions() != null && !options.getMediaDescriptions().isEmpty()) {
-                log.info("Found options: {}", toOneLineString(options));
+                log.info("Found options: {}", toLoggableString(options));
                 return options;
             }
         }
 
         List<MediaDescriptionData> mediaDescriptions = generateDescDataFrom(List.of(nameYear.formatted()));
-        log.info("Using options from name with descriptions: {}", toOneLineString(mediaDescriptions));
+        log.info("Using options from name with descriptions: {}", toLoggableString(mediaDescriptions));
         return new RenamedMediaOptions().origin(MediaRenameOrigin.NAME).mediaDescriptions(mediaDescriptions);
     }
 }

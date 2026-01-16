@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.generated.*;
+import net.cserny.support.CommanderController;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
@@ -12,10 +13,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RequiredArgsConstructor
 @Slf4j
-@RestController
-@RequestMapping(value = "/api/v1/media-moves", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequiredArgsConstructor
+@CommanderController("/media-moves")
 public class MediaMoveController implements ApiApi {
 
     private final MediaMoveService service;
