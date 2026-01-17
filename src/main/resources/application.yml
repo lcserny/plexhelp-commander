@@ -25,7 +25,9 @@ http:
         ms: 5000
 
 togglz:
-  features-file-min-check-interval: 60000
+  cache:
+    enabled: true
+    time-to-live: 10000
 
 torrent:
   webui:

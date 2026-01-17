@@ -3,13 +3,10 @@ package net.cserny.command;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
 
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import net.cserny.command.OsExecutor.ExecutionResponse;
-import net.cserny.generated.CommandResponse;
+import net.cserny.command.CommandRunner.CommandResponse;
 import net.cserny.generated.Status;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
@@ -22,7 +19,7 @@ public abstract class AbstractOSCommand implements Command {
 
     private final ServerCommandProperties properties;
     private final TaskScheduler taskScheduler;
-    private final OsExecutor osExecutor;
+    private final CommandRunner commandRunner;
 
     protected abstract List<String> produceCommandWindows(String[] params);
 
@@ -33,7 +30,7 @@ public abstract class AbstractOSCommand implements Command {
     }
 
     @Override
-    public CommandResponse execute(String[] params) {
+    public net.cserny.generated.CommandResponse execute(String[] params) {
         List<String> commands;
         if (SystemUtils.IS_OS_WINDOWS || properties.getWsl().isEnabled()) {
             log.info("Producing commands for Windows (or WSL)");
@@ -66,7 +63,7 @@ public abstract class AbstractOSCommand implements Command {
             }
         } catch (Exception e) {
             log.error("Error encountered while executing command", e);
-            return new CommandResponse(Status.FAILED);
+            return new net.cserny.generated.CommandResponse(Status.FAILED);
         }
 
         return Command.EMPTY_OK;
@@ -75,7 +72,7 @@ public abstract class AbstractOSCommand implements Command {
     private void executeInternal(List<String> commands) {
         Runnable runnable = () -> {
             try {
-                ExecutionResponse response = osExecutor.execute(commands);
+                CommandResponse response = commandRunner.run(commands);
                 if (response.exitCode() != 0) {
                     throw new RuntimeException("Error executing command [code: %d] %s".formatted(response.exitCode(), response.response()));
                 }

@@ -1,7 +1,7 @@
 package net.cserny.command.restart;
 
 import net.cserny.command.AbstractOSCommand;
-import net.cserny.command.OsExecutor;
+import net.cserny.command.CommandRunner;
 import net.cserny.command.ServerCommandProperties;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.scheduling.TaskScheduler;
@@ -17,8 +17,8 @@ public class RestartServiceCommand extends AbstractOSCommand {
 
     public RestartServiceCommand(ServerCommandProperties properties,
                                  TaskScheduler taskScheduler,
-                                 OsExecutor osExecutor) {
-        super(properties, taskScheduler, osExecutor);
+                                 CommandRunner commandRunner) {
+        super(properties, taskScheduler, commandRunner);
     }
 
     @Override

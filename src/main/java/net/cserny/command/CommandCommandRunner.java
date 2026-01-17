@@ -11,11 +11,11 @@ import java.util.concurrent.Future;
 
 @Slf4j
 @RequiredArgsConstructor
-public class ProcessExecutor implements OsExecutor {
+public class CommandCommandRunner implements CommandRunner {
 
     private final ExecutorService executorService;
 
-    public ExecutionResponse execute(String command) throws Exception {
+    public CommandResponse run(String command) throws Exception {
         log.info("Executing command: {}", command);
 
         ProcessBuilder builder = new ProcessBuilder();
@@ -26,7 +26,7 @@ public class ProcessExecutor implements OsExecutor {
         Future<String> futureResponse = captureOutput(process);
         int exitCode = process.waitFor();
 
-        return new ExecutionResponse(exitCode, futureResponse.get());
+        return new CommandResponse(exitCode, futureResponse.get());
     }
 
     private Future<String> captureOutput(Process process) {

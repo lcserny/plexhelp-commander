@@ -1,20 +1,24 @@
 package net.cserny.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mongodb.client.MongoClient;
 import io.micrometer.context.ContextExecutorService;
 import io.micrometer.context.ContextSnapshotFactory;
 import lombok.extern.slf4j.Slf4j;
-import net.cserny.command.OsExecutor;
-import net.cserny.command.ProcessExecutor;
+import net.cserny.command.CommandRunner;
+import net.cserny.command.CommandCommandRunner;
 import net.cserny.command.ServerCommandProperties;
-import net.cserny.command.SshExecutor;
+import net.cserny.command.SshCommandRunner;
 import net.cserny.qtorrent.TorrentFile;
 import net.cserny.rename.TmdbWrapper;
 import net.cserny.support.CommanderController;
 import net.cserny.support.DataMapperImpl;
+import net.cserny.support.Features;
 import net.cserny.support.UtilityProvider;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.mongo.MongoProperties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,6 +31,13 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.togglz.core.Feature;
+import org.togglz.core.manager.EnumBasedFeatureProvider;
+import org.togglz.core.repository.StateRepository;
+import org.togglz.core.repository.cache.CachingStateRepository;
+import org.togglz.core.spi.FeatureProvider;
+import org.togglz.mongodb.MongoStateRepository;
+import org.togglz.spring.boot.actuate.autoconfigure.TogglzProperties;
 
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -42,6 +53,7 @@ import static net.cserny.support.CommanderController.BASE_PATH;
 @EnableMongoRepositories(basePackages = "net.cserny")
 @EnableScheduling
 @EnableMongoAuditing
+@EnableConfigurationProperties(TogglzProperties.class)
 @RegisterReflectionForBinding({
         TmdbWrapper.MovieResults.class,
         TmdbWrapper.TvResults.class,
@@ -83,6 +95,21 @@ public class ApplicationConfiguration implements WebMvcConfigurer {
     }
 
     @Bean
+    public StateRepository stateRepository(MongoClient mongoClient,
+                                           MongoProperties mongoProperties,
+                                           TogglzProperties togglzProperties) {
+        StateRepository mongoRepo = MongoStateRepository
+                .newBuilder(mongoClient, mongoProperties.getDatabase())
+                .build();
+        return new CachingStateRepository(mongoRepo, togglzProperties.getCache().getTimeToLive());
+    }
+
+    @Bean
+    public FeatureProvider featureProvider() {
+        return new EnumBasedFeatureProvider().addFeatureEnum(Features.class);
+    }
+
+    @Bean
     FileSystem fileSystem() {
         return FileSystems.getDefault();
     }
@@ -99,10 +126,10 @@ public class ApplicationConfiguration implements WebMvcConfigurer {
     }
 
     @Bean
-    public OsExecutor osExecutor(ServerCommandProperties serverCommandProperties, ExecutorService executorService) {
+    public CommandRunner osExecutor(ServerCommandProperties serverCommandProperties, ExecutorService executorService) {
         if (serverCommandProperties.getSsh().isEnabled()) {
-            return new SshExecutor(serverCommandProperties);
+            return new SshCommandRunner(serverCommandProperties);
         }
-        return new ProcessExecutor(executorService);
+        return new CommandCommandRunner(executorService);
     }
 }

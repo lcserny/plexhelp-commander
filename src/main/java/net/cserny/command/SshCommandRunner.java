@@ -12,14 +12,14 @@ import net.schmizz.sshj.transport.verification.PromiscuousVerifier;
 
 @Slf4j
 @RequiredArgsConstructor
-public class SshExecutor implements OsExecutor {
+public class SshCommandRunner implements CommandRunner {
 
     private static final int TIMEOUT_SECONDS = 2;
 
     private final ServerCommandProperties properties;
 
     @Override
-    public ExecutionResponse execute(String command) throws Exception {
+    public CommandResponse run(String command) throws Exception {
         log.info("Executing SSH command via SSHJ: {}", command);
 
         SshProperties sshProperties = properties.getSsh();
@@ -39,7 +39,7 @@ public class SshExecutor implements OsExecutor {
                 cmd.join(TIMEOUT_SECONDS, TimeUnit.SECONDS);
 
                 Integer exitStatus = cmd.getExitStatus();
-                return new ExecutionResponse(exitStatus != null ? exitStatus : -1, output.trim());
+                return new CommandResponse(exitStatus != null ? exitStatus : -1, output.trim());
             }
         } finally {
             if (ssh.isConnected()) {

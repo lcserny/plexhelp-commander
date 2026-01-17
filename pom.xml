@@ -65,6 +65,10 @@
         </dependency>
         <dependency>
             <groupId>org.togglz</groupId>
+            <artifactId>togglz-mongodb</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.togglz</groupId>
             <artifactId>togglz-spring-boot-starter</artifactId>
         </dependency>
         <dependency>
@@ -183,6 +187,11 @@
                 <groupId>com.hierynomus</groupId>
                 <artifactId>sshj</artifactId>
                 <version>${sshj.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.togglz</groupId>
+                <artifactId>togglz-mongodb</artifactId>
+                <version>${togglz.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.togglz</groupId>

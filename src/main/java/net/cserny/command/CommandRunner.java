@@ -4,15 +4,15 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
-public interface OsExecutor {
+public interface CommandRunner {
 
-    ExecutionResponse execute(String command) throws Exception;
+    CommandResponse run(String command) throws Exception;
 
-    default ExecutionResponse execute(List<String> commands) throws Exception {
-        return execute(String.join(" ", commands));
+    default CommandResponse run(List<String> commands) throws Exception {
+        return run(String.join(" ", commands));
     }
 
-    record ExecutionResponse(int exitCode, String response) {
+    record CommandResponse(int exitCode, String response) {
 
         @Override
         public String response() {

@@ -1,7 +1,7 @@
 package net.cserny.command.sleep;
 
 import net.cserny.command.AbstractOSCommand;
-import net.cserny.command.OsExecutor;
+import net.cserny.command.CommandRunner;
 import net.cserny.command.ServerCommandProperties;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Component;
@@ -15,8 +15,8 @@ public class SleepCommand extends AbstractOSCommand {
 
     public SleepCommand(ServerCommandProperties properties,
                         TaskScheduler taskScheduler,
-                        OsExecutor osExecutor) {
-        super(properties, taskScheduler, osExecutor);
+                        CommandRunner commandRunner) {
+        super(properties, taskScheduler, commandRunner);
     }
 
     @Override
