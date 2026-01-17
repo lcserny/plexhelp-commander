@@ -98,6 +98,7 @@ public class ApplicationConfiguration implements WebMvcConfigurer {
     public StateRepository stateRepository(MongoClient mongoClient,
                                            MongoProperties mongoProperties,
                                            TogglzProperties togglzProperties) {
+        // default collection name is "togglz"
         StateRepository mongoRepo = MongoStateRepository
                 .newBuilder(mongoClient, mongoProperties.getDatabase())
                 .build();
