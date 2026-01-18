@@ -1,12 +1,12 @@
 package net.cserny.move;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.filesystem.FilesystemProperties;
 import net.cserny.filesystem.LocalFileService;
 import net.cserny.filesystem.LocalPath;
 import net.cserny.generated.MediaMoveError;
 import net.cserny.move.MediaInfoExtractor.MediaInfo;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -18,17 +18,13 @@ import static net.cserny.support.UtilityProvider.toLoggableString;
 import static net.cserny.filesystem.ExcludingFileVisitor.WalkOptions.ONLY_FILES;
 
 @Service
+@RequiredArgsConstructor
 @Slf4j
 public class SubtitleMover {
 
-    @Autowired
-    LocalFileService fileService;
-
-    @Autowired
-    FilesystemProperties filesystemConfig;
-
-    @Autowired
-    MoveProperties moveConfig;
+    private final LocalFileService fileService;
+    private final FilesystemProperties filesystemConfig;
+    private final MoveProperties moveConfig;
 
     public List<MediaMoveError> moveSubs(SubsMoveOperation operation) {
         if (operation.subsSrc().path().toString().equals(filesystemConfig.getDownloadsPath())) {
@@ -95,7 +91,7 @@ public class SubtitleMover {
             }
         }
 
-        log.warn("Excluded sub based on extension {}", filename);
+        log.debug("Excluded sub based on extension {}", filename);
         return false;
     }
 }
