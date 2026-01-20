@@ -6,6 +6,8 @@ import net.cserny.filesystem.LocalPath;
 import net.cserny.generated.MediaFileGroup;
 import net.cserny.generated.MediaFileType;
 import net.cserny.generated.MediaMoveError;
+import net.cserny.move.subtitle.SubsMoveOperation;
+import net.cserny.move.subtitle.SubtitleMover;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,6 +17,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
 
+import static net.cserny.generated.MediaFileType.MOVIE;
+import static net.cserny.generated.MediaFileType.TV;
 import static org.junit.jupiter.api.Assertions.*;
 
 class SubtitleMoverTest extends IntegrationTest {
@@ -64,7 +68,7 @@ class SubtitleMoverTest extends IntegrationTest {
         SubsMoveOperation operation = new SubsMoveOperation(
                 fileService.toLocalPath(movieSrc),
                 filesystemConfig.getMoviesPath(),
-                MediaFileType.MOVIE,
+                MOVIE,
                 group
         );
 
@@ -130,5 +134,64 @@ class SubtitleMoverTest extends IntegrationTest {
         assertEquals(0, errors.size());
         assertFalse(Files.exists(fileService.toLocalPath(showSrc, subName).path()));
         assertTrue(Files.exists(fileService.toLocalPath(showDest, "Season 2", "some show S02E12.srt").path()));
+    }
+
+    @Test
+    @DisplayName("Movie with multiple subs with / without langs defined")
+    public void movieWithMultipleSubs() throws IOException {
+        String movieName = "Avengers: Doomsday (2025)";
+        String subName1 = "movie english.srt";
+        String subName2 = "movie en.srt";
+        String subName3 = "movie.srt";
+        String subName4 = "movie (alternate).srt";
+
+        String movieSrc = filesystemConfig.getDownloadsPath() + "/" + movieName;
+        createFile(movieSrc + "/" + subName1);
+        createFile(movieSrc + "/" + subName2);
+        createFile(movieSrc + "/" + subName3);
+        createFile(movieSrc + "/" + subName4);
+
+        String movieDest = filesystemConfig.getMoviesPath() + "/" + movieName;
+        createDirectories(movieDest);
+
+        MediaFileGroup group = new MediaFileGroup().name(movieName);
+        SubsMoveOperation operation = new SubsMoveOperation(fileService.toLocalPath(movieSrc), filesystemConfig.getMoviesPath(), MOVIE, group);
+
+        List<MediaMoveError> errors = mover.moveSubs(operation);
+
+        assertEquals(0, errors.size());
+        assertTrue(Files.exists(fileService.toLocalPath(movieDest, movieName + ".(1).srt").path()));
+        assertTrue(Files.exists(fileService.toLocalPath(movieDest, movieName + ".(2).srt").path()));
+        assertTrue(Files.exists(fileService.toLocalPath(movieDest, movieName + ".en.(1).srt").path()));
+        assertTrue(Files.exists(fileService.toLocalPath(movieDest, movieName + ".en.(2).srt").path()));
+    }
+
+    @Test
+    @DisplayName("TV show with multiple subs with / without langs defined")
+    public void tvWithMultipleSubs() throws IOException {
+        String baseName = "Big Bang Theory";
+        String date = "(2026-10-10)";
+        String showName = baseName + " " + date;
+        String subName1 = "show s01e03 english.srt";
+        String subName2 = "show.srt";
+        String subName3 = "show s01e03 en.srt";
+
+        String showSrc = filesystemConfig.getDownloadsPath() + "/" + showName;
+        createFile(showSrc + "/" + subName1);
+        createFile(showSrc + "/" + subName2);
+        createFile(showSrc + "/" + subName3);
+
+        String showDest = filesystemConfig.getTvPath() + "/" + showName;
+        createDirectories(showDest);
+
+        MediaFileGroup group = new MediaFileGroup().name(showName);
+        SubsMoveOperation operation = new SubsMoveOperation(fileService.toLocalPath(showSrc), filesystemConfig.getTvPath(), TV, group);
+
+        List<MediaMoveError> errors = mover.moveSubs(operation);
+
+        assertEquals(0, errors.size());
+        assertTrue(Files.exists(fileService.toLocalPath(showDest, "Season 1", baseName + " S01E03 " + date + ".en.(1).srt").path()));
+        assertTrue(Files.exists(fileService.toLocalPath(showDest, "Season 1", baseName + " S01E03 " + date + ".en.(2).srt").path()));
+        assertTrue(Files.exists(fileService.toLocalPath(showDest, showName + ".srt").path()));
     }
 }

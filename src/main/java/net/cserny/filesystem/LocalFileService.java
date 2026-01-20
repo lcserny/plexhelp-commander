@@ -95,6 +95,8 @@ public class LocalFileService {
             return true;
         }
 
+        log.warn("Moving skipped, destination file already present {}", dest.path());
+
         return false;
     }
 

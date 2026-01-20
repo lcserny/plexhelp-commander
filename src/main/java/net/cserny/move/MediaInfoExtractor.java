@@ -3,6 +3,7 @@ package net.cserny.move;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.generated.MediaFileType;
+import net.cserny.move.MediaGrouper.LangKey;
 import net.cserny.rename.TVDataExtractor;
 
 import java.time.LocalDate;
@@ -14,16 +15,22 @@ public class MediaInfoExtractor {
     private final Integer season;
     private final MediaFileType type;
     private final String mediaName;
+    private final IndexedLangData langData;
 
-    public MediaInfoExtractor(String groupName, Integer season, MediaFileType type, String mediaName) {
+    public MediaInfoExtractor(String groupName, Integer season, MediaFileType type, String mediaName, IndexedLangData langData) {
         this.groupName = groupName;
         this.season = season;
         this.type = type;
         this.mediaName = mediaName;
+        this.langData = langData;
+    }
+
+    public MediaInfoExtractor(String groupName, Integer season, MediaFileType type, String mediaName) {
+        this(groupName, season, type, mediaName, null);
     }
 
     public MediaInfoExtractor(String groupName, MediaFileType type, String mediaName) {
-        this(groupName, null, type, mediaName);
+        this(groupName, null, type, mediaName, null);
     }
 
     public MediaInfo extractMediaInfo() {
@@ -33,14 +40,7 @@ public class MediaInfoExtractor {
         Integer episode = extractEpisode();
         String fileName = extractFileName(baseName, localDate, season, episode);
 
-        return new MediaInfo.MediaInfoBuilder()
-                .baseName(baseName)
-                .date(localDate)
-                .season(season)
-                .episode(episode)
-                .fileName(fileName)
-                .type(type)
-                .build();
+        return new MediaInfo.MediaInfoBuilder().baseName(baseName).date(localDate).season(season).episode(episode).fileName(fileName).type(type).build();
     }
 
     private String extractBaseName(boolean datePresent) {
@@ -93,12 +93,29 @@ public class MediaInfoExtractor {
         return mediaName.substring(mediaName.lastIndexOf("."));
     }
 
-    // fileName = baseName + [S0x][E0y] + (date) + extension
+    private String extractIndexedLangData() {
+        if (langData == null) {
+            return "";
+        }
+
+        if (langData.lang().equals(LangKey.NONE) && langData.singleMediaForLang()) {
+            return "";
+        }
+
+        if (langData.lang().equals(LangKey.NONE) && !langData.singleMediaForLang()) {
+            return ".(" + langData.indexNr() + ")";
+        }
+
+        return "." + langData.lang().iso2Code() + ".(" + langData.indexNr() + ")";
+    }
+
+    // fileName = baseName + [S0x][E0y] + (date) + [lang data and index] + extension
     private String extractFileName(String baseName, LocalDate localDate,  Integer season, Integer episode) {
         return baseName +
                 (season != null ? " S%02d".formatted(season) : "") +
                 (episode != null ? "E%02d".formatted(episode) : "") +
                 (localDate != null ? " (" + localDate + ")" : "") +
+                extractIndexedLangData() +
                 extractExtension();
     }
 
@@ -117,4 +134,7 @@ public class MediaInfoExtractor {
             };
         }
     }
+
+    @Builder
+    public record IndexedLangData(LangKey lang, boolean singleMediaForLang, int indexNr) {}
 }

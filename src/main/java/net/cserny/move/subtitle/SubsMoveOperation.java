@@ -1,4 +1,4 @@
-package net.cserny.move;
+package net.cserny.move.subtitle;
 
 import net.cserny.filesystem.LocalPath;
 import net.cserny.generated.MediaFileGroup;

@@ -1,8 +1,9 @@
 package net.cserny.move;
 
-import net.cserny.generated.MediaFileType;
 import org.junit.jupiter.api.Test;
 
+import static net.cserny.generated.MediaFileType.MOVIE;
+import static net.cserny.generated.MediaFileType.TV;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class MediaInfoExtractorTest {
@@ -12,7 +13,7 @@ class MediaInfoExtractorTest {
         String name = "Pretty Name from Renamers";
         String videoName = "My VideoFile.mp4";
 
-        MediaInfoExtractor extractor = new MediaInfoExtractor(name, MediaFileType.MOVIE, videoName);
+        MediaInfoExtractor extractor = new MediaInfoExtractor(name, MOVIE, videoName);
 
         assertThat(extractor.extractMediaInfo().destinationPathSegments()).containsExactly(name, name + ".mp4");
     }
@@ -22,7 +23,7 @@ class MediaInfoExtractorTest {
         String name = "Pretty Name from Renamers";
         String videoName = "My VideoFile S02E03.mp4";
 
-        MediaInfoExtractor extractor = new MediaInfoExtractor(name, MediaFileType.TV, videoName);
+        MediaInfoExtractor extractor = new MediaInfoExtractor(name, TV, videoName);
 
         assertThat(extractor.extractMediaInfo().destinationPathSegments()).containsExactly(name, "Season 2",  name + " S02E03.mp4");
     }
@@ -32,7 +33,7 @@ class MediaInfoExtractorTest {
         String name = "Pretty Name from Renamers";
         String videoName = "My VideoFile E07.mp4";
 
-        MediaInfoExtractor extractor = new MediaInfoExtractor(name, 4, MediaFileType.TV, videoName);
+        MediaInfoExtractor extractor = new MediaInfoExtractor(name, 4, TV, videoName);
 
         assertThat(extractor.extractMediaInfo().destinationPathSegments()).containsExactly(name, "Season 4",  name + " S04E07.mp4");
     }
@@ -42,7 +43,7 @@ class MediaInfoExtractorTest {
         String name = "Pretty Name from Renamers";
         String videoName = "My VideoFile S01E09.mp4";
 
-        MediaInfoExtractor extractor = new MediaInfoExtractor(name, 4, MediaFileType.TV, videoName);
+        MediaInfoExtractor extractor = new MediaInfoExtractor(name, 4, TV, videoName);
 
         assertThat(extractor.extractMediaInfo().destinationPathSegments()).containsExactly(name, "Season 1",  name + " S01E09.mp4");
     }

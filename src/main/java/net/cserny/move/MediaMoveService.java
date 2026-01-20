@@ -10,7 +10,10 @@ import net.cserny.generated.MediaFileGroup;
 import net.cserny.generated.MediaFileType;
 import net.cserny.generated.MediaMoveError;
 import net.cserny.generated.MovedMediaData;
+import net.cserny.move.MediaGrouper.GroupedVideos;
 import net.cserny.move.MediaInfoExtractor.MediaInfo;
+import net.cserny.move.subtitle.SubsMoveOperation;
+import net.cserny.move.subtitle.SubtitleMover;
 import net.cserny.search.MediaIdentificationService;
 import net.cserny.search.SearchProperties;
 import net.cserny.support.DataMapper;
@@ -42,7 +45,7 @@ public class MediaMoveService {
     private final FilesystemProperties filesystemConfig;
     private final MoveProperties moveConfig;
     private final MediaIdentificationService identificationService;
-    private final VideosGrouper videosGrouper;
+    private final MediaGrouper mediaGrouper;
     private final MovedMediaRepository movedMediaRepository;
 
     @PostConstruct
@@ -71,7 +74,7 @@ public class MediaMoveService {
             case TV -> filesystemConfig.getTvPath();
         };
 
-        GroupedVideos groupedVideos = videosGrouper.group(fileGroup, type);
+        GroupedVideos groupedVideos = mediaGrouper.separateDeletable(fileGroup, type);
 
         for (String video : groupedVideos.videos()) {
             LocalPath srcPath = fileService.toLocalPath(fileGroup.getPath(), video);

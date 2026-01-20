@@ -1,8 +1,8 @@
-package net.cserny.move;
+package net.cserny.move.automove;
 
 import net.cserny.generated.MediaFileGroup;
 import net.cserny.generated.MediaFileType;
-import net.cserny.move.AutoMoveMediaService.AutoMoveOption;
+import net.cserny.move.automove.AutoMoveMediaService.AutoMoveOption;
 import net.cserny.rename.NameNormalizer.NameYear;
 import net.cserny.rename.TVDataExtractor;
 

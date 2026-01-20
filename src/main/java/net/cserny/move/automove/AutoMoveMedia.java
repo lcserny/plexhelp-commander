@@ -1,4 +1,4 @@
-package net.cserny.move;
+package net.cserny.move.automove;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;

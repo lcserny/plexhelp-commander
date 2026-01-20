@@ -1,8 +1,9 @@
-package net.cserny.move;
+package net.cserny.move.automove;
 
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import net.cserny.move.MediaMoveService;
 import net.cserny.rename.MediaRenameService;
 import net.cserny.rename.NameNormalizer;
 import net.cserny.rename.SimilarityService;
