@@ -7,6 +7,7 @@ import net.cserny.filesystem.LocalFileService;
 import net.cserny.filesystem.LocalPath;
 import net.cserny.generated.MediaFileGroup;
 import net.cserny.generated.MediaFileType;
+import net.cserny.rename.TVDataExtractor;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Component;
 
@@ -25,7 +26,7 @@ public class MediaGrouper {
 
     private final LocalFileService fileService;
 
-    private Map<Pattern, LangKey> localePatterns;
+    private Map<Pattern, String> localePatterns;
 
     @PostConstruct
     public void init() {
@@ -36,7 +37,7 @@ public class MediaGrouper {
                     String regex = "(?i)[. ](" + lang + "|" + display + ")[. ]";
                     return Pattern.compile(regex);
                 },
-                (l) -> new LangKey(l.getLanguage()),
+                Locale::getLanguage,
                 (existing, replacement) -> existing
         ));
     }
@@ -60,12 +61,15 @@ public class MediaGrouper {
 
     private LangKey detectLanguage(LocalPath sub) {
         String path = sub.path().toAbsolutePath().toString();
-        for (Map.Entry<Pattern, LangKey> entry : localePatterns.entrySet()) {
+        Integer season = TVDataExtractor.findSeason(path);
+        int seasonToUse = season != null ? season : 0;
+
+        for (Map.Entry<Pattern, String> entry : localePatterns.entrySet()) {
             if (entry.getKey().matcher(path).find()) {
-                return entry.getValue();
+                return new LangKey(entry.getValue(), seasonToUse);
             }
         }
-        return LangKey.NONE;
+        return new LangKey(seasonToUse);
     }
 
     private void updateVideosForLargeSampleFile(List<String> videos, List<LocalPath> deletableVideos, String fileGroupPath) {
@@ -83,8 +87,18 @@ public class MediaGrouper {
         list.forEach(pair -> deletableVideos.add(pair.getRight()));
     }
 
-    public record LangKey(String iso2Code) {
-        public static final LangKey NONE = new LangKey("none");
+    public record LangKey(String iso2Code, int season) {
+
+        public static final String NO_LANG = "___";
+
+        public LangKey(String iso2Code, int season) {
+            this.iso2Code = iso2Code;
+            this.season = season;
+        }
+
+        public LangKey(int season) {
+            this(NO_LANG, season);
+        }
     }
 
     public record GroupedVideos(List<String> videos, List<LocalPath> deletableVideos) { }

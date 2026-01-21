@@ -98,11 +98,16 @@ public class MediaInfoExtractor {
             return "";
         }
 
-        if (langData.lang().equals(LangKey.NONE) && langData.singleMediaForLang()) {
-            return "";
+        boolean noLangCode = LangKey.NO_LANG.equals(langData.lang().iso2Code());
+        if (langData.singleMediaForLang()) {
+            if (noLangCode) {
+                return "";
+            } else {
+                return "." + langData.lang().iso2Code();
+            }
         }
 
-        if (langData.lang().equals(LangKey.NONE) && !langData.singleMediaForLang()) {
+        if (noLangCode) {
             return ".(" + langData.indexNr() + ")";
         }
 

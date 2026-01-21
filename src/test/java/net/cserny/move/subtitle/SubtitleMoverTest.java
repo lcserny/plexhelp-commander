@@ -1,4 +1,4 @@
-package net.cserny.move;
+package net.cserny.move.subtitle;
 
 import net.cserny.IntegrationTest;
 import net.cserny.filesystem.FilesystemProperties;
@@ -6,8 +6,6 @@ import net.cserny.filesystem.LocalPath;
 import net.cserny.generated.MediaFileGroup;
 import net.cserny.generated.MediaFileType;
 import net.cserny.generated.MediaMoveError;
-import net.cserny.move.subtitle.SubsMoveOperation;
-import net.cserny.move.subtitle.SubtitleMover;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -175,11 +173,15 @@ class SubtitleMoverTest extends IntegrationTest {
         String subName1 = "show s01e03 english.srt";
         String subName2 = "show.srt";
         String subName3 = "show s01e03 en.srt";
+        String subName4 = "show s02e02 en.srt";
+        String subName5 = "show s03e01.srt";
 
         String showSrc = filesystemConfig.getDownloadsPath() + "/" + showName;
         createFile(showSrc + "/" + subName1);
         createFile(showSrc + "/" + subName2);
         createFile(showSrc + "/" + subName3);
+        createFile(showSrc + "/" + subName4);
+        createFile(showSrc + "/" + subName5);
 
         String showDest = filesystemConfig.getTvPath() + "/" + showName;
         createDirectories(showDest);
@@ -193,5 +195,7 @@ class SubtitleMoverTest extends IntegrationTest {
         assertTrue(Files.exists(fileService.toLocalPath(showDest, "Season 1", baseName + " S01E03 " + date + ".en.(1).srt").path()));
         assertTrue(Files.exists(fileService.toLocalPath(showDest, "Season 1", baseName + " S01E03 " + date + ".en.(2).srt").path()));
         assertTrue(Files.exists(fileService.toLocalPath(showDest, showName + ".srt").path()));
+        assertTrue(Files.exists(fileService.toLocalPath(showDest, "Season 2", baseName + " S02E02 " + date + ".en.srt").path()));
+        assertTrue(Files.exists(fileService.toLocalPath(showDest, "Season 3", baseName + " S03E01 " + date + ".srt").path()));
     }
 }

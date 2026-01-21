@@ -1,13 +1,10 @@
-package net.cserny.move;
+package net.cserny.move.automove;
 
 import net.cserny.IntegrationTest;
 import net.cserny.download.DownloadedMedia;
 import net.cserny.download.internal.DownloadedMediaRepository;
 import net.cserny.filesystem.FilesystemProperties;
 import net.cserny.generated.MediaFileType;
-import net.cserny.move.automove.AutoMoveMedia;
-import net.cserny.move.automove.AutoMoveMediaRepository;
-import net.cserny.move.automove.AutoMoveMediaService;
 import net.cserny.rename.OnlineCacheItem;
 import net.cserny.rename.internal.OnlineCacheRepository;
 import org.jetbrains.annotations.NotNull;

@@ -15,10 +15,7 @@ import net.cserny.move.MoveProperties;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static net.cserny.support.UtilityProvider.toLoggableString;
 import static net.cserny.filesystem.ExcludingFileVisitor.WalkOptions.ONLY_FILES;
