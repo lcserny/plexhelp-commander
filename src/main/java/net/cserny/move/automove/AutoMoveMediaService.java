@@ -144,12 +144,10 @@ public class AutoMoveMediaService {
 
         log.info("Options parsed: {}", toLoggableString(allOptions));
 
-        MediaTypeComparatorProvider compProvider = new MediaTypeComparatorProvider(group, nameYear);
         List<AutoMoveOption> sortedOptions = allOptions.stream()
                 .filter(o -> o.origin != MediaRenameOrigin.NAME)
                 .filter(o -> o.similarity() >= properties.getSimilarityAccepted())
-                .sorted(comparing(AutoMoveOption::similarity, reverseOrder())
-                        .thenComparing(compProvider.provide()))
+                .sorted(comparing(AutoMoveOption::similarity, reverseOrder()).thenComparing(MediaTypeComparator.provide(group, nameYear)))
                 .collect(Collectors.toCollection(LinkedList::new));
 
         log.info("Sorted options map by similarity: {}", toLoggableString(sortedOptions));
