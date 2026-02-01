@@ -26,7 +26,7 @@ public class ShutdownCommand extends AbstractOSCommand {
 
     @Override
     protected List<String> produceCommandLinux(String[] params) {
-        return List.of("shutdown", "now");
+        return List.of("systemctl", "poweroff");
     }
 
     @Override

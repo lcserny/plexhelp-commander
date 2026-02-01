@@ -26,7 +26,7 @@ public class RestartCommand extends AbstractOSCommand {
 
     @Override
     protected List<String> produceCommandLinux(String[] params) {
-        return List.of("reboot", "-r", "now");
+        return List.of("systemctl", "reboot");
     }
 
     @Override
