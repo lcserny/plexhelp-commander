@@ -26,7 +26,7 @@ public class SleepCommand extends AbstractOSCommand {
 
     @Override
     protected List<String> produceCommandLinux(String[] params) {
-        return List.of("systemctl", "suspend");
+        return List.of("loginctl", "suspend");
     }
 
     @Override
