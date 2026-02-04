@@ -24,6 +24,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.config.EnableMongoAuditing;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.method.HandlerTypePredicate;
@@ -50,6 +51,7 @@ import static net.cserny.support.CommanderController.BASE_PATH;
 @Slf4j
 @Configuration
 @EnableWebMvc
+@EnableAsync
 @EnableMongoRepositories(basePackages = "net.cserny")
 @EnableScheduling
 @EnableMongoAuditing
