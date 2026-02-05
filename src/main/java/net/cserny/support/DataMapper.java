@@ -1,11 +1,11 @@
 package net.cserny.support;
 
-import net.cserny.download.DownloadedMedia;
+import net.cserny.core.download.DownloadedMedia;
 import net.cserny.generated.DownloadedMediaData;
 import net.cserny.generated.MagnetData;
 import net.cserny.generated.MovedMediaData;
-import net.cserny.download.Magnet;
-import net.cserny.move.MovedMedia;
+import net.cserny.core.magnet.Magnet;
+import net.cserny.core.move.MovedMedia;
 import org.bson.types.ObjectId;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;

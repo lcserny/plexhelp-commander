@@ -1,0 +1,103 @@
+package net.cserny.core.command;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.List;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import net.cserny.config.ServerCommandProperties;
+import net.cserny.core.command.CommandRunner.CommandResponse;
+import net.cserny.generated.Status;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.SystemUtils;
+import org.springframework.scheduling.TaskScheduler;
+
+@SuppressWarnings("LoggingSimilarMessage")
+@RequiredArgsConstructor
+@Slf4j
+public abstract class AbstractOSCommand implements Command {
+
+    private final ServerCommandProperties properties;
+    private final TaskScheduler taskScheduler;
+    private final CommandRunner commandRunner;
+
+    protected abstract List<String> produceCommandWindows(String[] params);
+
+    protected abstract List<String> produceCommandLinux(String[] params);
+
+    protected boolean waitForExecution() {
+        return false;
+    }
+
+    @Override
+    public net.cserny.generated.CommandResponse execute(String[] params) {
+        List<String> commands;
+        if (SystemUtils.IS_OS_WINDOWS || properties.getWsl().isEnabled()) {
+            log.info("Producing commands for Windows (or WSL)");
+            commands = produceCommandWindows(params);
+        } else if (SystemUtils.IS_OS_LINUX) {
+            log.info("Producing commands for Linux");
+            commands = produceCommandLinux(params);
+        } else {
+            throw new RuntimeException("Unsupported operating system: " + SystemUtils.OS_NAME);
+        }
+
+        try {
+            if (params.length == 0) {
+                log.info("Executing commands without delay");
+                executeInternal(commands);
+            } else {
+                if (StringUtils.isNumeric(params[0])) {
+                    int minutes = Integer.parseInt(params[0]);
+                    if (minutes > 0) {
+                        log.info("Executing commands in {} minutes", minutes);
+                        executeInternal(commands, minutes);
+                    } else {
+                        log.info("Executing commands without delay");
+                        executeInternal(commands);
+                    }
+                } else {
+                    log.info("Executing commands without delay");
+                    executeInternal(commands);
+                }
+            }
+        } catch (Exception e) {
+            log.error("Error encountered while executing command", e);
+            return new net.cserny.generated.CommandResponse(Status.FAILED);
+        }
+
+        return Command.EMPTY_OK;
+    }
+
+    private void executeInternal(List<String> commands) {
+        Runnable runnable = () -> {
+            try {
+                CommandResponse response = commandRunner.run(commands);
+                if (response.exitCode() != 0) {
+                    throw new RuntimeException("Error executing command [code: %d] %s".formatted(response.exitCode(), response.response()));
+                }
+                log.info("CMD output: {}", response.response());
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        };
+
+        if (waitForExecution()) {
+            runnable.run();
+        } else {
+            taskScheduler.schedule(runnable, Instant.now().plusMillis(50));
+        }
+    }
+
+    private void executeInternal(List<String> commands, int minutes) {
+        taskScheduler.schedule(() -> executeInternal(commands), Instant.now().plus(Duration.ofMinutes(minutes)));
+    }
+
+    protected String getSystem32Prefix() {
+        if (properties.getWsl().isEnabled()) {
+            return properties.getWsl().getSystem32Path();
+        }
+        return "";
+    }
+}

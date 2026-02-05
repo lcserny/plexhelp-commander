@@ -1,9 +1,9 @@
 package net.cserny;
 
 import io.restassured.RestAssured;
-import net.cserny.filesystem.LocalFileService;
-import net.cserny.filesystem.LocalPath;
-import net.cserny.search.NoAttributes;
+import net.cserny.fs.LocalFileService;
+import net.cserny.fs.LocalPath;
+import net.cserny.fs.NoAttributes;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.AutoConfigureDataMongo;

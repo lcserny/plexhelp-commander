@@ -1,10 +1,10 @@
 package net.cserny.config;
 
+import lombok.RequiredArgsConstructor;
 import net.cserny.generated.UserPerm;
 import net.cserny.generated.UserRole;
 import net.cserny.security.JwtAuthenticationFilter;
 import net.cserny.security.JwtUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -21,10 +21,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Profile("!test")
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 
-    @Autowired
-    JwtUtil jwtUtil;
+    private final JwtUtil jwtUtil;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {

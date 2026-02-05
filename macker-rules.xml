@@ -3,7 +3,7 @@
 <macker>
     <ruleset name="Filesystems and thread pool usage is allowed only through provided custom classes">
         <pattern name="root" class="net.cserny.**"/>
-        <pattern name="fileService" class="net.cserny.filesystem.LocalFileService(**)"/>
+        <pattern name="fileService" class="net.cserny.fs.LocalFileService(**)"/>
 
         <access-rule>
             <message>Should not access NIO Paths directly</message>
