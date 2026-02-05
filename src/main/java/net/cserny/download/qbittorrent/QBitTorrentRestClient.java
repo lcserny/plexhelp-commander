@@ -1,9 +1,9 @@
-package net.cserny.torrent.qbittorrent;
+package net.cserny.download.qbittorrent;
 
 import lombok.extern.slf4j.Slf4j;
-import net.cserny.torrent.TorrentFile;
-import net.cserny.torrent.TorrentProperties;
-import net.cserny.torrent.TorrentRestClient;
+import net.cserny.download.TorrentFile;
+import net.cserny.download.TorrentProperties;
+import net.cserny.download.TorrentRestClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;

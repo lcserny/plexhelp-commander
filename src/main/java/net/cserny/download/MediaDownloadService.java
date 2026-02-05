@@ -2,12 +2,9 @@ package net.cserny.download;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.cserny.support.events.Events.TorrentDownloadCompleted;
-import net.cserny.support.events.Events.TorrentDownloadStarted;
 import net.cserny.support.DataMapper;
 import net.cserny.download.internal.DownloadedMediaRepository;
 import net.cserny.generated.DownloadedMediaData;
-import org.springframework.context.event.EventListener;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -32,15 +29,13 @@ public class MediaDownloadService {
         return mediaPage.map(DataMapper.INSTANCE::downloadedMediaToDownloadedMediaData);
     }
 
-    @EventListener
-    public void on(TorrentDownloadStarted event) {
-        var count = repository.upsertTorrents(event.getTorrentFiles(), false);
+    public void addTorrents(List<TorrentFile> torrentFiles) {
+        var count = repository.upsertTorrents(torrentFiles, false);
         log.info("Added {} torrent files to downloads cache", count);
     }
 
-    @EventListener
-    public void on(TorrentDownloadCompleted event) {
-        var count = repository.upsertTorrents(event.getTorrentFiles(), true);
+    public void updateDownloaded(List<TorrentFile> torrentFiles) {
+        var count = repository.upsertTorrents(torrentFiles, true);
         log.info("Updated {} torrent files to downloads cache", count);
     }
 }

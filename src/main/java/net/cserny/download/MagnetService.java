@@ -1,12 +1,9 @@
-package net.cserny.magnet;
+package net.cserny.download;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.support.DataMapper;
 import net.cserny.generated.MagnetData;
-import net.cserny.torrent.TorrentRestClient;
-import net.cserny.support.events.Events.TorrentDownloadCompleted;
-import org.springframework.context.event.EventListener;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -27,12 +24,6 @@ public class MagnetService {
 
     private final MagnetRepository repository;
     private final TorrentRestClient restClient;
-
-    @EventListener
-    void on(TorrentDownloadCompleted event) {
-        repository.findByHashAndUpdateDownloaded(event.getHash());
-        log.info("Updated magnet with hash {} to downloaded", event.getHash());
-    }
 
     public MagnetData addMagnet(String magnetLink) {
         validateMagnetLink(magnetLink);
@@ -90,5 +81,10 @@ public class MagnetService {
 
         log.info("Retrieved paginated magnets from the database");
         return all.map(DataMapper.INSTANCE::magnetToMagnetData);
+    }
+
+    public void markMagnetsDownloaded(String hash) {
+        repository.findByHashAndUpdateDownloaded(hash);
+        log.info("Updated magnet with hash {} to downloaded", hash);
     }
 }

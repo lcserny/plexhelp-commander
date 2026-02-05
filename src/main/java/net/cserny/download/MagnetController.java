@@ -1,4 +1,4 @@
-package net.cserny.magnet;
+package net.cserny.download;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

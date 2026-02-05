@@ -1,12 +1,10 @@
 package net.cserny.torrent;
 
 import net.cserny.IntegrationTest;
-import net.cserny.download.DownloadedMedia;
+import net.cserny.download.*;
 import net.cserny.download.internal.DownloadedMediaRepository;
 import net.cserny.filesystem.FilesystemProperties;
 import net.cserny.filesystem.LocalPath;
-import net.cserny.magnet.Magnet;
-import net.cserny.magnet.MagnetRepository;
 import net.cserny.search.MediaIdentificationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

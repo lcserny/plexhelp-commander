@@ -1,4 +1,4 @@
-package net.cserny.torrent;
+package net.cserny.download;
 
 public enum TorrentOperation {
 

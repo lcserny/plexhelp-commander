@@ -9,7 +9,7 @@ import net.cserny.command.CommandRunner;
 import net.cserny.command.CommandCommandRunner;
 import net.cserny.command.ServerCommandProperties;
 import net.cserny.command.SshCommandRunner;
-import net.cserny.torrent.TorrentFile;
+import net.cserny.download.TorrentFile;
 import net.cserny.rename.TmdbWrapper;
 import net.cserny.support.CommanderController;
 import net.cserny.support.DataMapperImpl;

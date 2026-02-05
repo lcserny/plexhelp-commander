@@ -1,4 +1,4 @@
-package net.cserny.magnet;
+package net.cserny.download;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

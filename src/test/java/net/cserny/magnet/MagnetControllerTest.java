@@ -2,6 +2,8 @@ package net.cserny.magnet;
 
 import io.restassured.http.ContentType;
 import net.cserny.IntegrationTest;
+import net.cserny.download.Magnet;
+import net.cserny.download.MagnetRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
