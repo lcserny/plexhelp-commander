@@ -1,4 +1,4 @@
-package net.cserny.qtorrent;
+package net.cserny.torrent;
 
 import lombok.Getter;
 import lombok.Setter;

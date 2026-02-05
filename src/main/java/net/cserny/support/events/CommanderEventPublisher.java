@@ -1,27 +1,25 @@
 package net.cserny.support.events;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import net.cserny.support.events.Events.CommanderEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CommanderEventPublisher {
 
     private final ApplicationEventPublisher publisher;
 
-    public <R, E extends SyncEvent<R>> R process(E event) {
+    public <E extends CommanderEvent> void sendSync(E event) {
         publisher.publishEvent(event);
-        R result = event.getResult();
-        if (result == null) {
-            throw new RuntimeException("Event was not processed correctly, no result was returned by an EventListener");
-        }
-        return result;
     }
 
     @Async
-    public <E extends AsyncEvent> void send(E event) {
+    public <E extends CommanderEvent> void sendAsync(E event) {
         publisher.publishEvent(event);
     }
 }

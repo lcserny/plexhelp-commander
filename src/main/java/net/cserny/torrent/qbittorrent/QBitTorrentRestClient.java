@@ -1,6 +1,9 @@
-package net.cserny.qtorrent;
+package net.cserny.torrent.qbittorrent;
 
 import lombok.extern.slf4j.Slf4j;
+import net.cserny.torrent.TorrentFile;
+import net.cserny.torrent.TorrentProperties;
+import net.cserny.torrent.TorrentRestClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
@@ -13,7 +16,7 @@ import java.util.List;
 
 @Slf4j
 @Component
-public class QTorrentRestClient implements TorrentRestClient {
+public class QBitTorrentRestClient implements TorrentRestClient {
 
     private final RestTemplate restTemplate;
 
@@ -25,7 +28,7 @@ public class QTorrentRestClient implements TorrentRestClient {
     private final String password;
 
     @Autowired
-    public QTorrentRestClient(RestTemplate restTemplate, TorrentProperties properties) {
+    public QBitTorrentRestClient(RestTemplate restTemplate, TorrentProperties properties) {
         this.restTemplate = restTemplate;
         this.username = properties.getUsername();
         this.password = properties.getPassword();

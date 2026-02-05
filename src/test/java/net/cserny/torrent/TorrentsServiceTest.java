@@ -1,4 +1,4 @@
-package net.cserny.qtorrent;
+package net.cserny.torrent;
 
 import net.cserny.IntegrationTest;
 import net.cserny.download.DownloadedMedia;
@@ -66,7 +66,7 @@ class TorrentsServiceTest extends IntegrationTest {
         when(this.restTemplate.exchange(contains("files"), eq(HttpMethod.POST), any(HttpEntity.class), any(ParameterizedTypeReference.class))).thenReturn(response);
         when(identificationService.isMedia(any(LocalPath.class))).thenReturn(true);
 
-        service.addTorrent("someHash");
+        service.markTorrentDownloadStarted("someHash");
 
         List<DownloadedMedia> results = mediaRepository.findAllWith(null, null, List.of(torrent1Name));
         assertEquals(1, results.size());
@@ -95,7 +95,7 @@ class TorrentsServiceTest extends IntegrationTest {
         when(this.restTemplate.exchange(contains("delete"), eq(HttpMethod.POST), any(HttpEntity.class), eq(String.class))).thenReturn(delResponse);
         when(identificationService.isMedia(any(LocalPath.class))).thenReturn(true);
 
-        service.downloadTorrent("someHash2");
+        service.markTorrentDownloadCompleted("someHash2");
 
         List<DownloadedMedia> results = mediaRepository.findAllWith(null, null, List.of(torrentName));
         assertEquals(1, results.size());
@@ -124,7 +124,7 @@ class TorrentsServiceTest extends IntegrationTest {
         when(this.restTemplate.exchange(contains("delete"), eq(HttpMethod.POST), any(HttpEntity.class), eq(String.class))).thenReturn(delResponse);
         when(identificationService.isMedia(any(LocalPath.class))).thenReturn(true);
 
-        service.downloadTorrent("someHash2");
+        service.markTorrentDownloadCompleted("someHash2");
 
         verify(this.restTemplate, times(1)).exchange(contains("delete"), eq(HttpMethod.POST), any(HttpEntity.class), eq(String.class));
     }
@@ -148,7 +148,7 @@ class TorrentsServiceTest extends IntegrationTest {
         when(this.restTemplate.exchange(contains("delete"), eq(HttpMethod.POST), any(HttpEntity.class), eq(String.class))).thenReturn(delResponse);
         when(identificationService.isMedia(any(LocalPath.class))).thenReturn(true);
 
-        service.downloadTorrent(hash);
+        service.markTorrentDownloadCompleted(hash);
 
         Magnet results = magnetRepository.findByHash(hash);
         assertNotNull(results);

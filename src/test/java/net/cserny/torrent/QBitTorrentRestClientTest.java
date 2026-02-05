@@ -1,5 +1,6 @@
-package net.cserny.qtorrent;
+package net.cserny.torrent;
 
+import net.cserny.torrent.qbittorrent.QBitTorrentRestClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,7 +13,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-class QTorrentRestClientTest {
+class QBitTorrentRestClientTest {
 
     private static final String BASE_URL = "someUrl";
     private static final String USER = "myUser";
@@ -21,7 +22,7 @@ class QTorrentRestClientTest {
     private RestTemplate restTemplateMock;
     private TorrentProperties properties;
 
-    private QTorrentRestClient restClient;
+    private QBitTorrentRestClient restClient;
 
     @BeforeEach
     public void setup() {
@@ -31,7 +32,7 @@ class QTorrentRestClientTest {
         this.properties.setUsername(USER);
         this.properties.setPassword(PASS);
 
-        this.restClient = new QTorrentRestClient(this.restTemplateMock, this.properties);
+        this.restClient = new QBitTorrentRestClient(this.restTemplateMock, this.properties);
     }
 
     @Test

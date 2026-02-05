@@ -1,7 +1,7 @@
 package net.cserny.magnet;
 
 import net.cserny.generated.MagnetData;
-import net.cserny.qtorrent.TorrentRestClient;
+import net.cserny.torrent.TorrentRestClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

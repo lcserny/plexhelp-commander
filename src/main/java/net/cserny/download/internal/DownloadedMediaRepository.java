@@ -2,7 +2,7 @@ package net.cserny.download.internal;
 
 import lombok.RequiredArgsConstructor;
 import net.cserny.download.DownloadedMedia;
-import net.cserny.qtorrent.TorrentFile;
+import net.cserny.torrent.TorrentFile;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;

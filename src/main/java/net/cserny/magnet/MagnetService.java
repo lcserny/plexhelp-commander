@@ -1,10 +1,12 @@
 package net.cserny.magnet;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.support.DataMapper;
 import net.cserny.generated.MagnetData;
-import net.cserny.qtorrent.TorrentRestClient;
-import org.springframework.beans.factory.annotation.Autowired;
+import net.cserny.torrent.TorrentRestClient;
+import net.cserny.support.events.Events.TorrentDownloadCompleted;
+import org.springframework.context.event.EventListener;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -17,6 +19,7 @@ import java.util.HashMap;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class MagnetService {
 
     private static final String NAME_KEY = "dn";
@@ -25,10 +28,10 @@ public class MagnetService {
     private final MagnetRepository repository;
     private final TorrentRestClient restClient;
 
-    @Autowired
-    public MagnetService(MagnetRepository repository, TorrentRestClient restClient) {
-        this.repository = repository;
-        this.restClient = restClient;
+    @EventListener
+    void on(TorrentDownloadCompleted event) {
+        repository.findByHashAndUpdateDownloaded(event.getHash());
+        log.info("Updated magnet with hash {} to downloaded", event.getHash());
     }
 
     public MagnetData addMagnet(String magnetLink) {

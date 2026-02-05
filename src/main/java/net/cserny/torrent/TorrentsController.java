@@ -1,4 +1,4 @@
-package net.cserny.qtorrent;
+package net.cserny.torrent;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -23,11 +23,11 @@ public class TorrentsController implements ApiApi {
         TorrentOperation torrentOperation = TorrentOperation.fromString(operation);
         HttpStatus status = switch (torrentOperation) {
             case ADDED -> {
-                torrentsService.addTorrent(hash);
+                torrentsService.markTorrentDownloadStarted(hash);
                 yield HttpStatus.CREATED;
             }
             case DOWNLOADED -> {
-                torrentsService.downloadTorrent(hash);
+                torrentsService.markTorrentDownloadCompleted(hash);
                 yield HttpStatus.OK;
             }
         };
