@@ -13,7 +13,7 @@ import static net.cserny.support.UtilityProvider.toLoggableString;
 @RequiredArgsConstructor
 @Service
 @Slf4j
-public class LocalCommandService {
+class LocalCommandService {
 
     private final List<Command> commands;
 

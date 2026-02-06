@@ -5,6 +5,15 @@
         <pattern name="root" class="net.cserny.**"/>
         <pattern name="fileService" class="net.cserny.fs.LocalFileService(**)"/>
 
+        <pattern name="magnetPackage" class="net.cserny.core.magnet.**"/>
+        <pattern name="magnetRepository" class="net.cserny.core.magnet.MagnetRepository(**)"/>
+
+        <pattern name="renamePackage" class="net.cserny.core.rename.**"/>
+        <pattern name="onlineCacheRepository" class="net.cserny.core.rename.internal.OnlineCacheRepository(**)"/>
+
+        <pattern name="downloadPackage" class="net.cserny.core.download.**"/>
+        <pattern name="downloadRepository" class="net.cserny.core.download.internal.DownloadedMediaRepository(**)"/>
+
         <access-rule>
             <message>Should not access NIO Paths directly</message>
             <deny>
@@ -19,6 +28,39 @@
                 <to class="java.nio.file.Files"/>
                 <allow>
                     <from pattern="fileService"/>
+                </allow>
+            </deny>
+        </access-rule>
+
+        <access-rule>
+            <message>MagnetRepository only allowed in magnet package</message>
+            <deny>
+                <from pattern="root"/>
+                <to pattern="magnetRepository"/>
+                <allow>
+                    <from pattern="magnetPackage"/>
+                </allow>
+            </deny>
+        </access-rule>
+
+        <access-rule>
+            <message>OnlineCacheRepository only allowed in rename package</message>
+            <deny>
+                <from pattern="root"/>
+                <to pattern="onlineCacheRepository"/>
+                <allow>
+                    <from pattern="renamePackage"/>
+                </allow>
+            </deny>
+        </access-rule>
+
+        <access-rule>
+            <message>DownloadRepository only allowed in download package</message>
+            <deny>
+                <from pattern="root"/>
+                <to pattern="downloadRepository"/>
+                <allow>
+                    <from pattern="downloadPackage"/>
                 </allow>
             </deny>
         </access-rule>

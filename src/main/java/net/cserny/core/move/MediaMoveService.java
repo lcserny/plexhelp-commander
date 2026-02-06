@@ -35,7 +35,7 @@ import static net.cserny.support.UtilityProvider.toLoggableString;
 @RequiredArgsConstructor
 @Service
 @Slf4j
-public class MediaMoveService implements MediaMover {
+class MediaMoveService implements MediaMover {
 
     private static final String MOVIE_EXISTS = "Movie already exists";
 

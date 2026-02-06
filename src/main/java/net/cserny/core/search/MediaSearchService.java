@@ -23,7 +23,7 @@ import static net.cserny.support.UtilityProvider.toLoggableString;
 @RequiredArgsConstructor
 @Service
 @Slf4j
-public class MediaSearchService implements MediaFileGroupGenerator {
+class MediaSearchService implements MediaFileGroupGenerator {
 
     private final LocalFileService fileService;
     private final FilesystemProperties filesystemConfig;

@@ -22,7 +22,7 @@ import static net.cserny.support.UtilityProvider.toLoggableString;
 @RequiredArgsConstructor
 @Slf4j
 @Service
-public class MediaRenameService implements NameOptionsProducer {
+class MediaRenameService implements NameOptionsProducer {
 
     private static final Pattern titleRegex = Pattern
             .compile("^\\s*(?<name>[a-zA-Z0-9-\\s]+)\\s\\((?<date>(\\d{4})(-\\d{1,2}-\\d{1,2})?)\\)$");

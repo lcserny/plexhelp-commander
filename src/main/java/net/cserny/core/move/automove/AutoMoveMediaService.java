@@ -33,7 +33,7 @@ import static net.cserny.support.UtilityProvider.toLoggableString;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class AutoMoveMediaService {
+class AutoMoveMediaService {
 
     private static final String separator = File.separator;
     private static final String quotedSeparator = Pattern.quote(separator);
