@@ -2,6 +2,7 @@ package net.cserny.core.rename;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import net.cserny.api.NameNormalizer;
 import net.cserny.config.RenameProperties;
 import org.apache.commons.text.WordUtils;
 import org.springframework.stereotype.Component;
@@ -13,7 +14,7 @@ import java.util.regex.Pattern;
 
 @RequiredArgsConstructor
 @Component
-public class NameNormalizer {
+public class DefaultNameNormalizer implements NameNormalizer {
 
     private final RenameProperties renameProperties;
 
@@ -31,6 +32,7 @@ public class NameNormalizer {
         }
     }
 
+    @Override
     public NameYear normalize(String name) {
         Matcher preNormMatcher = preNormalizedNameRegex.matcher(name);
         if (preNormMatcher.matches()) {
@@ -61,11 +63,5 @@ public class NameNormalizer {
         }
 
         return new NameYear(name, year);
-    }
-
-    public record NameYear(String name, Integer year) {
-        public String formatted() {
-            return name() + (year != null ? " (" + year + ")" : "");
-        }
     }
 }

@@ -1,6 +1,8 @@
 package net.cserny.core.rename;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.cserny.api.NameNormalizer.NameYear;
 import net.cserny.config.RenameProperties;
 import net.cserny.fs.FilesystemProperties;
 import net.cserny.fs.LocalFileService;
@@ -8,8 +10,7 @@ import net.cserny.fs.LocalPath;
 import net.cserny.generated.MediaFileType;
 import net.cserny.generated.MediaRenameOrigin;
 import net.cserny.generated.RenamedMediaOptions;
-import net.cserny.core.rename.NameNormalizer.NameYear;
-import org.springframework.beans.factory.annotation.Autowired;
+import net.cserny.support.SimilarityService;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -25,17 +26,13 @@ import static net.cserny.core.rename.MediaRenameService.generateDescDataFrom;
 
 @Order(0)
 @Component
+@RequiredArgsConstructor
 @Slf4j
 public class DiskSearcher implements Searcher {
 
-    @Autowired
-    FilesystemProperties filesystemConfig;
-
-    @Autowired
-    RenameProperties renameProperties;
-
-    @Autowired
-    LocalFileService localFileService;
+    private final FilesystemProperties filesystemConfig;
+    private final RenameProperties renameProperties;
+    private final LocalFileService localFileService;
 
     private final Pattern releaseDateRegex = Pattern.compile("\s+\\(\\d{4}(-\\d{2}-\\d{2})?\\)$");
 

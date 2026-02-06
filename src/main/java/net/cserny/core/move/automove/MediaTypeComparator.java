@@ -1,9 +1,9 @@
 package net.cserny.core.move.automove;
 
+import net.cserny.api.NameNormalizer.NameYear;
 import net.cserny.generated.MediaFileGroup;
 import net.cserny.generated.MediaFileType;
 import net.cserny.core.move.automove.AutoMoveMediaService.AutoMoveOption;
-import net.cserny.core.rename.NameNormalizer.NameYear;
 import net.cserny.support.TVDataExtractor;
 
 import java.util.Comparator;

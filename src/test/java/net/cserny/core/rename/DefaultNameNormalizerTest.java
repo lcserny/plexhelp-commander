@@ -1,18 +1,17 @@
 package net.cserny.core.rename;
 
 import net.cserny.IntegrationTest;
-import net.cserny.core.rename.NameNormalizer;
-import net.cserny.core.rename.NameNormalizer.NameYear;
+import net.cserny.api.NameNormalizer.NameYear;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class NameNormalizerTest extends IntegrationTest {
+class DefaultNameNormalizerTest extends IntegrationTest {
 
     @Autowired
-    NameNormalizer normalizer;
+    DefaultNameNormalizer normalizer;
 
     private void checkNormalizedFormatted(String name, String expected) {
         NameYear nameYear = normalizer.normalize(name);

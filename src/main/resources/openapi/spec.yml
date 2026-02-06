@@ -306,6 +306,9 @@ components:
         downloadComplete:
           type: boolean
           default: false
+        triedAutoMove:
+          type: boolean
+          default: false
     MediaDescriptionData:
       type: object
       properties:

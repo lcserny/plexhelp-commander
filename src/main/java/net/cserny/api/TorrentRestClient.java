@@ -1,4 +1,4 @@
-package net.cserny.core.torrent;
+package net.cserny.api;
 
 import net.cserny.api.dto.TorrentFile;
 

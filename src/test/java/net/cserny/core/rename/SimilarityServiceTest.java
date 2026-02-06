@@ -1,6 +1,6 @@
 package net.cserny.core.rename;
 
-import net.cserny.core.rename.SimilarityService;
+import net.cserny.support.SimilarityService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

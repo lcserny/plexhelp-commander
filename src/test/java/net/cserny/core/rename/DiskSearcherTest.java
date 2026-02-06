@@ -1,10 +1,10 @@
 package net.cserny.core.rename;
 
 import net.cserny.IntegrationTest;
+import net.cserny.api.NameNormalizer.NameYear;
 import net.cserny.fs.FilesystemProperties;
 import net.cserny.generated.MediaDescriptionData;
 import net.cserny.generated.MediaFileType;
-import net.cserny.core.rename.NameNormalizer.NameYear;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

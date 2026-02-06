@@ -2,6 +2,7 @@ package net.cserny.core.search;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.cserny.api.MediaFileGroupGenerator;
 import net.cserny.api.MediaIdentifier;
 import net.cserny.config.SearchProperties;
 import net.cserny.fs.FilesystemProperties;
@@ -22,7 +23,7 @@ import static net.cserny.support.UtilityProvider.toLoggableString;
 @RequiredArgsConstructor
 @Service
 @Slf4j
-public class MediaSearchService {
+public class MediaSearchService implements MediaFileGroupGenerator {
 
     private final LocalFileService fileService;
     private final FilesystemProperties filesystemConfig;
@@ -46,6 +47,7 @@ public class MediaSearchService {
         }
     }
 
+    @Override
     public List<MediaFileGroup> generateMediaFileGroupsFromDownloads(List<String> relativeMediaPaths) {
         List<LocalPath> mediaPaths = relativeMediaPaths.stream().map(p -> fileService.toLocalPath(filesystemConfig.getDownloadsPath(), p)).toList();
         return generateMediaFileGroups(mediaPaths);

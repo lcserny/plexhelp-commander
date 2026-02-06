@@ -3,7 +3,7 @@ package net.cserny.core.torrent.qbittorrent;
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.api.dto.TorrentFile;
 import net.cserny.config.TorrentProperties;
-import net.cserny.core.torrent.TorrentRestClient;
+import net.cserny.api.TorrentRestClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;

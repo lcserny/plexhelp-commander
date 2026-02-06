@@ -1,10 +1,10 @@
 package net.cserny.core.rename;
 
 import net.cserny.IntegrationTest;
+import net.cserny.api.NameNormalizer.NameYear;
 import net.cserny.generated.MediaFileType;
 import net.cserny.generated.MediaRenameOrigin;
 import net.cserny.generated.RenamedMediaOptions;
-import net.cserny.core.rename.NameNormalizer.NameYear;
 import net.cserny.core.rename.TmdbWrapper.Credits;
 import net.cserny.core.rename.TmdbWrapper.Movie;
 import net.cserny.core.rename.TmdbWrapper.Tv;

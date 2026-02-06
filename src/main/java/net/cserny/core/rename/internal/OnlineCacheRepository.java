@@ -2,8 +2,9 @@ package net.cserny.core.rename.internal;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.cserny.api.NameNormalizer;
+import net.cserny.api.NameNormalizer.NameYear;
 import net.cserny.generated.MediaFileType;
-import net.cserny.core.rename.NameNormalizer.NameYear;
 import net.cserny.core.rename.OnlineCacheItem;
 import org.springframework.stereotype.Repository;
 

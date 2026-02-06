@@ -3,7 +3,7 @@ package net.cserny.core.magnet;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.api.MagnetUpdater;
-import net.cserny.core.torrent.TorrentRestClient;
+import net.cserny.api.TorrentRestClient;
 import net.cserny.support.DataMapper;
 import net.cserny.generated.MagnetData;
 import org.springframework.data.domain.Page;

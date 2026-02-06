@@ -25,6 +25,8 @@ public interface DataMapper {
 
     DownloadedMediaData downloadedMediaToDownloadedMediaData(DownloadedMedia media);
 
+    DownloadedMedia downloadedMediaDataToDownloadedMedia(DownloadedMediaData media);
+
     default OffsetDateTime map(Instant instant) {
         if (instant == null) {
             return null;
@@ -32,10 +34,24 @@ public interface DataMapper {
         return OffsetDateTime.ofInstant(instant, ZoneOffset.UTC);
     }
 
+    default Instant map(OffsetDateTime dateTime) {
+        if (dateTime == null) {
+            return null;
+        }
+        return dateTime.toInstant();
+    }
+
     default String map(ObjectId objectId) {
         if (objectId == null) {
             return null;
         }
         return objectId.toString();
+    }
+
+    default ObjectId map(String objectId) {
+        if (objectId == null) {
+            return null;
+        }
+        return new ObjectId(objectId);
     }
 }

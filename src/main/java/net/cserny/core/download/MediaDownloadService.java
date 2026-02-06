@@ -2,6 +2,7 @@ package net.cserny.core.download;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.cserny.api.AutomoveDownloadedManipulator;
 import net.cserny.api.DownloadedTorrentProcessor;
 import net.cserny.support.DataMapper;
 import net.cserny.core.download.internal.DownloadedMediaRepository;
@@ -17,7 +18,7 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-class MediaDownloadService implements DownloadedTorrentProcessor {
+class MediaDownloadService implements DownloadedTorrentProcessor, AutomoveDownloadedManipulator {
 
     private final DownloadedMediaRepository repository;
 
@@ -41,5 +42,15 @@ class MediaDownloadService implements DownloadedTorrentProcessor {
     public void updateDownloaded(List<TorrentFile> torrentFiles) {
         var count = repository.upsertTorrents(torrentFiles, true);
         log.info("Updated {} torrent files to downloads cache", count);
+    }
+
+    @Override
+    public List<DownloadedMediaData> findForAutoMove(int limit) {
+        return repository.findForAutoMove(limit).stream().map(DataMapper.INSTANCE::downloadedMediaToDownloadedMediaData).toList();
+    }
+
+    @Override
+    public void saveAll(List<DownloadedMediaData> medias) {
+        repository.saveAll(medias.stream().map(DataMapper.INSTANCE::downloadedMediaDataToDownloadedMedia).toList());
     }
 }

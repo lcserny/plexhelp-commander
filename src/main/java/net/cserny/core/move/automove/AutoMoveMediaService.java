@@ -3,17 +3,11 @@ package net.cserny.core.move.automove;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import net.cserny.api.NameNormalizer.NameYear;
 import net.cserny.config.AutoMoveProperties;
-import net.cserny.core.move.MediaMoveService;
-import net.cserny.core.rename.MediaRenameService;
-import net.cserny.core.rename.NameNormalizer;
-import net.cserny.core.rename.SimilarityService;
 import net.cserny.support.Features;
-import net.cserny.core.download.internal.DownloadedMediaRepository;
-import net.cserny.core.download.DownloadedMedia;
 import net.cserny.generated.*;
-import net.cserny.core.rename.NameNormalizer.NameYear;
-import net.cserny.core.search.MediaSearchService;
+import net.cserny.support.SimilarityService;
 import net.cserny.support.UtilityProvider;
 import org.jspecify.annotations.NonNull;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -39,7 +33,6 @@ import static net.cserny.support.UtilityProvider.toLoggableString;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-// TODO asta foloseste din multe alte pachete, este un omni service asa hmmm...
 public class AutoMoveMediaService {
 
     private static final String separator = File.separator;
@@ -48,14 +41,8 @@ public class AutoMoveMediaService {
     private final FeatureManager featureManager;
     private final AutoMoveProperties properties;
     private final ExecutorService executorService;
-
-    private final DownloadedMediaRepository downloadedMediaRepository;
     private final AutoMoveMediaRepository autoMoveMediaRepository;
-
-    private final NameNormalizer normalizer;
-    private final MediaSearchService searchService;
-    private final MediaRenameService renameService;
-    private final MediaMoveService moveService;
+    private final AutomoveSupport automoveSupport;
 
     @SneakyThrows
     @Scheduled(cron = "${automove.cron}")
@@ -66,7 +53,7 @@ public class AutoMoveMediaService {
 
         log.info("Checking download cache to automatically move media files");
 
-        List<DownloadedMedia> medias = downloadedMediaRepository.findForAutoMove(properties.getLimit());
+        List<DownloadedMediaData> medias = automoveSupport.findForAutoMove(properties.getLimit());
         if (medias.isEmpty()) {
             log.info("No media found to auto move");
             return;
@@ -74,7 +61,7 @@ public class AutoMoveMediaService {
 
         log.info("Trying to automatically move {} media file", medias.size());
 
-        List<List<DownloadedMedia>> groupedMedias = new ArrayList<>(medias.stream().collect(Collectors.groupingBy(customMediaFileName())).values());
+        List<List<DownloadedMediaData>> groupedMedias = new ArrayList<>(medias.stream().collect(Collectors.groupingBy(customMediaFileName())).values());
         List<Future<Void>> results = executorService.invokeAll(groupedMedias.stream().map(mediaProcessingMapping()).toList());
 
         for (Future<Void> result : results) {
@@ -90,14 +77,14 @@ public class AutoMoveMediaService {
         log.info("Finished checking download cache to automatically move media files");
     }
 
-    private @NonNull Function<List<DownloadedMedia>, Callable<Void>> mediaProcessingMapping() {
+    private @NonNull Function<List<DownloadedMediaData>, Callable<Void>> mediaProcessingMapping() {
         return mediaList -> () -> {
             processMediaList(mediaList);
             return null;
         };
     }
 
-    private static @NonNull Function<DownloadedMedia, String> customMediaFileName() {
+    private static @NonNull Function<DownloadedMediaData, String> customMediaFileName() {
         return media -> {
             String fileName = media.getFileName();
             if (fileName.contains(separator)) {
@@ -107,10 +94,10 @@ public class AutoMoveMediaService {
         };
     }
 
-    private void processMediaList(List<DownloadedMedia> mediaList) {
-        List<String> relativeMediaPaths = mediaList.stream().map(DownloadedMedia::getFileName).toList();
+    private void processMediaList(List<DownloadedMediaData> mediaList) {
+        List<String> relativeMediaPaths = mediaList.stream().map(DownloadedMediaData::getFileName).toList();
 
-        List<MediaFileGroup> groups = searchService.generateMediaFileGroupsFromDownloads(relativeMediaPaths);
+        List<MediaFileGroup> groups = automoveSupport.generateMediaFileGroupsFromDownloads(relativeMediaPaths);
         if (groups.isEmpty()) {
             log.info("No media groups generated, skipping...");
             return;
@@ -121,7 +108,7 @@ public class AutoMoveMediaService {
         }
 
         MediaFileGroup group = groups.getFirst();
-        NameYear nameYear = normalizer.normalize(group.getName());
+        NameYear nameYear = automoveSupport.normalize(group.getName());
 
         Optional<AutoMoveOption> autoMoveOptional = processOptions(group, nameYear);
         if (autoMoveOptional.isEmpty()) {
@@ -163,16 +150,16 @@ public class AutoMoveMediaService {
                 .name(movedName)
                 .noParent(group.getNoParent())
                 .videos(group.getVideos());
-        moveService.moveMedia(resultGroup, option.type());
+        automoveSupport.moveMedia(resultGroup, option.type());
         return movedName;
     }
 
-    private void updateDownloadedMedia(List<DownloadedMedia> medias) {
+    private void updateDownloadedMedia(List<DownloadedMediaData> medias) {
         medias.forEach(m -> m.setTriedAutoMove(true));
-        downloadedMediaRepository.saveAll(medias);
+        automoveSupport.saveAll(medias);
     }
 
-    private void saveAutoMove(List<DownloadedMedia> medias, String movedName, AutoMoveOption option) {
+    private void saveAutoMove(List<DownloadedMediaData> medias, String movedName, AutoMoveOption option) {
         List<AutoMoveMedia> automovedMedia = medias.stream().map(m -> {
             AutoMoveMedia autoMoveMedia = new AutoMoveMedia();
             autoMoveMedia.setFileName(m.getFileName());
@@ -190,7 +177,7 @@ public class AutoMoveMediaService {
     private List<AutoMoveOption> produceOptions(String groupName, MediaFileType type, String compare) {
         try {
             log.info("Producing {} options", type.toString());
-            RenamedMediaOptions options = renameService.produceNames(groupName, type);
+            RenamedMediaOptions options = automoveSupport.produceNames(groupName, type);
             return options.getMediaDescriptions().stream()
                     .map(description -> {
                         String source = description.getTitle();

@@ -1,10 +1,8 @@
 package net.cserny.core.rename;
 
 import net.cserny.IntegrationTest;
-import net.cserny.core.rename.OnlineCacheItem;
-import net.cserny.core.rename.OnlineCacheSearcher;
+import net.cserny.api.NameNormalizer.NameYear;
 import net.cserny.generated.RenamedMediaOptions;
-import net.cserny.core.rename.NameNormalizer.NameYear;
 import net.cserny.core.rename.internal.OnlineCacheRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

@@ -1,4 +1,4 @@
-package net.cserny.core.rename;
+package net.cserny.support;
 
 import org.apache.commons.text.similarity.LevenshteinDistance;
 

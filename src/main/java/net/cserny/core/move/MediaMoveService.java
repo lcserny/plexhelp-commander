@@ -4,6 +4,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.api.MediaIdentifier;
+import net.cserny.api.MediaMover;
 import net.cserny.config.MoveProperties;
 import net.cserny.fs.FilesystemProperties;
 import net.cserny.fs.LocalFileService;
@@ -34,7 +35,7 @@ import static net.cserny.support.UtilityProvider.toLoggableString;
 @RequiredArgsConstructor
 @Service
 @Slf4j
-public class MediaMoveService {
+public class MediaMoveService implements MediaMover {
 
     private static final String MOVIE_EXISTS = "Movie already exists";
 
@@ -62,6 +63,7 @@ public class MediaMoveService {
         log.info("Important folders: {}", toLoggableString(this.importantFolders));
     }
 
+    @Override
     public List<MediaMoveError> moveMedia(MediaFileGroup fileGroup, MediaFileType type) {
         List<MediaMoveError> errors = new ArrayList<>();
 

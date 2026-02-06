@@ -3,11 +3,12 @@ package net.cserny.core.rename;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.cserny.NameOptionsProducer;
+import net.cserny.api.NameNormalizer.NameYear;
 import net.cserny.generated.MediaDescriptionData;
 import net.cserny.generated.MediaFileType;
 import net.cserny.generated.MediaRenameOrigin;
 import net.cserny.generated.RenamedMediaOptions;
-import net.cserny.core.rename.NameNormalizer.NameYear;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -21,12 +22,12 @@ import static net.cserny.support.UtilityProvider.toLoggableString;
 @RequiredArgsConstructor
 @Slf4j
 @Service
-public class MediaRenameService {
+public class MediaRenameService implements NameOptionsProducer {
 
     private static final Pattern titleRegex = Pattern
             .compile("^\\s*(?<name>[a-zA-Z0-9-\\s]+)\\s\\((?<date>(\\d{4})(-\\d{1,2}-\\d{1,2})?)\\)$");
 
-    private final NameNormalizer normalizer;
+    private final DefaultNameNormalizer normalizer;
 
     @Getter
     private final List<Searcher> searchers;
@@ -51,6 +52,7 @@ public class MediaRenameService {
                 .collect(Collectors.toList());
     }
 
+    @Override
     public RenamedMediaOptions produceNames(String name, MediaFileType type) {
         NameYear nameYear = normalizer.normalize(name);
         log.info("Normalized media: {}", nameYear.formatted());
