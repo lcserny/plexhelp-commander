@@ -2,7 +2,7 @@ package net.cserny.core.move.automove;
 
 import lombok.RequiredArgsConstructor;
 import net.cserny.NameOptionsProducer;
-import net.cserny.api.AutomoveDownloadedManipulator;
+import net.cserny.api.DownloadedMediaManipulator;
 import net.cserny.api.MediaFileGroupGenerator;
 import net.cserny.api.MediaMover;
 import net.cserny.api.NameNormalizer;
@@ -18,7 +18,7 @@ import java.util.List;
 public class AutomoveSupportAggregator implements AutomoveSupport {
 
     @Qualifier("mediaDownloadService")
-    private final AutomoveDownloadedManipulator downloadedManipulator;
+    private final DownloadedMediaManipulator downloadedManipulator;
     @Qualifier("defaultNameNormalizer")
     private final NameNormalizer normalizer;
     @Qualifier("mediaSearchService")

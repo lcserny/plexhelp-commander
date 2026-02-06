@@ -2,7 +2,7 @@ package net.cserny.core.download;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.cserny.api.AutomoveDownloadedManipulator;
+import net.cserny.api.DownloadedMediaManipulator;
 import net.cserny.api.DownloadedTorrentProcessor;
 import net.cserny.support.DataMapper;
 import net.cserny.core.download.internal.DownloadedMediaRepository;
@@ -18,7 +18,7 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-class MediaDownloadService implements DownloadedTorrentProcessor, AutomoveDownloadedManipulator {
+class MediaDownloadService implements DownloadedTorrentProcessor, DownloadedMediaManipulator {
 
     private final DownloadedMediaRepository repository;
 

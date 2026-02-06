@@ -4,7 +4,7 @@ import net.cserny.generated.DownloadedMediaData;
 
 import java.util.List;
 
-public interface AutomoveDownloadedManipulator {
+public interface DownloadedMediaManipulator {
 
     List<DownloadedMediaData> findForAutoMove(int limit);
     void saveAll(List<DownloadedMediaData> medias);
