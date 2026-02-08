@@ -3,6 +3,7 @@ package net.cserny.core.move;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import net.cserny.generated.MediaDescriptionData;
 import net.cserny.generated.MediaFileType;
 import net.cserny.support.BaseDocument;
 import org.bson.types.ObjectId;
@@ -47,4 +48,7 @@ public class MovedMedia extends BaseDocument {
 
     @Field
     private Boolean deleted;
+
+    @Field
+    private MediaDescriptionData mediaDesc;
 }

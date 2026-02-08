@@ -23,14 +23,14 @@ public class MediaMoveController implements ApiApi {
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @Override
     public ResponseEntity<List<MediaMoveError>> moveMedia(@RequestBody @Valid MediaMoveRequest moveRequest) {
-        return ResponseEntity.ok(service.moveMedia(moveRequest.getFileGroup(), moveRequest.getType()));
+        return ResponseEntity.ok(service.moveMedia(moveRequest.getFileGroup(), moveRequest.getType(), moveRequest.getMediaDesc()));
     }
 
     @PostMapping(value = "/all", consumes = MediaType.APPLICATION_JSON_VALUE)
     @Override
     public ResponseEntity<List<MediaMoveError>> moveAllMedia(@RequestBody @Valid List<@Valid MediaMoveRequest> moveRequests) {
         return ResponseEntity.ok(moveRequests.stream()
-                .flatMap(req -> service.moveMedia(req.getFileGroup(), req.getType()).stream())
+                .flatMap(req -> service.moveMedia(req.getFileGroup(), req.getType(), req.getMediaDesc()).stream())
                 .toList()
         );
     }

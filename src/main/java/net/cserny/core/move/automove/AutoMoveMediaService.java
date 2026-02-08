@@ -150,7 +150,7 @@ class AutoMoveMediaService {
                 .name(movedName)
                 .noParent(group.getNoParent())
                 .videos(group.getVideos());
-        automoveSupport.moveMedia(resultGroup, option.type());
+        automoveSupport.moveMedia(resultGroup, option.type(), option.desc);
         return movedName;
     }
 

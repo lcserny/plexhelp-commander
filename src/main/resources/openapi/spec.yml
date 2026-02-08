@@ -352,6 +352,8 @@ components:
         deleted:
           type: boolean
           default: false
+        mediaDesc:
+          $ref: '#/components/schemas/MediaDescriptionData'
     MediaFileGroup:
       type: object
       properties:
@@ -397,6 +399,8 @@ components:
           $ref: '#/components/schemas/MediaFileGroup'
         type:
           $ref: '#/components/schemas/MediaFileType'
+        mediaDesc:
+          $ref: '#/components/schemas/MediaDescriptionData'
       required:
         - fileGroup
         - type

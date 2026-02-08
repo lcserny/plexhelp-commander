@@ -2,6 +2,7 @@ package net.cserny.core.move;
 
 import net.cserny.IntegrationTest;
 import net.cserny.fs.FilesystemProperties;
+import net.cserny.generated.MediaDescriptionData;
 import net.cserny.generated.MediaFileGroup;
 import net.cserny.generated.MediaFileType;
 import net.cserny.generated.MediaMoveError;
@@ -18,6 +19,8 @@ import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class MediaMoveServiceTest extends IntegrationTest {
+
+    private final static MediaDescriptionData emptyDesc = new MediaDescriptionData();
 
     @Autowired
     MediaMoveService service;
@@ -43,7 +46,7 @@ public class MediaMoveServiceTest extends IntegrationTest {
         createFile(6, path + "/" + movie);
 
         MediaFileGroup fileGroup = new MediaFileGroup().path(path).name(name).videos(List.of(movie));
-        List<MediaMoveError> errors = service.moveMedia(fileGroup, MediaFileType.MOVIE);
+        List<MediaMoveError> errors = service.moveMedia(fileGroup, MediaFileType.MOVIE, emptyDesc);
 
         assertEquals(1, errors.size());
         assertTrue(Files.exists(fileService.toLocalPath(path, movie).path()));
@@ -60,7 +63,7 @@ public class MediaMoveServiceTest extends IntegrationTest {
         createFile(6, path + "/" + show);
 
         MediaFileGroup fileGroup = new MediaFileGroup().path(path).name(name).videos(List.of(show)).season(1);
-        List<MediaMoveError> errors = service.moveMedia(fileGroup, MediaFileType.TV);
+        List<MediaMoveError> errors = service.moveMedia(fileGroup, MediaFileType.TV, emptyDesc);
 
         assertEquals(0, errors.size());
         assertFalse(Files.exists(fileService.toLocalPath(path, show).path()));
@@ -94,7 +97,7 @@ public class MediaMoveServiceTest extends IntegrationTest {
         createFile(6, path + "/" + movie);
 
         MediaFileGroup fileGroup = new MediaFileGroup().path(path).name(name).videos(List.of(movie));
-        List<MediaMoveError> errors = service.moveMedia(fileGroup, MediaFileType.MOVIE);
+        List<MediaMoveError> errors = service.moveMedia(fileGroup, MediaFileType.MOVIE, emptyDesc);
 
         assertEquals(0, errors.size());
         assertFalse(Files.exists(fileService.toLocalPath(path, movie).path()));
@@ -113,7 +116,7 @@ public class MediaMoveServiceTest extends IntegrationTest {
         createFile(6, path + "/" + tv);
 
         MediaFileGroup fileGroup = new MediaFileGroup().path(path).name(name).videos(List.of(tv)).season(2);
-        List<MediaMoveError> errors = service.moveMedia(fileGroup, MediaFileType.TV);
+        List<MediaMoveError> errors = service.moveMedia(fileGroup, MediaFileType.TV, emptyDesc);
 
         assertEquals(0, errors.size());
         assertFalse(Files.exists(fileService.toLocalPath(path, tv).path()));
@@ -135,10 +138,12 @@ public class MediaMoveServiceTest extends IntegrationTest {
                 .path(format("%s/%s", filesystemConfig.getDownloadsPath(), name))
                 .name(name)
                 .videos(List.of(sampleFile, movieFile));
-        List<MediaMoveError> errors = service.moveMedia(fileGroup, MediaFileType.MOVIE);
+        List<MediaMoveError> errors = service.moveMedia(fileGroup, MediaFileType.MOVIE, emptyDesc);
 
         assertEquals(0, errors.size());
         assertTrue(Files.exists(fileService.toLocalPath(filesystemConfig.getMoviesPath(), name, name + ".mp4").path()));
         assertFalse(Files.exists(fileService.toLocalPath(filesystemConfig.getMoviesPath(), name, sampleFile).path()));
     }
+
+    // TODO add test with correct mediaDesc and check its persisted in movedMedia repo
 }

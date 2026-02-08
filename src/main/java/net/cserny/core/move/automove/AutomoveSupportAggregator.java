@@ -49,8 +49,8 @@ public class AutomoveSupportAggregator implements AutomoveSupport {
     }
 
     @Override
-    public List<MediaMoveError> moveMedia(MediaFileGroup fileGroup, MediaFileType type) {
-        return mediaMover.moveMedia(fileGroup, type);
+    public List<MediaMoveError> moveMedia(MediaFileGroup fileGroup, MediaFileType type, MediaDescriptionData mediaDesc) {
+        return mediaMover.moveMedia(fileGroup, type, mediaDesc);
     }
 
     @Override

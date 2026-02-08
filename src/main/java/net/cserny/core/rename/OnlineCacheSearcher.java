@@ -36,8 +36,11 @@ public class OnlineCacheSearcher implements Searcher {
 
     private MediaDescriptionData convert(OnlineCacheItem item) {
         String date = item.getDate() == null ? null : utcDateFormatter.format(item.getDate());
-        return new MediaDescriptionData().posterUrl(item.getCoverPath())
-                .title(item.getTitle()).date(date).description(item.getDescription())
+        return new MediaDescriptionData()
+                .posterUrl(item.getCoverPath())
+                .title(item.getTitle())
+                .date(date)
+                .description(item.getDescription())
                 .cast(item.getCast());
     }
 }

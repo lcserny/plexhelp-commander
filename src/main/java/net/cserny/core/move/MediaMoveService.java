@@ -9,10 +9,7 @@ import net.cserny.config.MoveProperties;
 import net.cserny.fs.FilesystemProperties;
 import net.cserny.fs.LocalFileService;
 import net.cserny.fs.LocalPath;
-import net.cserny.generated.MediaFileGroup;
-import net.cserny.generated.MediaFileType;
-import net.cserny.generated.MediaMoveError;
-import net.cserny.generated.MovedMediaData;
+import net.cserny.generated.*;
 import net.cserny.core.move.MediaGrouper.GroupedVideos;
 import net.cserny.core.move.MediaInfoExtractor.MediaInfo;
 import net.cserny.core.move.subtitle.SubsMoveOperation;
@@ -64,7 +61,7 @@ class MediaMoveService implements MediaMover {
     }
 
     @Override
-    public List<MediaMoveError> moveMedia(MediaFileGroup fileGroup, MediaFileType type) {
+    public List<MediaMoveError> moveMedia(MediaFileGroup fileGroup, MediaFileType type, MediaDescriptionData mediaDesc) {
         List<MediaMoveError> errors = new ArrayList<>();
 
         if (movieExists(fileGroup.getName(), type)) {
@@ -91,7 +88,7 @@ class MediaMoveService implements MediaMover {
                 log.info("Moving video {} to {}", srcPath, destPath);
                 boolean moveSuccessful = fileService.move(srcPath, destPath);
 
-                if (!moveSuccessful) {
+                if (moveSuccessful) {
                     movedMediaRepository.save(MovedMedia.builder()
                             .source(srcPath.path().toString())
                             .destination(destPath.path().toString())
@@ -102,6 +99,7 @@ class MediaMoveService implements MediaMover {
                             .episode(mediaInfo.episode())
                             .mediaType(type)
                             .deleted(false)
+                            .mediaDesc(mediaDesc)
                             .build());
                 }
             } catch (IOException e) {
