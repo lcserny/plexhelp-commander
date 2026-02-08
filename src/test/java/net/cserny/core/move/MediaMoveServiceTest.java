@@ -4,7 +4,6 @@ import net.cserny.IntegrationTest;
 import net.cserny.fs.FilesystemProperties;
 import net.cserny.generated.MediaDescriptionData;
 import net.cserny.generated.MediaFileGroup;
-import net.cserny.generated.MediaFileType;
 import net.cserny.generated.MediaMoveError;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -13,10 +12,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.time.LocalDate;
 import java.util.List;
 
 import static java.lang.String.format;
-import static org.junit.jupiter.api.Assertions.*;
+import static net.cserny.generated.MediaFileType.MOVIE;
+import static net.cserny.generated.MediaFileType.TV;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class MediaMoveServiceTest extends IntegrationTest {
 
@@ -24,6 +26,9 @@ public class MediaMoveServiceTest extends IntegrationTest {
 
     @Autowired
     MediaMoveService service;
+
+    @Autowired
+    MovedMediaRepository repository;
 
     @Autowired
     FilesystemProperties filesystemConfig;
@@ -46,10 +51,10 @@ public class MediaMoveServiceTest extends IntegrationTest {
         createFile(6, path + "/" + movie);
 
         MediaFileGroup fileGroup = new MediaFileGroup().path(path).name(name).videos(List.of(movie));
-        List<MediaMoveError> errors = service.moveMedia(fileGroup, MediaFileType.MOVIE, emptyDesc);
+        List<MediaMoveError> errors = service.moveMedia(fileGroup, MOVIE, emptyDesc);
 
-        assertEquals(1, errors.size());
-        assertTrue(Files.exists(fileService.toLocalPath(path, movie).path()));
+        assertThat(errors).hasSize(1);
+        assertThat(Files.exists(fileService.toLocalPath(path, movie).path())).isTrue();
     }
 
     @Test
@@ -63,11 +68,11 @@ public class MediaMoveServiceTest extends IntegrationTest {
         createFile(6, path + "/" + show);
 
         MediaFileGroup fileGroup = new MediaFileGroup().path(path).name(name).videos(List.of(show)).season(1);
-        List<MediaMoveError> errors = service.moveMedia(fileGroup, MediaFileType.TV, emptyDesc);
+        List<MediaMoveError> errors = service.moveMedia(fileGroup, TV, emptyDesc);
 
-        assertEquals(0, errors.size());
-        assertFalse(Files.exists(fileService.toLocalPath(path, show).path()));
-        assertTrue(Files.exists(fileService.toLocalPath(filesystemConfig.getTvPath(), name, "Season 1", name + " S01.mp4").path()));
+        assertThat(errors).isEmpty();
+        assertThat(Files.exists(fileService.toLocalPath(path, show).path())).isFalse();
+        assertThat(Files.exists(fileService.toLocalPath(filesystemConfig.getTvPath(), name, "Season 1", name + " S01.mp4").path())).isTrue();
     }
 
     @Test
@@ -80,8 +85,8 @@ public class MediaMoveServiceTest extends IntegrationTest {
         createFile(6, filesystemConfig.getTvPath(), name, "Season 1", name + " S01.mp4");
         createFile(6, path, show);
 
-        assertTrue(Files.exists(fileService.toLocalPath(path, show).path()));
-        assertTrue(Files.exists(fileService.toLocalPath(filesystemConfig.getTvPath(), name, "Season 1", name + " S01.mp4").path()));
+        assertThat(Files.exists(fileService.toLocalPath(path, show).path())).isTrue();
+        assertThat(Files.exists(fileService.toLocalPath(filesystemConfig.getTvPath(), name, "Season 1", name + " S01.mp4").path())).isTrue();
     }
 
     @Test
@@ -97,12 +102,12 @@ public class MediaMoveServiceTest extends IntegrationTest {
         createFile(6, path + "/" + movie);
 
         MediaFileGroup fileGroup = new MediaFileGroup().path(path).name(name).videos(List.of(movie));
-        List<MediaMoveError> errors = service.moveMedia(fileGroup, MediaFileType.MOVIE, emptyDesc);
+        List<MediaMoveError> errors = service.moveMedia(fileGroup, MOVIE, emptyDesc);
 
-        assertEquals(0, errors.size());
-        assertFalse(Files.exists(fileService.toLocalPath(path, movie).path()));
-        assertTrue(Files.exists(fileService.toLocalPath(filesystemConfig.getMoviesPath(), name, name + ".mp4").path()));
-        assertTrue(Files.exists(fileService.toLocalPath(filesystemConfig.getDownloadsPath(), randomFile).path()));
+        assertThat(errors).isEmpty();
+        assertThat(Files.exists(fileService.toLocalPath(path, movie).path())).isFalse();
+        assertThat(Files.exists(fileService.toLocalPath(filesystemConfig.getMoviesPath(), name, name + ".mp4").path())).isTrue();
+        assertThat(Files.exists(fileService.toLocalPath(filesystemConfig.getDownloadsPath(), randomFile).path())).isTrue();
     }
 
     @Test
@@ -116,12 +121,12 @@ public class MediaMoveServiceTest extends IntegrationTest {
         createFile(6, path + "/" + tv);
 
         MediaFileGroup fileGroup = new MediaFileGroup().path(path).name(name).videos(List.of(tv)).season(2);
-        List<MediaMoveError> errors = service.moveMedia(fileGroup, MediaFileType.TV, emptyDesc);
+        List<MediaMoveError> errors = service.moveMedia(fileGroup, TV, emptyDesc);
 
-        assertEquals(0, errors.size());
-        assertFalse(Files.exists(fileService.toLocalPath(path, tv).path()));
+        assertThat(errors).isEmpty();
+        assertThat(Files.exists(fileService.toLocalPath(path, tv).path())).isFalse();
         String destVideoFile = name + " S02E01.mkv";
-        assertTrue(Files.exists(fileService.toLocalPath(filesystemConfig.getTvPath(), name, "Season 2", destVideoFile).path()));
+        assertThat(Files.exists(fileService.toLocalPath(filesystemConfig.getTvPath(), name, "Season 2", destVideoFile).path())).isTrue();
     }
 
     @Test
@@ -138,12 +143,42 @@ public class MediaMoveServiceTest extends IntegrationTest {
                 .path(format("%s/%s", filesystemConfig.getDownloadsPath(), name))
                 .name(name)
                 .videos(List.of(sampleFile, movieFile));
-        List<MediaMoveError> errors = service.moveMedia(fileGroup, MediaFileType.MOVIE, emptyDesc);
+        List<MediaMoveError> errors = service.moveMedia(fileGroup, MOVIE, emptyDesc);
 
-        assertEquals(0, errors.size());
-        assertTrue(Files.exists(fileService.toLocalPath(filesystemConfig.getMoviesPath(), name, name + ".mp4").path()));
-        assertFalse(Files.exists(fileService.toLocalPath(filesystemConfig.getMoviesPath(), name, sampleFile).path()));
+        assertThat(errors).isEmpty();
+        assertThat(Files.exists(fileService.toLocalPath(filesystemConfig.getMoviesPath(), name, name + ".mp4").path())).isTrue();
+        assertThat(Files.exists(fileService.toLocalPath(filesystemConfig.getMoviesPath(), name, sampleFile).path())).isFalse();
     }
 
-    // TODO add test with correct mediaDesc and check its persisted in movedMedia repo
+    @Test
+    @DisplayName("Moving a media file with mediaDesc populated, persists the media and desc correctly")
+    public void movingMediaWithDescriptionPersistsItCorrectly() throws IOException {
+        String name = "Asssssssssddddddfg";
+        String movieFile = "video.mp4";
+
+        createFile(10, filesystemConfig.getDownloadsPath(), name, movieFile);
+
+        MediaFileGroup fileGroup = new MediaFileGroup()
+                .path(format("%s/%s", filesystemConfig.getDownloadsPath(), name))
+                .name(name)
+                .videos(List.of(movieFile));
+
+        MediaDescriptionData mediaDescriptionData = new MediaDescriptionData();
+        mediaDescriptionData.setDescription("This is a description");
+        mediaDescriptionData.setTitle("This is a title");
+        mediaDescriptionData.setDate(LocalDate.now().toString());
+        mediaDescriptionData.setPosterUrl("https://www.poster.com");
+        mediaDescriptionData.setCast(List.of("A", "B"));
+
+        List<MediaMoveError> errors = service.moveMedia(fileGroup, MOVIE, mediaDescriptionData);
+
+        assertThat(errors).isEmpty();
+        assertThat(Files.exists(fileService.toLocalPath(filesystemConfig.getMoviesPath(), name, name + ".mp4").path())).isTrue();
+
+        List<MovedMedia> movedMedia = repository.findByMediaName(name);
+        assertThat(movedMedia).hasSize(1);
+        assertThat(movedMedia.getFirst())
+                .extracting("mediaName", "mediaDesc")
+                .containsExactly(name, mediaDescriptionData);
+    }
 }

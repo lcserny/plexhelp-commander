@@ -8,6 +8,7 @@ import net.cserny.generated.MediaFileType;
 import net.cserny.support.BaseDocument;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -32,6 +33,7 @@ public class MovedMedia extends BaseDocument {
     private Long sizeBytes;
 
     @Field
+    @Indexed(name = "mediaName_idx")
     private String mediaName;
 
     @Field
