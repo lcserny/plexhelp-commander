@@ -5,6 +5,7 @@ import net.cserny.fs.FilesystemProperties;
 import net.cserny.generated.MediaDescriptionData;
 import net.cserny.generated.MediaFileGroup;
 import net.cserny.generated.MediaMoveError;
+import net.cserny.generated.MovedMediaData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,19 +26,21 @@ public class MediaMoveServiceTest extends IntegrationTest {
     private final static MediaDescriptionData emptyDesc = new MediaDescriptionData();
 
     @Autowired
-    MediaMoveService service;
+    private MediaMoveService service;
 
     @Autowired
-    MovedMediaRepository repository;
+    private MovedMediaRepository repository;
 
     @Autowired
-    FilesystemProperties filesystemConfig;
+    private FilesystemProperties filesystemConfig;
 
     @BeforeEach
     public void init() throws IOException {
         createDirectories(filesystemConfig.getDownloadsPath());
         createDirectories(filesystemConfig.getMoviesPath());
         createDirectories(filesystemConfig.getTvPath());
+
+        repository.deleteAll();
     }
 
     @Test
@@ -175,10 +178,25 @@ public class MediaMoveServiceTest extends IntegrationTest {
         assertThat(errors).isEmpty();
         assertThat(Files.exists(fileService.toLocalPath(filesystemConfig.getMoviesPath(), name, name + ".mp4").path())).isTrue();
 
-        List<MovedMedia> movedMedia = repository.findByMediaName(name);
+        List<MovedMedia> movedMedia = repository.findAllByMediaName(name);
         assertThat(movedMedia).hasSize(1);
         assertThat(movedMedia.getFirst())
                 .extracting("mediaName", "mediaDesc")
                 .containsExactly(name, mediaDescriptionData);
+    }
+
+    @Test
+    @DisplayName("When retrieving all available moved media, only the undeleted media files are returned")
+    public void getAvailableMovedMediaReturnedDoesNotContainDeletedMedia() {
+        MovedMedia undeletedMedia1 = MovedMedia.builder().mediaName("A").deleted(false).build();
+        MovedMedia undeletedMedia2 = MovedMedia.builder().mediaName("B").deleted(false).build();
+        MovedMedia deletedMedia = MovedMedia.builder().mediaName("C").deleted(true).build();
+        repository.saveAll(List.of(undeletedMedia1, undeletedMedia2, deletedMedia));
+
+        List<MovedMediaData> availableMovedMedia = service.getAvailableMovedMedia();
+
+        assertThat(availableMovedMedia)
+                .hasSize(2)
+                .noneMatch(MovedMediaData::getDeleted);
     }
 }

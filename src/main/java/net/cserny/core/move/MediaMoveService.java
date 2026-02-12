@@ -130,6 +130,11 @@ class MediaMoveService implements MediaMover {
         return foundMedia.map(DataMapper.INSTANCE::movedMediaToMovedMediaData);
     }
 
+    public List<MovedMediaData> getAvailableMovedMedia() {
+        List<MovedMedia> foundMedia = movedMediaRepository.findAllByDeleted(false);
+        return foundMedia.stream().map(DataMapper.INSTANCE::movedMediaToMovedMediaData).toList();
+    }
+
     private void cleanSourceMediaDir(MediaFileGroup mediaFileGroup, List<LocalPath> deletableVideos) throws IOException {
         LocalPath removePath = fileService.toLocalPath(mediaFileGroup.getPath());
 

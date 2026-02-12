@@ -128,9 +128,29 @@ paths:
               schema:
                 $ref: '#/components/schemas/ApplicationErrorResponse'
     get:
-      x-spring-paginated: true
       tags:
         - Moved Media Resource
+      operationId: getAvailableMovedMedia
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MovedMediaData'
+        "400":
+          description: error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationErrorResponse'
+  /api/v1/media-moves/paginated:
+    get:
+      x-spring-paginated: true
+      tags:
+        - Moved Media Resource (Paginated)
       operationId: getMovedMediaPaginated
       responses:
         "200":

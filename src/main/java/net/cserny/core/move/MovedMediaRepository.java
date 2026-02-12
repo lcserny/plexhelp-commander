@@ -7,5 +7,7 @@ import java.util.List;
 
 interface MovedMediaRepository extends MongoRepository<MovedMedia, ObjectId> {
 
-    List<MovedMedia> findByMediaName(String mediaName);
+    List<MovedMedia> findAllByMediaName(String mediaName);
+
+    List<MovedMedia> findAllByDeleted(boolean deleted);
 }

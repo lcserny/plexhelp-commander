@@ -33,7 +33,7 @@ public class MovedMedia extends BaseDocument {
     private Long sizeBytes;
 
     @Field
-    @Indexed(name = "mediaName_idx")
+    @Indexed(name = "movedMedia_mediaName_idx")
     private String mediaName;
 
     @Field
@@ -49,6 +49,7 @@ public class MovedMedia extends BaseDocument {
     private MediaFileType mediaType;
 
     @Field
+    @Indexed(name = "movedMedia_deleted_idx")
     private Boolean deleted;
 
     @Field
