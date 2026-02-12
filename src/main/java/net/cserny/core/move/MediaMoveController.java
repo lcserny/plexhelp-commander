@@ -7,6 +7,7 @@ import net.cserny.generated.*;
 import net.cserny.support.CommanderController;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,11 +20,13 @@ public class MediaMoveController implements ApiApi {
 
     private final MediaMoveService service;
 
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @Override
     public ResponseEntity<List<MediaMoveError>> moveMedia(@RequestBody @Valid MediaMoveRequest moveRequest) {
         return ResponseEntity.ok(service.moveMedia(moveRequest.getFileGroup(), moveRequest.getType(), moveRequest.getMediaDesc()));
     }
 
+    @PostMapping(value = "/all", consumes = MediaType.APPLICATION_JSON_VALUE)
     @Override
     public ResponseEntity<List<MediaMoveError>> moveAllMedia(@RequestBody @Valid List<@Valid MediaMoveRequest> moveRequests) {
         return ResponseEntity.ok(moveRequests.stream()
@@ -32,6 +35,7 @@ public class MediaMoveController implements ApiApi {
         );
     }
 
+    @GetMapping(value = "/paginated")
     @Override
     public ResponseEntity<PaginatedMovedMedia> getMovedMediaPaginated(Pageable pageable) {
         Page<MovedMediaData> movedMedia = service.getAllMovedMedia(pageable);
@@ -39,6 +43,7 @@ public class MediaMoveController implements ApiApi {
         return ResponseEntity.ok(new PaginatedMovedMedia(page, movedMedia.getContent()));
     }
 
+    @GetMapping
     @Override
     public ResponseEntity<List<MovedMediaData>> getAvailableMovedMedia() {
         return ResponseEntity.ok(service.getAvailableMovedMedia());
