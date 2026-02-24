@@ -1,0 +1,154 @@
+spring:
+  application:
+    name: commander-test
+  threads:
+    virtual:
+      enabled: true
+  thymeleaf:
+    check-template: false
+
+  data:
+    mongodb:
+      database: videosmover_test
+
+http:
+  client:
+    connection:
+      timeout:
+        ms: 5000
+    read:
+      timeout:
+        ms: 5000
+
+togglz:
+  cache:
+    enabled: true
+    time-to-live: 10000
+
+torrent:
+  webui:
+    username: admin
+    password: adminadmin
+
+token:
+  security:
+    type: SECRET
+    secret:
+      algo: NONE
+    issuer: auth-service-test
+
+tmdb:
+  client:
+    api-key: testApiKey
+    base-url: https://api.themoviedb.org/3/
+    search-movies-url: "{baseUrl}search/movie?api_key={tmdbApiKey}&query={query}&year={year}"
+    movie-credits-url: "{baseUrl}movie/{movieId}/credits?api_key={tmdbApiKey}"
+    search-tv-url: "{baseUrl}search/tv?api_key={tmdbApiKey}&query={query}&year={year}"
+    tv-credits-url: "{baseUrl}tv/{tvId}/credits?api_key={tmdbApiKey}"
+
+online:
+  result-limit: 10
+  poster-base: https://image.tmdb.org/t/p/w92
+
+server:
+  command:
+    name: test-server
+    listen-cron: "disabled"
+    wsl:
+      enabled: false
+      system32-path: "/mnt/c/Windows/System32/"
+    ssh:
+      enabled: false
+      port: 22
+      host: localhost
+      username: changeMe
+      password: changeMe
+  tomcat:
+    threads:
+      max: 10
+      min-spare: 3
+
+filesystem:
+  downloads-path: /test/Downloads
+  movies-path: /test/Movies
+  tv-path: /test/TV
+  cache:
+    cron: "0 * * * * *"
+
+search:
+  max-depth: 2
+  exclude-paths:
+    - Excluded
+  video-min-size-bytes: 5
+  video-mime-types:
+    - video/x-matroska
+    - video/x-msvideo
+    - video/mp4
+    - video/x-flv
+    - video/quicktime
+    - video/x-ms-wmv
+    - video/vnd.dlna.mpeg-tts
+    - application/x-matroska
+
+rename:
+  trim-regex:
+    - .[sS](\d{1,2})([-]?[eE](\d{1,2}))?
+    - "[\\.\\s][sS][0-9]{1,2}[\\.\\s]?"
+    - 1080p
+    - 720p
+    - 2160p
+    - BluRay
+    - HDTV
+    - x264
+    - REPACK
+    - WEB-DL
+    - BRRip
+    - H264
+    - AAC
+    - XviD
+    - AC3
+    - HDRip
+    - DVDRip
+    - WEBRip
+    - DVDScr
+    - HQ
+    - KORSUB
+    - BDRip
+    - ".?RARBG"
+    - "(\\d|\\.){1,5}(GB|MB)"
+    - "\\.EXTENDED\\."
+    - MP3
+    - "(DD)?5\\.1"
+    - DTS
+    - "Season \\d{1}"
+    - DUBBED
+  similarity-percent: 80
+  max-depth: 3
+
+move:
+  restricted-remove-paths:
+    - Downloads
+  subs-ext:
+    - .srt
+    - .sub
+    - .ssa
+    - .ass
+    - .usf
+    - .idx
+    - .ssf
+    - .stl
+    - .smi
+    - .rt
+    - .psb
+    - .pjs
+    - .ttxt
+    - .jss
+    - .gsub
+    - .aqt
+    - .nfo
+  subs-max-depth: 5
+
+automove:
+  cron: "*/10 * * * * *"
+  limit: 50
+  similarityAccepted: 85

@@ -1,4 +1,4 @@
 FROM docker.io/library/eclipse-temurin:21-jre-noble
 VOLUME /tmp
-COPY target/plexhelp-commander-*.jar commander.jar
+COPY plexhelp-commander-web/target/plexhelp-commander-*.jar commander.jar
 ENTRYPOINT ["sh", "-c", "java -jar /commander.jar"]
