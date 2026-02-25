@@ -77,7 +77,7 @@ public class FfmpegReduceSubtitles extends AbstractOSCommand {
             parent = parent.getParent();
         }
 
-        Path mediaWithoutRootPath = parent.relativize(mediaPath.path());
+        Path mediaWithoutRootPath = parent.getParent().relativize(mediaPath.path());
         Path systemTempDir = Path.of(System.getProperty("java.io.tmpdir"));
         Path tmpMediaPath = systemTempDir.resolve(mediaWithoutRootPath);
         log.info("Temporary media path to use: {}", tmpMediaPath);
