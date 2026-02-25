@@ -6,8 +6,6 @@ import java.util.List;
 
 public interface CommandRunner {
 
-    CommandResult ERROR_RESULT = new CommandResult(1, null);
-
     CommandResult run(String command) throws Exception;
 
     default CommandResult run(List<String> commands) throws Exception {

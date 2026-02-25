@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
-import static net.cserny.core.command.CommandRunner.ERROR_RESULT;
 import static net.cserny.support.UtilityProvider.toLoggableString;
 
 @RequiredArgsConstructor
@@ -26,7 +25,7 @@ public class LocalCommandService {
                     return command.execute(params);
                 } catch (Exception e) {
                     log.warn("Error occurred executing command {}: {}", name, e.getMessage());
-                    return Optional.of(ERROR_RESULT);
+                    return Optional.of(new CommandResult(1, e.getMessage()));
                 }
             }
         }

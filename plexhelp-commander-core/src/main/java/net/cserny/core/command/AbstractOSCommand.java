@@ -20,6 +20,8 @@ import org.springframework.scheduling.TaskScheduler;
 @Slf4j
 public abstract class AbstractOSCommand implements Command {
 
+    private static final CommandResult delayedResult = new CommandResult(0, "Command will be executed later, no result available at this time");
+
     private final ServerCommandProperties properties;
     private final TaskScheduler taskScheduler;
     private final CommandRunner commandRunner;
@@ -88,7 +90,7 @@ public abstract class AbstractOSCommand implements Command {
         }
 
         taskScheduler.schedule(runnable, Instant.now().plus(Duration.ofMinutes(minutes)));
-        return Optional.empty();
+        return Optional.of(delayedResult);
     }
 
     protected String getSystem32Prefix() {

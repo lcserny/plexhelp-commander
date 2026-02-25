@@ -37,7 +37,8 @@ public class CommandController implements ApiApi {
                 .orElseGet(() -> new CommandResponse().status(Status.NOT_FOUND));
 
         return switch (response.getStatus()) {
-            case SUCCESS, NOT_FOUND -> ResponseEntity.ok(response);
+            case SUCCESS -> ResponseEntity.ok(response);
+            case NOT_FOUND -> new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
             case FAILED -> new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         };
     }
