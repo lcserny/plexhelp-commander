@@ -20,7 +20,7 @@ public class SshCommandRunner implements CommandRunner {
     private final ServerCommandProperties properties;
 
     @Override
-    public CommandResponse run(String command) throws Exception {
+    public CommandResult run(String command) throws Exception {
         log.info("Executing SSH command via SSHJ: {}", command);
 
         SshProperties sshProperties = properties.getSsh();
@@ -40,7 +40,7 @@ public class SshCommandRunner implements CommandRunner {
                 cmd.join(TIMEOUT_SECONDS, TimeUnit.SECONDS);
 
                 Integer exitStatus = cmd.getExitStatus();
-                return new CommandResponse(exitStatus != null ? exitStatus : -1, output.trim());
+                return new CommandResult(exitStatus != null ? exitStatus : -1, output.trim());
             }
         } finally {
             if (ssh.isConnected()) {

@@ -6,13 +6,19 @@ import java.util.List;
 
 public interface CommandRunner {
 
-    CommandResponse run(String command) throws Exception;
+    CommandResult ERROR_RESULT = new CommandResult(1, null);
 
-    default CommandResponse run(List<String> commands) throws Exception {
+    CommandResult run(String command) throws Exception;
+
+    default CommandResult run(List<String> commands) throws Exception {
         return run(String.join(" ", commands));
     }
 
-    record CommandResponse(int exitCode, String response) {
+    record CommandResult(int exitCode, String response) {
+
+        public boolean isSuccess() {
+            return exitCode == 0;
+        }
 
         @Override
         public String response() {

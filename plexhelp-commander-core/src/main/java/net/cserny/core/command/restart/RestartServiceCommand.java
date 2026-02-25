@@ -27,7 +27,7 @@ public class RestartServiceCommand extends AbstractOSCommand {
     }
 
     @Override
-    protected boolean waitForExecution() {
+    protected boolean executeNow() {
         return true;
     }
 

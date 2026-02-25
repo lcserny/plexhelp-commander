@@ -3,12 +3,14 @@ package net.cserny.core.command;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.config.ServerCommandProperties;
-import net.cserny.core.command.CommandRunner.CommandResponse;
-import net.cserny.generated.Status;
+import net.cserny.core.command.CommandRunner.CommandResult;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.springframework.scheduling.TaskScheduler;
@@ -26,72 +28,67 @@ public abstract class AbstractOSCommand implements Command {
 
     protected abstract List<String> produceCommandLinux(String[] params);
 
-    protected boolean waitForExecution() {
+    protected boolean executeNow() {
         return false;
     }
 
+    protected boolean executeWslUsingWindows() {
+        return true;
+    }
+
     @Override
-    public net.cserny.generated.CommandResponse execute(String[] params) {
+    public Optional<CommandResult> execute(String[] params) throws Exception {
         List<String> commands;
-        if (SystemUtils.IS_OS_WINDOWS || properties.getWsl().isEnabled()) {
+        if (SystemUtils.IS_OS_WINDOWS || (properties.getWsl().isEnabled() && executeWslUsingWindows())) {
             log.info("Producing commands for Windows (or WSL)");
             commands = produceCommandWindows(params);
         } else if (SystemUtils.IS_OS_LINUX) {
             log.info("Producing commands for Linux");
             commands = produceCommandLinux(params);
         } else {
-            throw new RuntimeException("Unsupported operating system: " + SystemUtils.OS_NAME);
+            throw new UnsupportedOperationException("Unsupported operating system: " + SystemUtils.OS_NAME);
         }
 
-        try {
-            if (params.length == 0) {
-                log.info("Executing commands without delay");
-                executeInternal(commands);
-            } else {
-                if (StringUtils.isNumeric(params[0])) {
-                    int minutes = Integer.parseInt(params[0]);
-                    if (minutes > 0) {
-                        log.info("Executing commands in {} minutes", minutes);
-                        executeInternal(commands, minutes);
-                    } else {
-                        log.info("Executing commands without delay");
-                        executeInternal(commands);
-                    }
-                } else {
-                    log.info("Executing commands without delay");
-                    executeInternal(commands);
-                }
+        // FIXME this is buggy, what if I have a command with a numeric first param which isn't a delay in mins?
+        //  - need to add specific "delay" field in CommandRequest and send it from front
+        if (params.length == 1 && StringUtils.isNumeric(params[0])) {
+            int minutes = Integer.parseInt(params[0]);
+            if (minutes > 0) {
+                log.info("Executing commands in {} minutes", minutes);
+                return executeInternal(commands, minutes);
             }
-        } catch (Exception e) {
-            log.error("Error encountered while executing command", e);
-            return new net.cserny.generated.CommandResponse(Status.FAILED);
         }
 
-        return Command.EMPTY_OK;
+        log.info("Executing commands without delay");
+        return executeInternal(commands);
     }
 
-    private void executeInternal(List<String> commands) {
+    private Optional<CommandResult> executeInternal(List<String> commands) throws ExecutionException, InterruptedException {
+        return executeInternal(commands, 0);
+    }
+
+    private Optional<CommandResult> executeInternal(List<String> commands, int minutes) throws ExecutionException, InterruptedException {
+        CompletableFuture<CommandResult> future = new CompletableFuture<>();
         Runnable runnable = () -> {
             try {
-                CommandResponse response = commandRunner.run(commands);
-                if (response.exitCode() != 0) {
-                    throw new RuntimeException("Error executing command [code: %d] %s".formatted(response.exitCode(), response.response()));
+                CommandResult result = commandRunner.run(commands);
+                if (result.exitCode() != 0) {
+                    throw new RuntimeException("Error executing command [code: %d] %s".formatted(result.exitCode(), result.response()));
                 }
-                log.info("CMD output: {}", response.response());
+                log.info("CMD output: {}", result.response());
+                future.complete(result);
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                future.completeExceptionally(e);
             }
         };
 
-        if (waitForExecution()) {
-            runnable.run();
-        } else {
+        if (executeNow() || minutes <= 0) {
             taskScheduler.schedule(runnable, Instant.now().plusMillis(50));
+            return Optional.of(future.get());
         }
-    }
 
-    private void executeInternal(List<String> commands, int minutes) {
-        taskScheduler.schedule(() -> executeInternal(commands), Instant.now().plus(Duration.ofMinutes(minutes)));
+        taskScheduler.schedule(runnable, Instant.now().plus(Duration.ofMinutes(minutes)));
+        return Optional.empty();
     }
 
     protected String getSystem32Prefix() {

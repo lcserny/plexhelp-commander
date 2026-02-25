@@ -6,7 +6,7 @@ import io.micrometer.context.ContextExecutorService;
 import io.micrometer.context.ContextSnapshotFactory;
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.core.command.CommandRunner;
-import net.cserny.core.command.CommandCommandRunner;
+import net.cserny.core.command.NativeCommandRunner;
 import net.cserny.core.command.SshCommandRunner;
 import net.cserny.api.dto.TorrentFile;
 import net.cserny.core.rename.TmdbWrapper;
@@ -15,7 +15,6 @@ import net.cserny.support.Features;
 import net.cserny.support.UtilityProvider;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.mongo.MongoProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -89,7 +88,7 @@ public class ApplicationConfig {
         if (serverCommandProperties.getSsh().isEnabled()) {
             return new SshCommandRunner(serverCommandProperties);
         }
-        return new CommandCommandRunner(executorService);
+        return new NativeCommandRunner(executorService);
     }
 
     @Bean

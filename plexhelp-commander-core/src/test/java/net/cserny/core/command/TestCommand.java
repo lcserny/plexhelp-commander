@@ -1,13 +1,16 @@
 package net.cserny.core.command;
 
 import lombok.Getter;
-import net.cserny.core.command.Command;
-import net.cserny.generated.CommandResponse;
+import net.cserny.core.command.CommandRunner.CommandResult;
 import org.springframework.stereotype.Component;
+
+import java.util.Optional;
 
 @Getter
 @Component
 public class TestCommand implements Command {
+
+    private static final CommandResult success = new CommandResult(0, null);
 
     public static final String TEST_COMMAND = "test";
 
@@ -18,9 +21,9 @@ public class TestCommand implements Command {
     }
 
     @Override
-    public CommandResponse execute(String[] params) {
+    public Optional<CommandResult> execute(String[] params) {
         executed = true;
-        return Command.EMPTY_OK;
+        return Optional.of(success);
     }
 
     @Override

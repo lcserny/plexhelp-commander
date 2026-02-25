@@ -1,12 +1,10 @@
 package net.cserny.core.command;
 
-import net.cserny.generated.CommandResponse;
-import net.cserny.generated.Status;
+import net.cserny.core.command.CommandRunner.CommandResult;
+import java.util.Optional;
 
 public interface Command {
 
-    CommandResponse EMPTY_OK = new CommandResponse().status(Status.SUCCESS);
-
-    CommandResponse execute(String[] params);
+    Optional<CommandResult> execute(String[] params) throws Exception;
     String name();
 }

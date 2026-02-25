@@ -11,22 +11,23 @@ import java.util.concurrent.Future;
 
 @Slf4j
 @RequiredArgsConstructor
-public class CommandCommandRunner implements CommandRunner {
+public class NativeCommandRunner implements CommandRunner {
 
     private final ExecutorService executorService;
 
-    public CommandResponse run(String command) throws Exception {
+    @Override
+    public CommandResult run(String command) throws Exception {
         log.info("Executing command: {}", command);
 
         ProcessBuilder builder = new ProcessBuilder();
         builder.redirectErrorStream(true);
-        builder.command(command);
+        builder.command("/bin/sh", "-c", command);
 
         Process process = builder.start();
         Future<String> futureResponse = captureOutput(process);
         int exitCode = process.waitFor();
 
-        return new CommandResponse(exitCode, futureResponse.get());
+        return new CommandResult(exitCode, futureResponse.get());
     }
 
     private Future<String> captureOutput(Process process) {
@@ -37,7 +38,7 @@ public class CommandCommandRunner implements CommandRunner {
                 while ((line = reader.readLine()) != null) {
                     output.append(System.lineSeparator()).append(line);
                 }
-                return output.toString();
+                return output.toString().trim();
             } catch (IOException e) {
                 return e.getMessage();
             }
