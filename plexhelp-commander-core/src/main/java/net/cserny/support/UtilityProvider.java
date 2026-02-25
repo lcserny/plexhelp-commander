@@ -43,4 +43,8 @@ public class UtilityProvider {
             throw new RuntimeException(e);
         }
     }
+
+    public static String quoted(String text) {
+        return "\"" + text + "\"";
+    }
 }

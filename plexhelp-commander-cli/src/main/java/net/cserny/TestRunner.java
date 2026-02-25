@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.cserny.core.command.CommandRunner;
 import net.cserny.core.command.CommandRunner.CommandResult;
 import net.cserny.core.command.LocalCommandService;
+import net.cserny.core.command.ffmpeg.FfmpegReduceSubtitles;
 import net.cserny.core.command.ffmpeg.FfmpegScanStreams;
 import net.cserny.generated.CommandResponse;
 import net.cserny.support.Features;
@@ -38,8 +39,15 @@ public class TestRunner implements CommandLineRunner {
         // TODO needed, put someplace automatically used
         featureManager.setFeatureState(new FeatureState(Features.AUTOMOVE, false));
 
+
+
+
         log.info("Running TestRunner");
-        Optional<CommandResult> result = localCommandService.execute(FfmpegScanStreams.NAME, new String[]{"/mnt/e/Videos/2021-11-03 15-01-32 - Interviu adoptie Alina.flv"});
-        log.info("{}", result.get());
+//        Optional<CommandResult> scanResult = localCommandService.execute(FfmpegScanStreams.NAME, new String[]{"/mnt/e/Videos/2021-11-03 15-01-32 - Interviu adoptie Alina.flv"});
+//        Optional<CommandResult> scanResult = localCommandService.execute(FfmpegScanStreams.NAME, new String[]{"/mnt/e/Videos/TV/Wednesday (2022-11-23)/Season 2/Wednesday S02E01 (2022-11-23).mkv"});
+//        log.info("{}", scanResult.get());
+
+        Optional<CommandResult> convertResult = localCommandService.execute(FfmpegReduceSubtitles.NAME, new String[]{"/mnt/e/Videos/Wednesday S02E01 (2022-11-23).mkv", "1"});
+        log.info("{}", convertResult.get());
     }
 }

@@ -32,7 +32,7 @@ public class CommandController implements ApiApi {
 
         CommandResponse response = localCommandService.execute(commandRequest.getName(), params)
                 .map(result -> CommandResponse.builder()
-                        .status(result.isSuccess() ? Status.SUCCESS : Status.FAILED)
+                        .status(result.exitCode() == 0 ? Status.SUCCESS : Status.FAILED)
                         .build())
                 .orElseGet(() -> new CommandResponse().status(Status.NOT_FOUND));
 

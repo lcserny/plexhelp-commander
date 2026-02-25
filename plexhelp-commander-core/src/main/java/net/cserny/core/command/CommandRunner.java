@@ -1,7 +1,5 @@
 package net.cserny.core.command;
 
-import org.apache.commons.lang3.StringUtils;
-
 import java.util.List;
 
 public interface CommandRunner {
@@ -12,18 +10,5 @@ public interface CommandRunner {
         return run(String.join(" ", commands));
     }
 
-    record CommandResult(int exitCode, String response) {
-
-        public boolean isSuccess() {
-            return exitCode == 0;
-        }
-
-        @Override
-        public String response() {
-            if (StringUtils.isEmpty(response)) {
-                return "<empty>";
-            }
-            return response;
-        }
-    }
+    record CommandResult(int exitCode, String response) {}
 }

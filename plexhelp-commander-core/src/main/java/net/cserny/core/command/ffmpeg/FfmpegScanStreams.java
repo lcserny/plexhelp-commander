@@ -1,5 +1,6 @@
 package net.cserny.core.command.ffmpeg;
 
+import lombok.extern.slf4j.Slf4j;
 import net.cserny.config.ServerCommandProperties;
 import net.cserny.core.command.AbstractOSCommand;
 import net.cserny.core.command.CommandRunner;
@@ -8,10 +9,13 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+import static net.cserny.support.UtilityProvider.quoted;
+
+@Slf4j
 @Component
 public class FfmpegScanStreams extends AbstractOSCommand {
 
-    public static final String NAME = "ffmpeg-scan";
+    public static final String NAME = "ffmpeg-scan-subs";
 
     public FfmpegScanStreams(ServerCommandProperties properties,
                              TaskScheduler taskScheduler,
@@ -44,6 +48,11 @@ public class FfmpegScanStreams extends AbstractOSCommand {
         if (params.length != 1) {
             throw new IllegalArgumentException("No param provided to command, it needs the media file input path");
         }
-        return List.of("ffmpeg", "-i", "\"" + params[0] + "\"", "2>&1", "|", "grep", "-c", "\"Stream #\"");
+
+        String mediaPath = params[0];
+        log.info("Media file path received: {}", mediaPath);
+
+        // complicated command but necessary for proper exit codes by either grep (if nothing found) or other cmds when they fail
+        return List.of("(set", "-o", "pipefail;", "ffprobe", "-v", "error", "-show_streams", "-select_streams", "s", quoted(mediaPath), "|", "(grep", "-c", "codec_type=s", "||", "true))");
     }
 }
