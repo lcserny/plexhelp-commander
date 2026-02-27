@@ -1,29 +1,36 @@
 package net.cserny;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import net.cserny.task.TaskCommand;
+import net.cserny.support.Features;
+import net.cserny.task.MainCommand;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.ConfigurableApplicationContext;
+import org.togglz.core.manager.FeatureManager;
+import org.togglz.core.repository.FeatureState;
 import picocli.CommandLine;
-import picocli.spring.PicocliSpringFactory;
 
 @RequiredArgsConstructor
-@Slf4j
 @SpringBootApplication
-public class TaskApplication {
+public class TaskApplication implements CommandLineRunner {
+
+    private final FeatureManager featureManager;
+    private final CommandLine.IFactory iFactory;
+    private final MainCommand mainCommand;
 
     public static void main(String[] args) {
-        SpringApplication app = new SpringApplication(TaskApplication.class);
-        ConfigurableApplicationContext context = app.run(args);
+        System.exit(SpringApplication.exit(SpringApplication.run(TaskApplication.class, args)));
+    }
 
-        TaskCommand taskCommand = context.getBean(TaskCommand.class);
+    @PostConstruct
+    public void disableServerFeatures() {
+        featureManager.setFeatureState(new FeatureState(Features.AUTOMOVE, false));
+    }
 
-        PicocliSpringFactory springFactory = new PicocliSpringFactory(context);
-        CommandLine commandLine = new CommandLine(taskCommand, springFactory);
-
-        int exitCode = commandLine.execute(args);
+    @Override
+    public void run(String... args) {
+        int exitCode = new CommandLine(mainCommand, iFactory).execute(args);
         System.exit(exitCode);
     }
 }

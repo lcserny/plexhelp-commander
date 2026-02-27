@@ -1,20 +1,17 @@
 package net.cserny.task.subs;
 
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.api.LocalPathHandler;
 import net.cserny.api.MediaIdentifier;
-import net.cserny.config.FilesystemProperties;
 import net.cserny.core.command.Command;
 import net.cserny.core.command.LocalCommandService;
 import net.cserny.core.command.ffmpeg.FfmpegReduceSubtitles;
 import net.cserny.core.command.ffmpeg.FfmpegScanStreams;
 import net.cserny.fs.LocalPath;
-import net.cserny.task.TaskRunner;
-import net.cserny.task.TaskType;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -22,23 +19,19 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class ReduceSubtitlesService implements TaskRunner {
+public class ReduceSubtitlesService {
 
     private final MediaIdentifier mediaIdentifier;
     private final LocalPathHandler localPathHandler;
-    private final FilesystemProperties filesystemProperties;
     private final LocalCommandService localCommandService;
-    private final SubtitleReducedMediaRepository  subtitleReducedMediaRepository;
+    private final SubtitleReducedMediaRepository subtitleReducedMediaRepository;
 
-    @Override
-    public boolean supports(TaskType taskType) {
-        return taskType == TaskType.reduce_subs;
-    }
+    public void run(String path) throws IOException {
+        if (path == null) {
+            throw new IllegalArgumentException("Path needs to be provided but was null");
+        }
 
-    @SneakyThrows
-    @Override
-    public void run() {
-        LocalPath walkPath = localPathHandler.toLocalPath(filesystemProperties.getTvPath());
+        LocalPath walkPath = localPathHandler.toLocalPath(path);
         List<LocalPath> filesFound = localPathHandler.walk(walkPath, 4);
 
         filesFound.forEach(localPath -> {
