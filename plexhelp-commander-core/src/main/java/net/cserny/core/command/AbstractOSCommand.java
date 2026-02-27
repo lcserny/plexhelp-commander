@@ -70,7 +70,7 @@ public abstract class AbstractOSCommand<T> implements Command<T> {
     private void validateCommands(List<String> commands) {
         for (String part : commands) {
             if (part.contains(" ")) {
-                if (!(part.startsWith("\"") && part.endsWith("\""))) {
+                if (!(part.startsWith("'") && part.endsWith("'"))) {
                     throw new IllegalArgumentException("Invalid command part, it contains a space but is not quoted (escaped): " + part);
                 }
             }

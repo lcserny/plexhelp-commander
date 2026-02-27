@@ -45,6 +45,6 @@ public class UtilityProvider {
     }
 
     public static String quoted(String text) {
-        return "\"" + text + "\"";
+        return "'" + text.replace("'", "'\"'\"'") + "'";
     }
 }
