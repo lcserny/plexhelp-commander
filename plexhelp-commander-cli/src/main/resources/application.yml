@@ -18,12 +18,6 @@ spring:
       database: videosmover_dev
       auto-index-creation: true
 
-logging:
-  level:
-    root: warn
-    net.cserny.task: info
-    org.springframework: error
-
 http:
   client:
     connection:
