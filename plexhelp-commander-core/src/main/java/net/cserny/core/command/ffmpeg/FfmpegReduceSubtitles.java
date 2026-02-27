@@ -81,8 +81,11 @@ public class FfmpegReduceSubtitles extends AbstractOSCommand<String> {
         }
 
         Path mediaWithoutRootPath = parent.getParent().relativize(mediaPath.path());
-        Path systemTempDir = Path.of(System.getProperty("java.io.tmpdir"));
-        Path tmpMediaPath = systemTempDir.resolve(mediaWithoutRootPath);
+        Path tempDir = Path.of(System.getProperty("user.home"));
+        if (mediaPath.path().getName(0).startsWith("mnt")) {
+            tempDir = mediaPath.path().subpath(0, 2);
+        }
+        Path tmpMediaPath = tempDir.resolve("tmp").resolve(mediaWithoutRootPath);
         log.info("Temporary media path to use: {}", tmpMediaPath);
         try {
             localPathHandler.createDirectories(localPathHandler.toLocalPath(tmpMediaPath.toString()));

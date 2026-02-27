@@ -4,10 +4,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.api.LocalPathHandler;
 import net.cserny.api.MediaIdentifier;
-import net.cserny.core.command.Command;
+import net.cserny.core.command.Command.CommandResult;
 import net.cserny.core.command.LocalCommandService;
 import net.cserny.core.command.ffmpeg.FfmpegReduceSubtitles;
 import net.cserny.core.command.ffmpeg.FfmpegScanStreams;
+import net.cserny.core.command.ffmpeg.FfmpegScanStreams.SubtitleStreams;
 import net.cserny.fs.LocalPath;
 import org.springframework.stereotype.Service;
 
@@ -45,28 +46,29 @@ public class ReduceSubtitlesService {
                 return;
             }
 
-            Optional<Command.CommandResult<List<Integer>>> scanResultOptional = localCommandService.execute(FfmpegScanStreams.NAME, new String[]{localPath.path().toString()});
+            Optional<CommandResult<SubtitleStreams>> scanResultOptional = localCommandService.execute(FfmpegScanStreams.NAME, new String[]{localPath.path().toString()});
             if (scanResultOptional.isEmpty()) {
                 return;
             }
 
-            Command.CommandResult<List<Integer>> scanResult = scanResultOptional.get();
+            CommandResult<SubtitleStreams> scanResult = scanResultOptional.get();
             if (!scanResult.success()) {
                 throw new RuntimeException("Failed to scan for subtitles for " + localPath.path());
             }
 
-            if (scanResult.result().isEmpty()) {
+            SubtitleStreams subtitleStreams = scanResult.result();
+            if (subtitleStreams.totalStreams() <= 5) {
                 return;
             }
 
-            List<Integer> subtitleIndexes = scanResult.result();
+            List<Integer> subtitleIndexes = subtitleStreams.engIndexes();
             String subtitleIndexesString = subtitleIndexes.stream().map(String::valueOf).collect(Collectors.joining(","));
-            Optional<Command.CommandResult<String>> reduceResultOptional = localCommandService.execute(FfmpegReduceSubtitles.NAME, new String[]{localPath.path().toString(), subtitleIndexesString});
+            Optional<CommandResult<String>> reduceResultOptional = localCommandService.execute(FfmpegReduceSubtitles.NAME, new String[]{localPath.path().toString(), subtitleIndexesString});
             if (reduceResultOptional.isEmpty()) {
                 return;
             }
 
-            Command.CommandResult<String> reduceResult = reduceResultOptional.get();
+            CommandResult<String> reduceResult = reduceResultOptional.get();
             if (!reduceResult.success()) {
                 throw new RuntimeException("Failed to reduce subtitles for " + localPath.path());
             }

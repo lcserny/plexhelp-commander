@@ -16,7 +16,7 @@ import static net.cserny.support.UtilityProvider.escaped;
 
 @Slf4j
 @Component
-public class FfmpegScanStreams extends AbstractOSCommand<List<Integer>> {
+public class FfmpegScanStreams extends AbstractOSCommand<FfmpegScanStreams.SubtitleStreams> {
 
     public static final String NAME = "ffmpeg-scan-subs";
 
@@ -68,13 +68,16 @@ public class FfmpegScanStreams extends AbstractOSCommand<List<Integer>> {
     }
 
     @Override
-    protected List<Integer> adaptOutput(String output) {
+    protected FfmpegScanStreams.SubtitleStreams adaptOutput(String output) {
         List<Integer> indexes = new ArrayList<>();
+        int totalStreams = 0;
 
         Matcher matcher = pattern.matcher(output);
         while (matcher.find()) {
             String extracted = matcher.group(1);
             if (extracted.contains(matchSubstring)) {
+                totalStreams++;
+
                 if (!extracted.contains(unknownSubstring) || extracted.contains(englishSubstring)) {
                     Matcher indexMatcher = indexPattern.matcher(extracted);
                     if (indexMatcher.find()) {
@@ -86,6 +89,8 @@ public class FfmpegScanStreams extends AbstractOSCommand<List<Integer>> {
             }
         }
 
-        return indexes.subList(0, Math.min(maxItems, indexes.size()));
+        return new SubtitleStreams(totalStreams, indexes.subList(0, Math.min(maxItems, indexes.size())));
     }
+
+    public record SubtitleStreams(int totalStreams, List<Integer> engIndexes) {}
 }

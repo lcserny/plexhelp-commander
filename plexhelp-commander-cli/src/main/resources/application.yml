@@ -18,6 +18,12 @@ spring:
       database: videosmover_dev
       auto-index-creation: true
 
+logging:
+  level:
+    root: warn
+    net.cserny: info
+    org.springframework: error
+
 http:
   client:
     connection:
@@ -158,3 +164,4 @@ automove:
   cron: "*/10 * * * * *"
   limit: 50
   similarityAccepted: 85
+
