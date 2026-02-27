@@ -15,6 +15,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.springframework.scheduling.TaskScheduler;
 
+import static net.cserny.support.UtilityProvider.escaped;
+
 @SuppressWarnings("LoggingSimilarMessage")
 @RequiredArgsConstructor
 @Slf4j

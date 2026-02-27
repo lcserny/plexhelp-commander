@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static net.cserny.support.UtilityProvider.quoted;
+import static net.cserny.support.UtilityProvider.escaped;
 
 @Slf4j
 @Component
@@ -94,7 +94,7 @@ public class FfmpegReduceSubtitles extends AbstractOSCommand<String> {
     }
 
     private static @NonNull List<String> buildCommands(LocalPath mediaPath, List<Integer> subtitleStreamIndexes, Path tmpMediaPath) {
-        List<String> commands = new ArrayList<>(List.of("ffmpeg", "-v", "error", "-i", quoted(mediaPath.path().toString()), "-map", "0:v", "-map", "0:a"));
+        List<String> commands = new ArrayList<>(List.of("ffmpeg", "-v", "error", "-i", escaped(mediaPath.path().toString()), "-map", "0:v", "-map", "0:a"));
 
         for (Integer i : subtitleStreamIndexes) {
             commands.add("-map");
@@ -103,13 +103,13 @@ public class FfmpegReduceSubtitles extends AbstractOSCommand<String> {
 
         commands.add("-c");
         commands.add("copy");
-        commands.add(quoted(tmpMediaPath.toString()));
+        commands.add(escaped(tmpMediaPath.toString()));
         commands.add("-y");
 
         commands.add("&&");
         commands.add("mv");
-        commands.add(quoted(tmpMediaPath.toString()));
-        commands.add(quoted(mediaPath.path().toString()));
+        commands.add(escaped(tmpMediaPath.toString()));
+        commands.add(escaped(mediaPath.path().toString()));
 
         return commands;
     }

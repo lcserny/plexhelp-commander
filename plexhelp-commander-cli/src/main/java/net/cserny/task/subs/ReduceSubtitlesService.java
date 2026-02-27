@@ -28,6 +28,7 @@ public class ReduceSubtitlesService implements TaskRunner {
     private final LocalPathHandler localPathHandler;
     private final FilesystemProperties filesystemProperties;
     private final LocalCommandService localCommandService;
+    private final SubtitleReducedMediaRepository  subtitleReducedMediaRepository;
 
     @Override
     public boolean supports(TaskType taskType) {
@@ -42,6 +43,12 @@ public class ReduceSubtitlesService implements TaskRunner {
 
         filesFound.forEach(localPath -> {
             if (!mediaIdentifier.isMedia(localPath)) {
+                return;
+            }
+
+            Optional<SubtitleReducedMedia> reducedMediaOptional = subtitleReducedMediaRepository.findByFilePath(localPath.path().toString());
+            if (reducedMediaOptional.isPresent() && reducedMediaOptional.get().isReduced()) {
+                log.info("Media file was already stripped of unneeded subtitles {}", localPath.path());
                 return;
             }
 
@@ -70,6 +77,12 @@ public class ReduceSubtitlesService implements TaskRunner {
             if (!reduceResult.success()) {
                 throw new RuntimeException("Failed to reduce subtitles for " + localPath.path());
             }
+
+            subtitleReducedMediaRepository.save(SubtitleReducedMedia.builder()
+                    .filePath(localPath.path().toString())
+                    .reduced(true)
+                    .build());
+            log.info("Persisted subtitle reduced media {}",  localPath.path());
         });
     }
 }

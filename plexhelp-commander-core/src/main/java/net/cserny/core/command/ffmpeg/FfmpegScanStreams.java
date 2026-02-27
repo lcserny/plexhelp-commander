@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static net.cserny.support.UtilityProvider.quoted;
+import static net.cserny.support.UtilityProvider.escaped;
 
 @Slf4j
 @Component
@@ -64,7 +64,7 @@ public class FfmpegScanStreams extends AbstractOSCommand<List<Integer>> {
         String mediaPath = params[0];
         log.info("Media file path received: {}", mediaPath);
 
-        return List.of("ffprobe", "-v", "error", "-show_streams", "-select_streams", "s", quoted(mediaPath));
+        return List.of("ffprobe", "-v", "error", "-show_streams", "-select_streams", "s", escaped(mediaPath));
     }
 
     @Override

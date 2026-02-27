@@ -44,7 +44,7 @@ public class UtilityProvider {
         }
     }
 
-    public static String quoted(String text) {
+    public static String escaped(String text) {
         return "'" + text.replace("'", "'\"'\"'") + "'";
     }
 }
