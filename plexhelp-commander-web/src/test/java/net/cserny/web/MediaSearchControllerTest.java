@@ -1,9 +1,8 @@
 package net.cserny.web;
 
 import io.restassured.http.ContentType;
-import net.cserny.IntegrationTest;
 import net.cserny.config.SearchProperties;
-import net.cserny.fs.FilesystemProperties;
+import net.cserny.config.FilesystemProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

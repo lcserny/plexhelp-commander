@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.api.NameNormalizer.NameYear;
 import net.cserny.config.RenameProperties;
-import net.cserny.fs.FilesystemProperties;
+import net.cserny.config.FilesystemProperties;
 import net.cserny.fs.LocalFileService;
 import net.cserny.fs.LocalPath;
 import net.cserny.generated.MediaFileType;

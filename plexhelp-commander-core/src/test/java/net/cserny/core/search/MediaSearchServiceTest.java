@@ -2,8 +2,7 @@ package net.cserny.core.search;
 
 import net.cserny.IntegrationTest;
 import net.cserny.config.SearchProperties;
-import net.cserny.core.search.MediaSearchService;
-import net.cserny.fs.FilesystemProperties;
+import net.cserny.config.FilesystemProperties;
 import net.cserny.generated.MediaFileGroup;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

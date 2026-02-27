@@ -1,9 +1,7 @@
 package net.cserny.core.move.subtitle;
 
 import net.cserny.IntegrationTest;
-import net.cserny.core.move.subtitle.SubsMoveOperation;
-import net.cserny.core.move.subtitle.SubtitleMover;
-import net.cserny.fs.FilesystemProperties;
+import net.cserny.config.FilesystemProperties;
 import net.cserny.fs.LocalPath;
 import net.cserny.generated.MediaFileGroup;
 import net.cserny.generated.MediaFileType;

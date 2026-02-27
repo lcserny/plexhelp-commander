@@ -1,8 +1,7 @@
 package net.cserny.web;
 
 import io.restassured.http.ContentType;
-import net.cserny.IntegrationTest;
-import net.cserny.fs.FilesystemProperties;
+import net.cserny.config.FilesystemProperties;
 import net.cserny.generated.MediaFileGroup;
 import net.cserny.generated.MediaFileType;
 import net.cserny.generated.MediaMoveRequest;

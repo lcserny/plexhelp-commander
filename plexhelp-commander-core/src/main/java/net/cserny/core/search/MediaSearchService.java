@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.cserny.api.MediaFileGroupGenerator;
 import net.cserny.api.MediaIdentifier;
 import net.cserny.config.SearchProperties;
-import net.cserny.fs.FilesystemProperties;
+import net.cserny.config.FilesystemProperties;
 import net.cserny.fs.LocalFileService;
 import net.cserny.fs.LocalPath;
 

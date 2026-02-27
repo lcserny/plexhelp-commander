@@ -115,6 +115,7 @@ public class LocalFileService implements LocalPathHandler {
         return walk(path, maxDepthFromPath, excludePaths, ONLY_FILES);
     }
 
+    @Override
     public List<LocalPath> walk(LocalPath path, int maxDepthFromPath) throws IOException {
         return walk(path, maxDepthFromPath, ONLY_FILES);
     }

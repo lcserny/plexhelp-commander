@@ -1,7 +1,7 @@
 package net.cserny.core.move;
 
 import net.cserny.IntegrationTest;
-import net.cserny.fs.FilesystemProperties;
+import net.cserny.config.FilesystemProperties;
 import net.cserny.generated.MediaDescriptionData;
 import net.cserny.generated.MediaFileGroup;
 import net.cserny.generated.MediaMoveError;

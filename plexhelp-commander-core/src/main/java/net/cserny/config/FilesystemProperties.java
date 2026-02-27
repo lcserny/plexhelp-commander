@@ -1,4 +1,4 @@
-package net.cserny.fs;
+package net.cserny.config;
 
 import lombok.Getter;
 import lombok.Setter;
