@@ -103,6 +103,9 @@
                         <groupId>org.springframework.boot</groupId>
                         <artifactId>spring-boot-maven-plugin</artifactId>
                         <version>${spring-boot.version}</version>
+                        <configuration>
+                            <mainClass>net.cserny.CommanderApplication</mainClass>
+                        </configuration>
                         <executions>
                             <execution>
                                 <id>process-aot</id>
@@ -152,6 +155,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${spring-boot.version}</version>
                 <configuration>
+                    <mainClass>net.cserny.CommanderApplication</mainClass>
                     <excludes>
                         <exclude>
                             <groupId>org.projectlombok</groupId>
