@@ -3,6 +3,7 @@ package net.cserny.core.command.restart;
 import net.cserny.core.command.AbstractOSCommand;
 import net.cserny.core.command.CommandRunner;
 import net.cserny.config.ServerCommandProperties;
+import net.cserny.core.command.CommandRunner.CommandOutput;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Component;
@@ -10,8 +11,10 @@ import org.springframework.stereotype.Component;
 import java.util.Arrays;
 import java.util.List;
 
+import static net.cserny.support.UtilityProvider.quoted;
+
 @Component
-public class RestartServiceCommand extends AbstractOSCommand {
+public class RestartServiceCommand extends AbstractOSCommand<String> {
 
     private static final String NAME = "restart-service";
 
@@ -38,9 +41,14 @@ public class RestartServiceCommand extends AbstractOSCommand {
     }
 
     @Override
+    protected String adaptOutput(String output) {
+        return output;
+    }
+
+    @Override
     protected List<String> produceCommandWindows(String[] params) {
         String serviceName = getServiceName(params);
-        return List.of(getSystem32Prefix() + "WindowsPowerShell/v1.0/powershell.exe", "-Command", "\"Restart-Service -Name '" + serviceName + "' -Force\"");
+        return List.of(getSystem32Prefix() + "WindowsPowerShell/v1.0/powershell.exe", "-Command", quoted("Restart-Service -Name '" + serviceName + "' -Force"));
     }
 
     private String getServiceName(String[] params) {

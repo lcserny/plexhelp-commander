@@ -21,7 +21,7 @@ public class TorrentsService {
     private final DownloadedTorrentProcessor torrentProcessor;
     private final MagnetUpdater magnetUpdater;
     private final TorrentRestClient restClient;
-    private final LocalPathConverter localPathConverter;
+    private final LocalPathHandler localPathHandler;
     private final MediaIdentifier mediaIdentifier;
 
     public void markTorrentDownloadStarted(String hash) {
@@ -55,7 +55,7 @@ public class TorrentsService {
 
     private List<TorrentFile> enrichMediaTorrents(List<TorrentFile> torrentFiles) {
         return torrentFiles.stream().map(torrentFile -> {
-            LocalPath path = localPathConverter.toLocalPath(filesystemProperties.getDownloadsPath(), torrentFile.name());
+            LocalPath path = localPathHandler.toLocalPath(filesystemProperties.getDownloadsPath(), torrentFile.name());
             boolean isMedia = mediaIdentifier.isMedia(path);
             return new TorrentFile(torrentFile.name(), torrentFile.size(), isMedia);
         }).toList();

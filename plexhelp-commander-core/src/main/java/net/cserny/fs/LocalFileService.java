@@ -3,8 +3,7 @@ package net.cserny.fs;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.cserny.api.DirectoryCreator;
-import net.cserny.api.LocalPathConverter;
+import net.cserny.api.LocalPathHandler;
 import net.cserny.support.Features;
 import org.springframework.stereotype.Component;
 import org.togglz.core.manager.FeatureManager;
@@ -20,7 +19,7 @@ import static net.cserny.fs.ExcludingFileVisitor.WalkOptions.ONLY_FILES;
 @Component
 @Slf4j
 // TODO when cleanup done, make it package-private
-public class LocalFileService implements LocalPathConverter, DirectoryCreator {
+public class LocalFileService implements LocalPathHandler {
 
     private final FeatureManager featureManager;
     private final CachedLocalPathProvider cachedLocalPathProvider;

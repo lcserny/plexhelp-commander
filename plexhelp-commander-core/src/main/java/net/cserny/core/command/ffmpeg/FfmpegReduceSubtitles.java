@@ -1,8 +1,7 @@
 package net.cserny.core.command.ffmpeg;
 
 import lombok.extern.slf4j.Slf4j;
-import net.cserny.api.DirectoryCreator;
-import net.cserny.api.LocalPathConverter;
+import net.cserny.api.LocalPathHandler;
 import net.cserny.config.ServerCommandProperties;
 import net.cserny.core.command.AbstractOSCommand;
 import net.cserny.core.command.CommandRunner;
@@ -14,27 +13,25 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static net.cserny.support.UtilityProvider.quoted;
 
 @Slf4j
 @Component
-public class FfmpegReduceSubtitles extends AbstractOSCommand {
+public class FfmpegReduceSubtitles extends AbstractOSCommand<String> {
 
     public static final String NAME = "ffmpeg-reduce-subs";
 
-    private final LocalPathConverter localPathConverter;
-    private final DirectoryCreator directoryCreator;
+    private final LocalPathHandler localPathHandler;
 
     public FfmpegReduceSubtitles(ServerCommandProperties properties,
                                  TaskScheduler taskScheduler,
                                  CommandRunner commandRunner,
-                                 LocalPathConverter localPathConverter,
-                                 DirectoryCreator directoryCreator) {
+                                 LocalPathHandler localPathHandler) {
         super(properties, taskScheduler, commandRunner);
-        this.localPathConverter = localPathConverter;
-        this.directoryCreator = directoryCreator;
+        this.localPathHandler = localPathHandler;
     }
 
     @Override
@@ -58,19 +55,25 @@ public class FfmpegReduceSubtitles extends AbstractOSCommand {
     }
 
     @Override
+    protected String adaptOutput(String output) {
+        return output;
+    }
+
+    @Override
     protected List<String> produceCommandLinux(String[] params) {
-        if (params.length != 2) {
-            throw new IllegalArgumentException("No params provided to command, it needs 2 params: inputMediaFilePath and nrSubtitlesToKeep");
+        if (params.length != 1 && params.length != 2 ) {
+            throw new IllegalArgumentException("No (or invalid) params provided to command, it needs at least the inputMediaFilePath and a (optional) comma-separated list of subtitle stream indexes");
         }
 
-        LocalPath mediaPath = localPathConverter.toLocalPath(params[0]);
+        LocalPath mediaPath = localPathHandler.toLocalPath(params[0]);
         if (mediaPath.attributes().isDirectory()) {
             throw new IllegalArgumentException("Provided media file path is a directory not a regular file: " + mediaPath.path());
         }
         log.info("Media file path received: {}", mediaPath.path());
 
-        int nrSubtitles = Integer.parseInt(params[1]);
-        log.info("Number of subtitles to keep: {}", nrSubtitles);
+        String indexesString = params.length == 2 ? params[1] : "";
+        List<Integer> subtitleStreamIndexes = Arrays.stream(indexesString.split(",")).map(String::trim).map(Integer::parseInt).toList();
+        log.info("Subtitles indexes provided: {}", subtitleStreamIndexes);
 
         Path parent = mediaPath.path().getParent();
         if (parent.getFileName().toString().startsWith("Season")) {
@@ -82,20 +85,20 @@ public class FfmpegReduceSubtitles extends AbstractOSCommand {
         Path tmpMediaPath = systemTempDir.resolve(mediaWithoutRootPath);
         log.info("Temporary media path to use: {}", tmpMediaPath);
         try {
-            directoryCreator.createDirectories(localPathConverter.toLocalPath(tmpMediaPath.toString()));
+            localPathHandler.createDirectories(localPathHandler.toLocalPath(tmpMediaPath.toString()));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        return buildCommands(mediaPath, nrSubtitles, tmpMediaPath);
+        return buildCommands(mediaPath, subtitleStreamIndexes, tmpMediaPath);
     }
 
-    private static @NonNull List<String> buildCommands(LocalPath mediaPath, int nrSubtitles, Path tmpMediaPath) {
+    private static @NonNull List<String> buildCommands(LocalPath mediaPath, List<Integer> subtitleStreamIndexes, Path tmpMediaPath) {
         List<String> commands = new ArrayList<>(List.of("ffmpeg", "-v", "error", "-i", quoted(mediaPath.path().toString()), "-map", "0:v", "-map", "0:a"));
 
-        for (int i = 0; i < nrSubtitles; i++) {
+        for (Integer i : subtitleStreamIndexes) {
             commands.add("-map");
-            commands.add("0:s:" + i);
+            commands.add("0:" + i);
         }
 
         commands.add("-c");

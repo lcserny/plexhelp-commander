@@ -1,10 +1,11 @@
 package net.cserny.core.command;
 
-import net.cserny.core.command.CommandRunner.CommandResult;
 import java.util.Optional;
 
-public interface Command {
+public interface Command<T> {
 
-    Optional<CommandResult> execute(String[] params) throws Exception;
+    Optional<CommandResult<T>> execute(String[] params) throws Exception;
     String name();
+
+    record CommandResult<R>(boolean success, boolean delayed, R result) {}
 }

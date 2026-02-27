@@ -16,7 +16,7 @@ public class NativeCommandRunner implements CommandRunner {
     private final ExecutorService executorService;
 
     @Override
-    public CommandResult run(String command) throws Exception {
+    public CommandOutput run(String command) throws Exception {
         log.info("Executing command: {}", command);
 
         ProcessBuilder builder = new ProcessBuilder();
@@ -27,7 +27,7 @@ public class NativeCommandRunner implements CommandRunner {
         Future<String> futureResponse = captureOutput(process);
         int exitCode = process.waitFor();
 
-        return new CommandResult(exitCode, futureResponse.get());
+        return new CommandOutput(exitCode, futureResponse.get());
     }
 
     private Future<String> captureOutput(Process process) {

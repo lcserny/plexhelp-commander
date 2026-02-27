@@ -10,7 +10,7 @@ import java.util.concurrent.ExecutionException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.config.ServerCommandProperties;
-import net.cserny.core.command.CommandRunner.CommandResult;
+import net.cserny.core.command.CommandRunner.CommandOutput;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.springframework.scheduling.TaskScheduler;
@@ -18,9 +18,7 @@ import org.springframework.scheduling.TaskScheduler;
 @SuppressWarnings("LoggingSimilarMessage")
 @RequiredArgsConstructor
 @Slf4j
-public abstract class AbstractOSCommand implements Command {
-
-    private static final CommandResult delayedResult = new CommandResult(0, "Command will be executed later, no result available at this time");
+public abstract class AbstractOSCommand<T> implements Command<T> {
 
     private final ServerCommandProperties properties;
     private final TaskScheduler taskScheduler;
@@ -29,6 +27,8 @@ public abstract class AbstractOSCommand implements Command {
     protected abstract List<String> produceCommandWindows(String[] params);
 
     protected abstract List<String> produceCommandLinux(String[] params);
+
+    protected abstract T adaptOutput(String output);
 
     protected boolean executeNow() {
         return false;
@@ -39,7 +39,7 @@ public abstract class AbstractOSCommand implements Command {
     }
 
     @Override
-    public Optional<CommandResult> execute(String[] params) throws Exception {
+    public Optional<CommandResult<T>> execute(String[] params) throws Exception {
         List<String> commands;
         if (SystemUtils.IS_OS_WINDOWS || (properties.getWsl().isEnabled() && executeWslUsingWindows())) {
             log.info("Producing commands for Windows (or WSL)");
@@ -50,6 +50,8 @@ public abstract class AbstractOSCommand implements Command {
         } else {
             throw new UnsupportedOperationException("Unsupported operating system: " + SystemUtils.OS_NAME);
         }
+
+        validateCommands(commands);
 
         // FIXME this is buggy, what if I have a command with a numeric first param which isn't a delay in mins?
         //  - need to add specific "delay" field in CommandRequest and send it from front
@@ -65,32 +67,44 @@ public abstract class AbstractOSCommand implements Command {
         return executeInternal(commands);
     }
 
-    private Optional<CommandResult> executeInternal(List<String> commands) throws ExecutionException, InterruptedException {
+    private void validateCommands(List<String> commands) {
+        for (String part : commands) {
+            if (part.contains(" ")) {
+                if (!(part.startsWith("\"") && part.endsWith("\""))) {
+                    throw new IllegalArgumentException("Invalid command part, it contains a space but is not quoted (escaped): " + part);
+                }
+            }
+        }
+    }
+
+    private Optional<CommandResult<T>> executeInternal(List<String> commands) throws ExecutionException, InterruptedException {
         return executeInternal(commands, 0);
     }
 
-    private Optional<CommandResult> executeInternal(List<String> commands, int minutes) throws ExecutionException, InterruptedException {
-        CompletableFuture<CommandResult> future = new CompletableFuture<>();
+    private Optional<CommandResult<T>> executeInternal(List<String> commands, int minutes) throws ExecutionException, InterruptedException {
+        CompletableFuture<CommandOutput> future = new CompletableFuture<>();
         Runnable runnable = () -> {
             try {
-                CommandResult result = commandRunner.run(commands);
-                if (result.exitCode() != 0) {
-                    throw new RuntimeException("Error executing command [code: %d] %s".formatted(result.exitCode(), result.response()));
+                CommandOutput output = commandRunner.run(commands);
+                String loggableOutputResponse = StringUtils.truncate(output.response().replace("\n", " "), 100);
+                if (output.exitCode() != 0) {
+                    throw new RuntimeException("Error executing command [code: %d] %s".formatted(output.exitCode(), loggableOutputResponse));
                 }
-                log.info("CMD output: {}", result.response());
-                future.complete(result);
+                log.info("CMD output: {}", loggableOutputResponse);
+                future.complete(output);
             } catch (Exception e) {
                 future.completeExceptionally(e);
             }
         };
 
-        if (executeNow() || minutes <= 0) {
-            taskScheduler.schedule(runnable, Instant.now().plusMillis(50));
-            return Optional.of(future.get());
+        if (!executeNow() && minutes > 0) {
+            taskScheduler.schedule(runnable, Instant.now().plus(Duration.ofMinutes(minutes)));
+            return Optional.of(new CommandResult<T>(true, true, null));
         }
 
-        taskScheduler.schedule(runnable, Instant.now().plus(Duration.ofMinutes(minutes)));
-        return Optional.of(delayedResult);
+        taskScheduler.schedule(runnable, Instant.now().plusMillis(50));
+        T adapted = adaptOutput(future.get().response());
+        return Optional.of(new CommandResult<>(true, false, adapted));
     }
 
     protected String getSystem32Prefix() {

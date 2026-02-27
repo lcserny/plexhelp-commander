@@ -3,13 +3,14 @@ package net.cserny.core.command.restart;
 import net.cserny.core.command.AbstractOSCommand;
 import net.cserny.core.command.CommandRunner;
 import net.cserny.config.ServerCommandProperties;
+import net.cserny.core.command.CommandRunner.CommandOutput;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Component
-public class RestartCommand extends AbstractOSCommand {
+public class RestartCommand extends AbstractOSCommand<Void> {
 
     private static final String NAME = "reboot";
 
@@ -27,6 +28,11 @@ public class RestartCommand extends AbstractOSCommand {
     @Override
     protected List<String> produceCommandLinux(String[] params) {
         return List.of("systemctl", "reboot");
+    }
+
+    @Override
+    protected Void adaptOutput(String output) {
+        return null;
     }
 
     @Override
