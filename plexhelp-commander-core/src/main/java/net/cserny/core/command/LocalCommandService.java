@@ -2,7 +2,8 @@ package net.cserny.core.command;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.cserny.core.command.Command.CommandResult;
+import net.cserny.api.CommandExecutingService;
+import net.cserny.api.dto.CommandResult;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,10 +14,11 @@ import static net.cserny.support.UtilityProvider.toLoggableString;
 @RequiredArgsConstructor
 @Service
 @Slf4j
-public class LocalCommandService {
+public class LocalCommandService implements CommandExecutingService {
 
     private final List<Command> commands;
 
+    @Override
     public <T> Optional<CommandResult<T>> execute(String name, String[] params) {
         for (Command<T> command : commands) {
             if (command.name().equals(name)) {

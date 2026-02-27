@@ -9,13 +9,12 @@ import java.util.concurrent.ExecutionException;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.cserny.api.dto.CommandResult;
 import net.cserny.config.ServerCommandProperties;
 import net.cserny.core.command.CommandRunner.CommandOutput;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.springframework.scheduling.TaskScheduler;
-
-import static net.cserny.support.UtilityProvider.escaped;
 
 @SuppressWarnings("LoggingSimilarMessage")
 @RequiredArgsConstructor

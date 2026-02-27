@@ -2,10 +2,10 @@ package net.cserny.task.subs;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.cserny.api.CommandExecutingService;
 import net.cserny.api.LocalPathHandler;
 import net.cserny.api.MediaIdentifier;
-import net.cserny.core.command.Command.CommandResult;
-import net.cserny.core.command.LocalCommandService;
+import net.cserny.api.dto.CommandResult;
 import net.cserny.core.command.ffmpeg.FfmpegReduceSubtitles;
 import net.cserny.core.command.ffmpeg.FfmpegScanStreams;
 import net.cserny.core.command.ffmpeg.FfmpegScanStreams.SubtitleStreams;
@@ -24,7 +24,7 @@ public class ReduceSubtitlesService {
 
     private final MediaIdentifier mediaIdentifier;
     private final LocalPathHandler localPathHandler;
-    private final LocalCommandService localCommandService;
+    private final CommandExecutingService localCommandService;
     private final SubtitleReducedMediaRepository subtitleReducedMediaRepository;
 
     public void run(String path) throws IOException {

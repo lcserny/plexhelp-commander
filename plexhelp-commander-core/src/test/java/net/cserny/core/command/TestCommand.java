@@ -1,6 +1,7 @@
 package net.cserny.core.command;
 
 import lombok.Getter;
+import net.cserny.api.dto.CommandResult;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
