@@ -20,7 +20,7 @@ public class FfmpegScanStreams extends AbstractOSCommand<FfmpegScanStreams.Subti
 
     public static final String NAME = "ffmpeg-scan-subs";
 
-    private static final int maxItems = 5;
+    public static final int MAX_ITEMS = 5;
 
     private static final Pattern pattern = Pattern.compile("\\[STREAM](.*?)\\[/STREAM]", Pattern.DOTALL);
     private static final Pattern indexPattern = Pattern.compile("index=(\\d+)");
@@ -89,7 +89,7 @@ public class FfmpegScanStreams extends AbstractOSCommand<FfmpegScanStreams.Subti
             }
         }
 
-        return new SubtitleStreams(totalStreams, indexes.subList(0, Math.min(maxItems, indexes.size())));
+        return new SubtitleStreams(totalStreams, indexes.subList(0, Math.min(MAX_ITEMS, indexes.size())));
     }
 
     public record SubtitleStreams(int totalStreams, List<Integer> engIndexes) {}

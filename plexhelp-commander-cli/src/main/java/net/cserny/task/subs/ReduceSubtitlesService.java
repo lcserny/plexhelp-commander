@@ -57,7 +57,7 @@ public class ReduceSubtitlesService {
             }
 
             SubtitleStreams subtitleStreams = scanResult.result();
-            if (subtitleStreams.totalStreams() <= 5) {
+            if (subtitleStreams.totalStreams() <= FfmpegScanStreams.MAX_ITEMS) {
                 return;
             }
 
