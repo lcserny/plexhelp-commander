@@ -2,18 +2,16 @@ package net.cserny.task.subs;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.cserny.AbstractCliCommand;
 import org.springframework.stereotype.Component;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
-
-import java.io.IOException;
-import java.util.concurrent.Callable;
 
 @Slf4j
 @RequiredArgsConstructor
 @Component
 @Command(name = "reduce-subs", description = "Reduces number of subtitle streams to improve DLNA compatibility.")
-public class ReduceSubtitlesCommand implements Callable<Integer> {
+public class ReduceSubtitlesCommand extends AbstractCliCommand {
 
     private final ReduceSubtitlesService reduceSubtitlesService;
 
@@ -21,13 +19,7 @@ public class ReduceSubtitlesCommand implements Callable<Integer> {
     private String path;
 
     @Override
-    public Integer call() {
-        try {
-            reduceSubtitlesService.run(path);
-            return 0;
-        } catch (IOException e) {
-            log.error(e.getMessage(), e);
-            return 1;
-        }
+    protected void run() throws Exception {
+        reduceSubtitlesService.run(path);
     }
 }
