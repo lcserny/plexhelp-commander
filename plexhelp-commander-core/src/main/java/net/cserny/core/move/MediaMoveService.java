@@ -3,10 +3,15 @@ package net.cserny.core.move;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.cserny.api.CommandExecutingService;
 import net.cserny.api.MediaIdentifier;
 import net.cserny.api.MediaMover;
+import net.cserny.api.dto.CommandResult;
+import net.cserny.api.dto.SubtitleStreams;
 import net.cserny.config.MoveProperties;
 import net.cserny.config.FilesystemProperties;
+import net.cserny.core.command.ffmpeg.FfmpegReduceSubtitles;
+import net.cserny.core.command.ffmpeg.FfmpegScanStreams;
 import net.cserny.fs.LocalFileService;
 import net.cserny.fs.LocalPath;
 import net.cserny.generated.*;
@@ -25,6 +30,8 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static net.cserny.support.UtilityProvider.toLoggableString;
@@ -46,6 +53,7 @@ public class MediaMoveService implements MediaMover {
     private final MediaIdentifier mediaIdentifier;
     private final MediaGrouper mediaGrouper;
     private final MovedMediaRepository movedMediaRepository;
+    private final CommandExecutingService commandService;
 
     @PostConstruct
     public void init() {
@@ -85,10 +93,13 @@ public class MediaMoveService implements MediaMover {
             LocalPath destPath = fileService.toLocalPath(destRoot, mediaInfo.destinationPathSegments());
 
             try {
-                log.info("Moving video {} to {}", srcPath, destPath);
-                boolean moveSuccessful = fileService.move(srcPath, destPath);
+                boolean moveSuccessful = moveInternal(srcPath, destPath);
+                if (!moveSuccessful) {
+                    log.error("Failed to move video {} to {}", srcPath, destPath);
+                }
 
                 if (moveSuccessful) {
+                    log.info("Video moved successfully from {} to {}", srcPath, destPath);
                     movedMediaRepository.save(MovedMedia.builder()
                             .source(srcPath.path().toString())
                             .destination(destPath.path().toString())
@@ -171,5 +182,29 @@ public class MediaMoveService implements MediaMover {
             return fileService.exists(moviePath) && moviePath.attributes().isDirectory();
         }
         return false;
+    }
+
+    private boolean moveInternal(LocalPath srcPath, LocalPath destPath) throws IOException {
+        log.info("Moving video {} to {}", srcPath, destPath);
+
+        Optional<CommandResult<SubtitleStreams>> scanResultOptional = commandService.execute(FfmpegScanStreams.NAME, new String[]{srcPath.path().toString()});
+        if (scanResultOptional.isPresent()) {
+            CommandResult<SubtitleStreams> scanResult = scanResultOptional.get();
+            if (scanResult.success() && scanResult.result().totalStreams() > FfmpegScanStreams.MAX_ITEMS) {
+                return reducedSubtitlesAndMove(srcPath, destPath, scanResult.result().engIndexes());
+            }
+        }
+
+        return fileService.move(srcPath, destPath);
+    }
+
+    private boolean reducedSubtitlesAndMove(LocalPath srcPath, LocalPath destPath, List<Integer> engIndexes) {
+        String subtitleIndexesString = engIndexes.stream().map(String::valueOf).collect(Collectors.joining(","));
+
+        Optional<CommandResult<String>> reduceResultOptional =
+                commandService.execute(FfmpegReduceSubtitles.NAME,
+                        new String[]{srcPath.path().toString(), destPath.path().toString(), subtitleIndexesString});
+
+        return reduceResultOptional.map(CommandResult::success).orElse(false);
     }
 }

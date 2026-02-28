@@ -61,29 +61,35 @@ public class FfmpegReduceSubtitles extends AbstractOSCommand<String> {
 
     @Override
     protected List<String> produceCommandLinux(String[] params) {
-        if (params.length != 1 && params.length != 2 ) {
-            throw new IllegalArgumentException("No (or invalid) params provided to command, it needs at least the inputMediaFilePath and a (optional) comma-separated list of subtitle stream indexes");
+        if (params.length != 2 && params.length != 3 ) {
+            throw new IllegalArgumentException("Invalid params provided to command, it needs [0] the sourceMediaFilePath, [1] the targetMediaFilePath and [2:optional] comma-separated list of subtitle stream indexes to be kept");
         }
 
-        LocalPath mediaPath = localPathHandler.toLocalPath(params[0]);
-        if (mediaPath.attributes().isDirectory()) {
-            throw new IllegalArgumentException("Provided media file path is a directory not a regular file: " + mediaPath.path());
+        LocalPath sourceMediaPath = localPathHandler.toLocalPath(params[0]);
+        if (sourceMediaPath.attributes().isDirectory()) {
+            throw new IllegalArgumentException("Provided source media file path is a directory not a regular file: " + sourceMediaPath.path());
         }
-        log.info("Media file path received: {}", mediaPath.path());
+        log.info("Source media file path received: {}", sourceMediaPath.path());
 
-        String indexesString = params.length == 2 ? params[1] : "";
+        LocalPath targetMediaPath = localPathHandler.toLocalPath(params[1]);
+        if (targetMediaPath.attributes().isDirectory()) {
+            throw new IllegalArgumentException("Provided target media file path is a directory not a regular file: " + targetMediaPath.path());
+        }
+        log.info("Target media file path received: {}", targetMediaPath.path());
+
+        String indexesString = params.length == 3 ? params[2] : "";
         List<Integer> subtitleStreamIndexes = Arrays.stream(indexesString.split(",")).map(String::trim).map(Integer::parseInt).toList();
         log.info("Subtitles indexes provided: {}", subtitleStreamIndexes);
 
-        Path parent = mediaPath.path().getParent();
+        Path parent = sourceMediaPath.path().getParent();
         if (parent.getFileName().toString().startsWith("Season")) {
             parent = parent.getParent();
         }
 
-        Path mediaWithoutRootPath = parent.getParent().relativize(mediaPath.path());
+        Path mediaWithoutRootPath = parent.getParent().relativize(sourceMediaPath.path());
         Path tempDir = Path.of(System.getProperty("user.home"));
-        if (mediaPath.path().getName(0).startsWith("mnt")) {
-            tempDir = mediaPath.path().subpath(0, 2);
+        if (sourceMediaPath.path().getName(0).startsWith("mnt")) {
+            tempDir = sourceMediaPath.path().subpath(0, 2);
         }
         Path tmpMediaPath = tempDir.resolve("tmp").resolve(mediaWithoutRootPath);
         log.info("Temporary media path to use: {}", tmpMediaPath);
@@ -93,11 +99,11 @@ public class FfmpegReduceSubtitles extends AbstractOSCommand<String> {
             throw new RuntimeException(e);
         }
 
-        return buildCommands(mediaPath, subtitleStreamIndexes, tmpMediaPath);
+        return buildCommands(sourceMediaPath, targetMediaPath, subtitleStreamIndexes, tmpMediaPath);
     }
 
-    private static @NonNull List<String> buildCommands(LocalPath mediaPath, List<Integer> subtitleStreamIndexes, Path tmpMediaPath) {
-        List<String> commands = new ArrayList<>(List.of("ffmpeg", "-v", "error", "-i", escaped(mediaPath.path().toString()), "-map", "0:v", "-map", "0:a"));
+    private static @NonNull List<String> buildCommands(LocalPath sourceMediaPath, LocalPath targetMediaPath, List<Integer> subtitleStreamIndexes, Path tmpMediaPath) {
+        List<String> commands = new ArrayList<>(List.of("ffmpeg", "-v", "error", "-i", escaped(sourceMediaPath.path().toString()), "-map", "0:v", "-map", "0:a"));
 
         for (Integer i : subtitleStreamIndexes) {
             commands.add("-map");
@@ -112,7 +118,7 @@ public class FfmpegReduceSubtitles extends AbstractOSCommand<String> {
         commands.add("&&");
         commands.add("mv");
         commands.add(escaped(tmpMediaPath.toString()));
-        commands.add(escaped(mediaPath.path().toString()));
+        commands.add(escaped(targetMediaPath.path().toString()));
 
         return commands;
     }

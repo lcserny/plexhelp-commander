@@ -1,6 +1,7 @@
 package net.cserny.core.command.ffmpeg;
 
 import lombok.extern.slf4j.Slf4j;
+import net.cserny.api.dto.SubtitleStreams;
 import net.cserny.config.ServerCommandProperties;
 import net.cserny.core.command.AbstractOSCommand;
 import net.cserny.core.command.CommandRunner;
@@ -16,8 +17,9 @@ import static net.cserny.support.UtilityProvider.escaped;
 
 @Slf4j
 @Component
-public class FfmpegScanStreams extends AbstractOSCommand<FfmpegScanStreams.SubtitleStreams> {
+public class FfmpegScanStreams extends AbstractOSCommand<SubtitleStreams> {
 
+    // TODO move these names in some shared enum or such
     public static final String NAME = "ffmpeg-scan-subs";
 
     public static final int MAX_ITEMS = 5;
@@ -68,7 +70,7 @@ public class FfmpegScanStreams extends AbstractOSCommand<FfmpegScanStreams.Subti
     }
 
     @Override
-    protected FfmpegScanStreams.SubtitleStreams adaptOutput(String output) {
+    protected SubtitleStreams adaptOutput(String output) {
         List<Integer> indexes = new ArrayList<>();
         int totalStreams = 0;
 
@@ -91,6 +93,4 @@ public class FfmpegScanStreams extends AbstractOSCommand<FfmpegScanStreams.Subti
 
         return new SubtitleStreams(totalStreams, indexes.subList(0, Math.min(MAX_ITEMS, indexes.size())));
     }
-
-    public record SubtitleStreams(int totalStreams, List<Integer> engIndexes) {}
 }

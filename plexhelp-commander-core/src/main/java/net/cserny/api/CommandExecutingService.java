@@ -7,5 +7,6 @@ import java.util.Optional;
 
 public interface CommandExecutingService {
 
+    // TODO change to the enum here
     <T> Optional<CommandResult<T>> execute(String name, String[] params);
 }
