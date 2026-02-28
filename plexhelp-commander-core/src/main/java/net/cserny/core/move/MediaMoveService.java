@@ -94,13 +94,7 @@ public class MediaMoveService implements MediaMover {
             LocalPath destPath = fileService.toLocalPath(destRoot, mediaInfo.destinationPathSegments());
 
             try {
-                boolean moveSuccessful = moveInternal(srcPath, destPath);
-                if (!moveSuccessful) {
-                    log.error("Failed to move video {} to {}", srcPath, destPath);
-                }
-
-                if (moveSuccessful) {
-                    log.info("Video moved successfully from {} to {}", srcPath, destPath);
+                if (moveInternal(srcPath, destPath)) {
                     movedMediaRepository.save(MovedMedia.builder()
                             .source(srcPath.path().toString())
                             .destination(destPath.path().toString())
@@ -205,6 +199,7 @@ public class MediaMoveService implements MediaMover {
         Optional<CommandResult<String>> reduceResultOptional =
                 commandService.execute(REDUCE_SUBS, new String[]{srcPath.path().toString(), destPath.path().toString(), subtitleIndexesString});
 
-        return reduceResultOptional.map(CommandResult::success).orElse(false);
+        return reduceResultOptional.map(CommandResult::success)
+                .orElseThrow(() -> new RuntimeException("Failed to reduce subtitles of " + srcPath));
     }
 }
