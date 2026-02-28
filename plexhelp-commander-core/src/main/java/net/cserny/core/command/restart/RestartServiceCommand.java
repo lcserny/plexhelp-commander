@@ -15,8 +15,6 @@ import static net.cserny.support.UtilityProvider.escaped;
 @Component
 public class RestartServiceCommand extends AbstractOSCommand<String> {
 
-    private static final String NAME = "restart-service";
-
     public RestartServiceCommand(ServerCommandProperties properties,
                                  TaskScheduler taskScheduler,
                                  CommandRunner commandRunner) {
@@ -24,8 +22,8 @@ public class RestartServiceCommand extends AbstractOSCommand<String> {
     }
 
     @Override
-    public String name() {
-        return NAME;
+    public CommandName name() {
+        return CommandName.RESTART_SERVICE;
     }
 
     @Override

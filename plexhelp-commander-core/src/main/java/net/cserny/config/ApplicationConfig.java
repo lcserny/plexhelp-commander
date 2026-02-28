@@ -60,6 +60,8 @@ import java.util.concurrent.Executors;
 @EnableConfigurationProperties(TogglzProperties.class)
 public class ApplicationConfig {
 
+    public static final int MAX_SUBS_ALLOWED = 5;
+
     @Value("${http.client.connection.timeout.ms}")
     private int connectionTimeoutMs;
 

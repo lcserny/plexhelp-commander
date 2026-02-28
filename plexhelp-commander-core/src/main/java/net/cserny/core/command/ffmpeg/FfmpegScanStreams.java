@@ -13,16 +13,12 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static net.cserny.config.ApplicationConfig.MAX_SUBS_ALLOWED;
 import static net.cserny.support.UtilityProvider.escaped;
 
 @Slf4j
 @Component
 public class FfmpegScanStreams extends AbstractOSCommand<SubtitleStreams> {
-
-    // TODO move these names in some shared enum or such
-    public static final String NAME = "ffmpeg-scan-subs";
-
-    public static final int MAX_ITEMS = 5;
 
     private static final Pattern pattern = Pattern.compile("\\[STREAM](.*?)\\[/STREAM]", Pattern.DOTALL);
     private static final Pattern indexPattern = Pattern.compile("index=(\\d+)");
@@ -38,8 +34,8 @@ public class FfmpegScanStreams extends AbstractOSCommand<SubtitleStreams> {
     }
 
     @Override
-    public String name() {
-        return NAME;
+    public CommandName name() {
+        return CommandName.SCAN_SUBS;
     }
 
     @Override
@@ -91,6 +87,6 @@ public class FfmpegScanStreams extends AbstractOSCommand<SubtitleStreams> {
             }
         }
 
-        return new SubtitleStreams(totalStreams, indexes.subList(0, Math.min(MAX_ITEMS, indexes.size())));
+        return new SubtitleStreams(totalStreams, indexes.subList(0, Math.min(MAX_SUBS_ALLOWED, indexes.size())));
     }
 }

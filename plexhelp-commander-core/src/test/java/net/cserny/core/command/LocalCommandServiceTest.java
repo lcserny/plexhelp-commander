@@ -1,6 +1,7 @@
 package net.cserny.core.command;
 
 import net.cserny.IntegrationTest;
+import net.cserny.api.Command.CommandName;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -27,7 +28,7 @@ public class LocalCommandServiceTest extends IntegrationTest {
     public void serviceCanExecuteCommand() {
         assertFalse(testCommand.isExecuted());
 
-        commandService.execute(TestCommand.TEST_COMMAND, null);
+        commandService.execute(CommandName.TEST, null);
 
         assertTrue(testCommand.isExecuted());
     }

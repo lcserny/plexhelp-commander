@@ -1,6 +1,7 @@
 package net.cserny.core.command;
 
 import lombok.Getter;
+import net.cserny.api.Command;
 import net.cserny.api.dto.CommandResult;
 import org.springframework.stereotype.Component;
 
@@ -9,8 +10,6 @@ import java.util.Optional;
 @Getter
 @Component
 public class TestCommand implements Command<String> {
-
-    public static final String TEST_COMMAND = "test";
 
     private boolean executed;
 
@@ -25,7 +24,7 @@ public class TestCommand implements Command<String> {
     }
 
     @Override
-    public String name() {
-        return TEST_COMMAND;
+    public CommandName name() {
+        return CommandName.TEST;
     }
 }

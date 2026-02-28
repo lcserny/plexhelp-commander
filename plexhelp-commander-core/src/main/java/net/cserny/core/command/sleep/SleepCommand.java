@@ -3,7 +3,6 @@ package net.cserny.core.command.sleep;
 import net.cserny.core.command.AbstractOSCommand;
 import net.cserny.core.command.CommandRunner;
 import net.cserny.config.ServerCommandProperties;
-import net.cserny.core.command.CommandRunner.CommandOutput;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Component;
 
@@ -12,8 +11,6 @@ import java.util.List;
 @Component
 public class SleepCommand extends AbstractOSCommand<Void> {
 
-    private static final String NAME = "sleep";
-
     public SleepCommand(ServerCommandProperties properties,
                         TaskScheduler taskScheduler,
                         CommandRunner commandRunner) {
@@ -21,8 +18,8 @@ public class SleepCommand extends AbstractOSCommand<Void> {
     }
 
     @Override
-    public String name() {
-        return NAME;
+    public CommandName name() {
+        return CommandName.SLEEP;
     }
 
     @Override

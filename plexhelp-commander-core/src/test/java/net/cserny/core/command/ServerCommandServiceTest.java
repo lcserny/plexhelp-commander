@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
+import static net.cserny.api.Command.CommandName.TEST;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -43,9 +44,9 @@ public class ServerCommandServiceTest extends IntegrationTest {
 
         service.initServerCommand();
         repository.getByServerName(config.getName()).ifPresent(serverCommand -> {
-            serverCommand.actionsPending = List.of(TestCommand.TEST_COMMAND);
+            serverCommand.actionsPending = List.of(TEST.getValue());
             repository.save(serverCommand);
-            LOGGER.info("Updating test command " + config.getName() + " with command " + TestCommand.TEST_COMMAND);
+            LOGGER.info("Updating test command " + config.getName() + " with command " + TEST);
         });
         service.startListeningForActions();
 

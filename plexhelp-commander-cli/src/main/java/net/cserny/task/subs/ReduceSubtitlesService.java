@@ -7,8 +7,6 @@ import net.cserny.api.LocalPathHandler;
 import net.cserny.api.MediaIdentifier;
 import net.cserny.api.dto.CommandResult;
 import net.cserny.api.dto.SubtitleStreams;
-import net.cserny.core.command.ffmpeg.FfmpegReduceSubtitles;
-import net.cserny.core.command.ffmpeg.FfmpegScanStreams;
 import net.cserny.fs.LocalPath;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +14,10 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static net.cserny.api.Command.CommandName.REDUCE_SUBS;
+import static net.cserny.api.Command.CommandName.SCAN_SUBS;
+import static net.cserny.config.ApplicationConfig.MAX_SUBS_ALLOWED;
 
 @Service
 @RequiredArgsConstructor
@@ -46,7 +48,7 @@ public class ReduceSubtitlesService {
                 return;
             }
 
-            Optional<CommandResult<SubtitleStreams>> scanResultOptional = localCommandService.execute(FfmpegScanStreams.NAME, new String[]{localPath.path().toString()});
+            Optional<CommandResult<SubtitleStreams>> scanResultOptional = localCommandService.execute(SCAN_SUBS, new String[]{localPath.path().toString()});
             if (scanResultOptional.isEmpty()) {
                 return;
             }
@@ -57,14 +59,14 @@ public class ReduceSubtitlesService {
             }
 
             SubtitleStreams subtitleStreams = scanResult.result();
-            if (subtitleStreams.totalStreams() <= FfmpegScanStreams.MAX_ITEMS) {
+            if (subtitleStreams.totalStreams() <= MAX_SUBS_ALLOWED) {
                 return;
             }
 
             List<Integer> subtitleIndexes = subtitleStreams.engIndexes();
             String subtitleIndexesString = subtitleIndexes.stream().map(String::valueOf).collect(Collectors.joining(","));
-            Optional<CommandResult<String>> reduceResultOptional = localCommandService.execute(FfmpegReduceSubtitles.NAME,
-                    new String[]{localPath.path().toString(), localPath.path().toString(), subtitleIndexesString});
+            Optional<CommandResult<String>> reduceResultOptional =
+                    localCommandService.execute(REDUCE_SUBS, new String[]{localPath.path().toString(), localPath.path().toString(), subtitleIndexesString});
             if (reduceResultOptional.isEmpty()) {
                 return;
             }

@@ -22,8 +22,6 @@ import static net.cserny.support.UtilityProvider.escaped;
 @Component
 public class FfmpegReduceSubtitles extends AbstractOSCommand<String> {
 
-    public static final String NAME = "ffmpeg-reduce-subs";
-
     private final LocalPathHandler localPathHandler;
 
     public FfmpegReduceSubtitles(ServerCommandProperties properties,
@@ -35,8 +33,8 @@ public class FfmpegReduceSubtitles extends AbstractOSCommand<String> {
     }
 
     @Override
-    public String name() {
-        return NAME;
+    public CommandName name() {
+        return CommandName.REDUCE_SUBS;
     }
 
     @Override

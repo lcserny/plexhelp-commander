@@ -3,6 +3,7 @@ package net.cserny.web;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.cserny.api.Command.CommandName;
 import net.cserny.core.command.LocalCommandService;
 import net.cserny.generated.ApiApi;
 import net.cserny.generated.CommandRequest;
@@ -30,7 +31,7 @@ public class CommandController implements ApiApi {
             params = commandRequest.getParams().toArray(new String[0]);
         }
 
-        CommandResponse response = localCommandService.execute(commandRequest.getName(), params)
+        CommandResponse response = localCommandService.execute(CommandName.from(commandRequest.getName()), params)
                 .map(result -> CommandResponse.builder()
                         .status(result.success() ? Status.SUCCESS : Status.FAILED)
                         .build())

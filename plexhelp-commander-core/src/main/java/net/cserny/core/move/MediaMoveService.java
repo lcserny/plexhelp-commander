@@ -10,8 +10,6 @@ import net.cserny.api.dto.CommandResult;
 import net.cserny.api.dto.SubtitleStreams;
 import net.cserny.config.MoveProperties;
 import net.cserny.config.FilesystemProperties;
-import net.cserny.core.command.ffmpeg.FfmpegReduceSubtitles;
-import net.cserny.core.command.ffmpeg.FfmpegScanStreams;
 import net.cserny.fs.LocalFileService;
 import net.cserny.fs.LocalPath;
 import net.cserny.generated.*;
@@ -34,6 +32,9 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static net.cserny.api.Command.CommandName.REDUCE_SUBS;
+import static net.cserny.api.Command.CommandName.SCAN_SUBS;
+import static net.cserny.config.ApplicationConfig.MAX_SUBS_ALLOWED;
 import static net.cserny.support.UtilityProvider.toLoggableString;
 
 @RequiredArgsConstructor
@@ -187,10 +188,10 @@ public class MediaMoveService implements MediaMover {
     private boolean moveInternal(LocalPath srcPath, LocalPath destPath) throws IOException {
         log.info("Moving video {} to {}", srcPath, destPath);
 
-        Optional<CommandResult<SubtitleStreams>> scanResultOptional = commandService.execute(FfmpegScanStreams.NAME, new String[]{srcPath.path().toString()});
+        Optional<CommandResult<SubtitleStreams>> scanResultOptional = commandService.execute(SCAN_SUBS, new String[]{srcPath.path().toString()});
         if (scanResultOptional.isPresent()) {
             CommandResult<SubtitleStreams> scanResult = scanResultOptional.get();
-            if (scanResult.success() && scanResult.result().totalStreams() > FfmpegScanStreams.MAX_ITEMS) {
+            if (scanResult.success() && scanResult.result().totalStreams() > MAX_SUBS_ALLOWED) {
                 return reducedSubtitlesAndMove(srcPath, destPath, scanResult.result().engIndexes());
             }
         }
@@ -202,8 +203,7 @@ public class MediaMoveService implements MediaMover {
         String subtitleIndexesString = engIndexes.stream().map(String::valueOf).collect(Collectors.joining(","));
 
         Optional<CommandResult<String>> reduceResultOptional =
-                commandService.execute(FfmpegReduceSubtitles.NAME,
-                        new String[]{srcPath.path().toString(), destPath.path().toString(), subtitleIndexesString});
+                commandService.execute(REDUCE_SUBS, new String[]{srcPath.path().toString(), destPath.path().toString(), subtitleIndexesString});
 
         return reduceResultOptional.map(CommandResult::success).orElse(false);
     }

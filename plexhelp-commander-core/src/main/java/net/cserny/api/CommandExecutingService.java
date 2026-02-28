@@ -1,12 +1,11 @@
 package net.cserny.api;
 
-
+import net.cserny.api.Command.CommandName;
 import net.cserny.api.dto.CommandResult;
 
 import java.util.Optional;
 
 public interface CommandExecutingService {
 
-    // TODO change to the enum here
-    <T> Optional<CommandResult<T>> execute(String name, String[] params);
+    <T> Optional<CommandResult<T>> execute(CommandName name, String[] params);
 }
