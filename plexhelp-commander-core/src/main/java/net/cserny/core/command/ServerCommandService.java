@@ -34,7 +34,7 @@ public class ServerCommandService {
             log.info("Remote server command with name {} not found, creating...", config.getName());
             ServerCommand server = new ServerCommand();
             server.serverName = config.getName();
-            server.actionsAvailable = commands.stream().map(Command::name).toList();
+            server.actionsAvailable = commands.stream().map(c -> c.name().getValue()).toList();
             repository.save(server);
         }
     }
