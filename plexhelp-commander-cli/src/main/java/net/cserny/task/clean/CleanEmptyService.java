@@ -34,9 +34,12 @@ public class CleanEmptyService {
         }
 
         LocalPath walkPath = localPathHandler.toLocalPath(path);
-        List<LocalPath> foldersFound = localPathHandler.walk(walkPath, 1, WalkOptions.ONLY_DIRECTORIES);
+        List<LocalPath> foldersFound = localPathHandler.walk(walkPath, 2, WalkOptions.ONLY_DIRECTORIES);
 
-        for (LocalPath mediaFolder : foldersFound) {
+        // start index at 1 to exclude first path cause its the root path used
+        for (int i = 1; i < foldersFound.size(); i++) {
+            LocalPath mediaFolder = foldersFound.get(i);
+
             log.info("Checking media folder {} for media files", mediaFolder);
             List<LocalPath> filesInMediaFolder = localPathHandler.walk(mediaFolder, 4, WalkOptions.ONLY_FILES);
 
