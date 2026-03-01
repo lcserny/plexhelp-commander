@@ -51,7 +51,7 @@ public class CleanEmptyService {
                 }
             }
 
-            if (!containsMediaFiles) {
+            if (!containsMediaFiles && !mediaFolder.path().toString().equals(path)) {
                 log.info("No files found in media folder {}, deleting...", mediaFolder);
                 localPathHandler.deleteDirectory(mediaFolder);
             }
