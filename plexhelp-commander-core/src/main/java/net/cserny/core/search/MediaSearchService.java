@@ -7,7 +7,7 @@ import net.cserny.api.MediaIdentifier;
 import net.cserny.config.SearchProperties;
 import net.cserny.config.FilesystemProperties;
 import net.cserny.fs.LocalFileService;
-import net.cserny.fs.LocalPath;
+import net.cserny.api.dto.LocalPath;
 
 import net.cserny.generated.MediaFileGroup;
 import net.cserny.support.TVDataExtractor;

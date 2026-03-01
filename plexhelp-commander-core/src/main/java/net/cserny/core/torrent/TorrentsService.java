@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.cserny.api.*;
 import net.cserny.api.dto.TorrentFile;
 import net.cserny.config.FilesystemProperties;
-import net.cserny.fs.LocalPath;
+import net.cserny.api.dto.LocalPath;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

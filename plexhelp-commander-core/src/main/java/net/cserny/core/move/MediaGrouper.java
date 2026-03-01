@@ -4,7 +4,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.fs.LocalFileService;
-import net.cserny.fs.LocalPath;
+import net.cserny.api.dto.LocalPath;
 import net.cserny.generated.MediaFileGroup;
 import net.cserny.generated.MediaFileType;
 import net.cserny.support.TVDataExtractor;

@@ -1,6 +1,6 @@
 package net.cserny.api;
 
-import net.cserny.fs.LocalPath;
+import net.cserny.api.dto.LocalPath;
 
 public interface MediaIdentifier {
 

@@ -5,7 +5,7 @@ import net.cserny.api.LocalPathHandler;
 import net.cserny.config.ServerCommandProperties;
 import net.cserny.core.command.AbstractOSCommand;
 import net.cserny.core.command.CommandRunner;
-import net.cserny.fs.LocalPath;
+import net.cserny.api.dto.LocalPath;
 import org.jspecify.annotations.NonNull;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Component;

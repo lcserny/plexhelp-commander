@@ -8,7 +8,7 @@ import net.cserny.core.download.internal.DownloadedMediaRepository;
 import net.cserny.core.magnet.Magnet;
 import net.cserny.core.magnet.MagnetRepository;
 import net.cserny.config.FilesystemProperties;
-import net.cserny.fs.LocalPath;
+import net.cserny.api.dto.LocalPath;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

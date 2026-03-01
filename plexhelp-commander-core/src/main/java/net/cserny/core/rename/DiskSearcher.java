@@ -6,7 +6,7 @@ import net.cserny.api.NameNormalizer.NameYear;
 import net.cserny.config.RenameProperties;
 import net.cserny.config.FilesystemProperties;
 import net.cserny.fs.LocalFileService;
-import net.cserny.fs.LocalPath;
+import net.cserny.api.dto.LocalPath;
 import net.cserny.generated.MediaFileType;
 import net.cserny.generated.MediaRenameOrigin;
 import net.cserny.generated.RenamedMediaOptions;
@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import static net.cserny.support.UtilityProvider.toLoggableString;
-import static net.cserny.fs.ExcludingFileVisitor.WalkOptions.ONLY_DIRECTORIES;
+import static net.cserny.api.WalkOptions.ONLY_DIRECTORIES;
 import static net.cserny.core.rename.MediaRenameService.generateDescDataFrom;
 
 @Order(0)

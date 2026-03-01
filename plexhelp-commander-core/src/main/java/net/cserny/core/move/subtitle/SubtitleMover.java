@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.config.FilesystemProperties;
 import net.cserny.fs.LocalFileService;
-import net.cserny.fs.LocalPath;
+import net.cserny.api.dto.LocalPath;
 import net.cserny.generated.MediaMoveError;
 import net.cserny.core.move.MediaGrouper;
 import net.cserny.core.move.MediaGrouper.LangKey;
@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.util.*;
 
 import static net.cserny.support.UtilityProvider.toLoggableString;
-import static net.cserny.fs.ExcludingFileVisitor.WalkOptions.ONLY_FILES;
+import static net.cserny.api.WalkOptions.ONLY_FILES;
 
 @Service
 @RequiredArgsConstructor

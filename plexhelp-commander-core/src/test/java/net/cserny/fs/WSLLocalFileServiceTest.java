@@ -2,6 +2,7 @@ package net.cserny.fs;
 
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.IntegrationTestWithRealFS;
+import net.cserny.api.dto.LocalPath;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

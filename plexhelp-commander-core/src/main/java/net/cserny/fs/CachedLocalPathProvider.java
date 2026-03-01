@@ -2,6 +2,7 @@ package net.cserny.fs;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.cserny.api.dto.LocalPath;
 import net.cserny.support.Features;
 import net.cserny.support.LRUCache;
 import org.springframework.scheduling.annotation.Scheduled;

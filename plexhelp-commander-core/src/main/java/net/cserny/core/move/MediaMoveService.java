@@ -11,7 +11,7 @@ import net.cserny.api.dto.SubtitleStreams;
 import net.cserny.config.MoveProperties;
 import net.cserny.config.FilesystemProperties;
 import net.cserny.fs.LocalFileService;
-import net.cserny.fs.LocalPath;
+import net.cserny.api.dto.LocalPath;
 import net.cserny.generated.*;
 import net.cserny.core.move.MediaGrouper.GroupedVideos;
 import net.cserny.core.move.MediaInfoExtractor.MediaInfo;

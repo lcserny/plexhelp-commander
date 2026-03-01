@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.cserny.api.MediaIdentifier;
 import net.cserny.config.SearchProperties;
 import net.cserny.fs.LocalFileService;
-import net.cserny.fs.LocalPath;
+import net.cserny.api.dto.LocalPath;
 import org.springframework.http.MediaType;
 import org.springframework.http.MediaTypeFactory;
 import org.springframework.stereotype.Service;

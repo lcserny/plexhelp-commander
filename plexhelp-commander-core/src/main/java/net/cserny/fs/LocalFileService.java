@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.api.LocalPathHandler;
+import net.cserny.api.WalkOptions;
+import net.cserny.api.dto.LocalPath;
 import net.cserny.support.Features;
 import org.springframework.stereotype.Component;
 import org.togglz.core.manager.FeatureManager;
@@ -13,12 +15,11 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 
-import static net.cserny.fs.ExcludingFileVisitor.WalkOptions.ONLY_FILES;
+import static net.cserny.api.WalkOptions.ONLY_FILES;
 
 @RequiredArgsConstructor
 @Component
 @Slf4j
-// TODO when cleanup done, make it package-private
 public class LocalFileService implements LocalPathHandler {
 
     private final FeatureManager featureManager;
@@ -71,6 +72,7 @@ public class LocalFileService implements LocalPathHandler {
         return Files.exists(path.path());
     }
 
+    @Override
     public void deleteDirectory(LocalPath folder) throws IOException {
         Files.walkFileTree(folder.path(), new SimpleFileVisitor<>() {
             @Override
@@ -115,16 +117,16 @@ public class LocalFileService implements LocalPathHandler {
         return walk(path, maxDepthFromPath, excludePaths, ONLY_FILES);
     }
 
-    @Override
     public List<LocalPath> walk(LocalPath path, int maxDepthFromPath) throws IOException {
         return walk(path, maxDepthFromPath, ONLY_FILES);
     }
 
-    public List<LocalPath> walk(LocalPath path, int maxDepthFromPath, ExcludingFileVisitor.WalkOptions options) throws IOException {
+    @Override
+    public List<LocalPath> walk(LocalPath path, int maxDepthFromPath, WalkOptions options) throws IOException {
         return walk(path, maxDepthFromPath, List.of(), options);
     }
 
-    public List<LocalPath> walk(LocalPath path, int maxDepthFromPath, List<String> excludePaths, ExcludingFileVisitor.WalkOptions options) throws IOException {
+    public List<LocalPath> walk(LocalPath path, int maxDepthFromPath, List<String> excludePaths, WalkOptions options) throws IOException {
         if (!path.attributes().isDirectory()) {
             throw new NotDirectoryException(path.path().toString());
         }

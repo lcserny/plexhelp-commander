@@ -1,4 +1,4 @@
-package net.cserny.fs;
+package net.cserny.api.dto;
 
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;

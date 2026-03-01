@@ -2,6 +2,7 @@ package net.cserny.fs;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import net.cserny.api.WalkOptions;
 
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
@@ -85,12 +86,5 @@ public class ExcludingFileVisitor implements FileVisitor<Path> {
             }
         }
         return false;
-    }
-
-    @Getter
-    public enum WalkOptions {
-
-        ONLY_DIRECTORIES,
-        ONLY_FILES;
     }
 }

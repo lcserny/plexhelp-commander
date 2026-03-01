@@ -5,9 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import net.cserny.api.CommandExecutingService;
 import net.cserny.api.LocalPathHandler;
 import net.cserny.api.MediaIdentifier;
+import net.cserny.api.WalkOptions;
 import net.cserny.api.dto.CommandResult;
 import net.cserny.api.dto.SubtitleStreams;
-import net.cserny.fs.LocalPath;
+import net.cserny.api.dto.LocalPath;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -35,7 +36,7 @@ public class ReduceSubtitlesService {
         }
 
         LocalPath walkPath = localPathHandler.toLocalPath(path);
-        List<LocalPath> filesFound = localPathHandler.walk(walkPath, 4);
+        List<LocalPath> filesFound = localPathHandler.walk(walkPath, 4, WalkOptions.ONLY_FILES);
 
         filesFound.forEach(localPath -> {
             if (!mediaIdentifier.isMedia(localPath)) {
