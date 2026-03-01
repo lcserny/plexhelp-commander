@@ -10,8 +10,6 @@ import org.jspecify.annotations.NonNull;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -21,6 +19,8 @@ import static net.cserny.support.UtilityProvider.escaped;
 @Slf4j
 @Component
 public class FfmpegReduceSubtitles extends AbstractOSCommand<String> {
+
+    private static final String suffix = "_tmp";
 
     private final LocalPathHandler localPathHandler;
 
@@ -63,60 +63,55 @@ public class FfmpegReduceSubtitles extends AbstractOSCommand<String> {
             throw new IllegalArgumentException("Invalid params provided to command, it needs [0] the sourceMediaFilePath, [1] the targetMediaFilePath and [2:optional] comma-separated list of subtitle stream indexes to be kept");
         }
 
-        LocalPath sourceMediaPath = localPathHandler.toLocalPath(params[0]);
-        if (sourceMediaPath.attributes().isDirectory()) {
-            throw new IllegalArgumentException("Provided source media file path is a directory not a regular file: " + sourceMediaPath.path());
-        }
+        LocalPath sourceMediaPath = getMediaLocalPath(params[0]);
         log.info("Source media file path received: {}", sourceMediaPath.path());
 
-        LocalPath targetMediaPath = localPathHandler.toLocalPath(params[1]);
-        if (targetMediaPath.attributes().isDirectory()) {
-            throw new IllegalArgumentException("Provided target media file path is a directory not a regular file: " + targetMediaPath.path());
-        }
+        LocalPath targetMediaPath =  getMediaLocalPath(params[1]);
         log.info("Target media file path received: {}", targetMediaPath.path());
 
         String indexesString = params.length == 3 ? params[2] : "";
         List<Integer> subtitleStreamIndexes = Arrays.stream(indexesString.split(",")).map(String::trim).map(Integer::parseInt).toList();
         log.info("Subtitles indexes provided: {}", subtitleStreamIndexes);
 
-        Path parent = sourceMediaPath.path().getParent();
-        if (parent.getFileName().toString().startsWith("Season")) {
-            parent = parent.getParent();
-        }
-
-        Path mediaWithoutRootPath = parent.getParent().relativize(sourceMediaPath.path());
-        Path tempDir = Path.of(System.getProperty("user.home"));
-        if (sourceMediaPath.path().getName(0).startsWith("mnt")) {
-            tempDir = sourceMediaPath.path().subpath(0, 2);
-        }
-        Path tmpMediaPath = tempDir.resolve("tmp").resolve(mediaWithoutRootPath);
-        log.info("Temporary media path to use: {}", tmpMediaPath);
-        try {
-            localPathHandler.createDirectories(localPathHandler.toLocalPath(tmpMediaPath.toString()));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        return buildCommands(sourceMediaPath, targetMediaPath, subtitleStreamIndexes, tmpMediaPath);
+        return buildCommands(sourceMediaPath.toString(), targetMediaPath.toString(), subtitleStreamIndexes);
     }
 
-    private static @NonNull List<String> buildCommands(LocalPath sourceMediaPath, LocalPath targetMediaPath, List<Integer> subtitleStreamIndexes, Path tmpMediaPath) {
-        List<String> commands = new ArrayList<>(List.of("ffmpeg", "-v", "error", "-i", escaped(sourceMediaPath.path().toString()), "-map", "0:v", "-map", "0:a"));
+    private @NonNull LocalPath getMediaLocalPath(String path) {
+        LocalPath localPath = localPathHandler.toLocalPath(path);
+        if (localPath.attributes().isDirectory()) {
+            throw new IllegalArgumentException("Provided media file path is a directory not a regular file: " + path);
+        }
+        return localPath;
+    }
+
+    private static @NonNull List<String> buildCommands(String sourceMediaPath, String targetMediaPath, List<Integer> subtitleStreamIndexes) {
+        List<String> commands = new ArrayList<>(List.of("ffmpeg", "-v", "error", "-i", escaped(sourceMediaPath), "-map", "0:v", "-map", "0:a"));
 
         for (Integer i : subtitleStreamIndexes) {
             commands.add("-map");
             commands.add("0:" + i);
         }
 
+        String extractMediaPath = targetMediaPath;
+        if (sourceMediaPath.equals(targetMediaPath)) {
+            extractMediaPath = targetMediaPath + suffix;
+        }
+
         commands.add("-c");
         commands.add("copy");
-        commands.add(escaped(tmpMediaPath.toString()));
+        commands.add(escaped(extractMediaPath));
         commands.add("-y");
 
+        if (sourceMediaPath.equals(targetMediaPath)) {
+            commands.add("&&");
+            commands.add("mv");
+            commands.add(escaped(extractMediaPath));
+            commands.add(escaped(targetMediaPath));
+        }
+
         commands.add("&&");
-        commands.add("mv");
-        commands.add(escaped(tmpMediaPath.toString()));
-        commands.add(escaped(targetMediaPath.path().toString()));
+        commands.add("rm");
+        commands.add(escaped(sourceMediaPath));
 
         return commands;
     }
