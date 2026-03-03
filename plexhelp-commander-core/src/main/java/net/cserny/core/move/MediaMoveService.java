@@ -109,7 +109,7 @@ public class MediaMoveService implements MediaMover {
                             .build());
                 }
             } catch (IOException e) {
-                log.warn("Could not move media: {}", e.getMessage());
+                log.error("Could not move media {} to {}", srcPath, destPath, e);
                 errors.add(new MediaMoveError().mediaPath(srcPath.path().toString()).error(e.getMessage()));
             }
         }
