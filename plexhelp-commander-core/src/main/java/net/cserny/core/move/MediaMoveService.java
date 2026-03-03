@@ -182,6 +182,8 @@ public class MediaMoveService implements MediaMover {
     private boolean moveInternal(LocalPath srcPath, LocalPath destPath) throws IOException {
         log.info("Moving video {} to {}", srcPath, destPath);
 
+        fileService.createDirectories(destPath);
+
         Optional<CommandResult<SubtitleStreams>> scanResultOptional = commandService.execute(SCAN_SUBS, new String[]{srcPath.path().toString()});
         if (scanResultOptional.isPresent()) {
             CommandResult<SubtitleStreams> scanResult = scanResultOptional.get();

@@ -99,9 +99,7 @@ public class LocalFileService implements LocalPathHandler {
     }
 
     public boolean move(LocalPath source, LocalPath dest) throws IOException {
-        if (dest.path().getParent() != null) {
-            Files.createDirectories(dest.path().getParent());
-        }
+        createDirectories(dest);
 
         if (Files.notExists(dest.path())) {
             Files.move(source.path(), dest.path(), StandardCopyOption.ATOMIC_MOVE);

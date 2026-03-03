@@ -92,6 +92,7 @@ public class SubtitleMover {
 
         try {
             log.info("Moving sub {} to {}", subSrc, subDest);
+            fileService.createDirectories(subDest);
             fileService.move(subSrc, subDest);
             return new SubtitleMoveResult.Success();
         } catch (IOException e) {
