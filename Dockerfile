@@ -1,8 +1,7 @@
 FROM docker.io/library/eclipse-temurin:21-jre-noble
 VOLUME /tmp
-COPY plexhelp-commander-web/target/plexhelp-commander-*.jar commander.jar
-
 RUN useradd -m commander
+COPY --chown=commander:commander plexhelp-commander-web/target/plexhelp-commander-*.jar /home/commander/commander.jar
+WORKDIR /home/commander
 USER commander
-
-ENTRYPOINT ["sh", "-c", "java -jar /commander.jar"]
+ENTRYPOINT ["sh", "-c", "java -jar /home/commander/commander.jar"]
