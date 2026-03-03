@@ -1,7 +1,8 @@
 FROM docker.io/library/debian:trixie
-COPY --chown=ubuntu:ubuntu plexhelp-commander-web/target/plexhelp-commander /home/ubuntu/commander
-RUN chmod +x /home/ubuntu/commander
-WORKDIR /home/ubuntu
+RUN mkdir -p /app && chown -R ubuntu:ubuntu /app
+COPY --chown=ubuntu:ubuntu plexhelp-commander-web/target/plexhelp-commander /app/commander
+RUN chmod +x /app/commander
+WORKDIR /app
 USER ubuntu
-ENTRYPOINT ["sh", "-c", "/home/ubuntu/commander"]
+ENTRYPOINT ["sh", "-c", "/app/commander"]
 
