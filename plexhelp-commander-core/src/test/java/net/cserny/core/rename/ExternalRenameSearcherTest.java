@@ -24,10 +24,10 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @ActiveProfiles(TMDBMOCK)
-class ExternalSearcherTest extends IntegrationTest {
+class ExternalRenameSearcherTest extends IntegrationTest {
 
     @Autowired
-    ExternalSearcher searcher;
+    ExternalRenameSearcher searcher;
 
     @Autowired
     OnlineCacheRepository repository;

@@ -3,6 +3,7 @@ package net.cserny.core.rename;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.api.NameNormalizer.NameYear;
+import net.cserny.api.RenameSearcher;
 import net.cserny.generated.MediaDescriptionData;
 import net.cserny.generated.MediaFileType;
 import net.cserny.generated.MediaRenameOrigin;
@@ -19,7 +20,7 @@ import java.util.List;
 @Order(1)
 @RequiredArgsConstructor
 @Component
-public class OnlineCacheSearcher implements Searcher {
+public class OnlineCacheRenameSearcher implements RenameSearcher {
 
     public static final DateTimeFormatter utcDateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneOffset.UTC);
 

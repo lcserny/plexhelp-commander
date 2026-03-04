@@ -2,6 +2,7 @@ package net.cserny.core.move.subtitle;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.cserny.api.dto.MediaInfo;
 import net.cserny.config.FilesystemProperties;
 import net.cserny.fs.LocalFileService;
 import net.cserny.api.dto.LocalPath;
@@ -10,7 +11,6 @@ import net.cserny.core.move.MediaGrouper;
 import net.cserny.core.move.MediaGrouper.LangKey;
 import net.cserny.core.move.MediaInfoExtractor;
 import net.cserny.core.move.MediaInfoExtractor.IndexedLangData;
-import net.cserny.core.move.MediaInfoExtractor.MediaInfo;
 import net.cserny.config.MoveProperties;
 import org.springframework.stereotype.Service;
 

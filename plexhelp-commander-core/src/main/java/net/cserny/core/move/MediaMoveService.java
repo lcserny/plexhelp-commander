@@ -7,6 +7,7 @@ import net.cserny.api.CommandExecutingService;
 import net.cserny.api.MediaIdentifier;
 import net.cserny.api.MediaMover;
 import net.cserny.api.dto.CommandResult;
+import net.cserny.api.dto.MediaInfo;
 import net.cserny.api.dto.SubtitleStreams;
 import net.cserny.config.MoveProperties;
 import net.cserny.config.FilesystemProperties;
@@ -14,7 +15,6 @@ import net.cserny.fs.LocalFileService;
 import net.cserny.api.dto.LocalPath;
 import net.cserny.generated.*;
 import net.cserny.core.move.MediaGrouper.GroupedVideos;
-import net.cserny.core.move.MediaInfoExtractor.MediaInfo;
 import net.cserny.core.move.subtitle.SubsMoveOperation;
 import net.cserny.core.move.subtitle.SubtitleMover;
 import net.cserny.config.SearchProperties;
@@ -95,18 +95,7 @@ public class MediaMoveService implements MediaMover {
 
             try {
                 if (moveInternal(srcPath, destPath)) {
-                    movedMediaRepository.save(MovedMedia.builder()
-                            .source(srcPath.path().toString())
-                            .destination(destPath.path().toString())
-                            .sizeBytes(srcPath.attributes().size())
-                            .mediaName(mediaInfo.baseName())
-                            .date(mediaInfo.date() != null ? mediaInfo.date().atStartOfDay(ZoneOffset.UTC).toInstant() : null)
-                            .season(mediaInfo.season())
-                            .episode(mediaInfo.episode())
-                            .mediaType(type)
-                            .deleted(false)
-                            .mediaDesc(mediaDesc)
-                            .build());
+                    persistMovedMedia(srcPath, destPath, mediaInfo, mediaDesc);
                 }
             } catch (IOException e) {
                 log.error("Could not move media {} to {}", srcPath, destPath, e);
@@ -139,6 +128,21 @@ public class MediaMoveService implements MediaMover {
     public List<MovedMediaData> getAvailableMovedMedia() {
         List<MovedMedia> foundMedia = movedMediaRepository.findAllByDeleted(false);
         return foundMedia.stream().map(DataMapper.INSTANCE::movedMediaToMovedMediaData).toList();
+    }
+
+    public void persistMovedMedia(LocalPath srcPath, LocalPath destPath, MediaInfo mediaInfo, MediaDescriptionData mediaDesc) {
+        movedMediaRepository.save(MovedMedia.builder()
+                .source(srcPath.path().toString())
+                .destination(destPath.path().toString())
+                .sizeBytes(srcPath.attributes().size())
+                .mediaName(mediaInfo.baseName())
+                .date(mediaInfo.date() != null ? mediaInfo.date().atStartOfDay(ZoneOffset.UTC).toInstant() : null)
+                .season(mediaInfo.season())
+                .episode(mediaInfo.episode())
+                .mediaType(mediaInfo.type())
+                .deleted(false)
+                .mediaDesc(mediaDesc)
+                .build());
     }
 
     private void cleanSourceMediaDir(MediaFileGroup mediaFileGroup, List<LocalPath> deletableVideos) throws IOException {

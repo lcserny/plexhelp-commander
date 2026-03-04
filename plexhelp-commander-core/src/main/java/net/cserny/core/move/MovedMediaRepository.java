@@ -10,4 +10,6 @@ interface MovedMediaRepository extends MongoRepository<MovedMedia, ObjectId> {
     List<MovedMedia> findAllByMediaName(String mediaName);
 
     List<MovedMedia> findAllByDeleted(boolean deleted);
+
+    // TODO existsBy...
 }

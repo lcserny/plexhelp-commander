@@ -14,10 +14,10 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class DiskSearcherTest extends IntegrationTest {
+public class DiskRenameSearcherTest extends IntegrationTest {
 
     @Autowired
-    DiskSearcher searcher;
+    DiskRenameSearcher searcher;
 
     @Autowired
     FilesystemProperties filesystemConfig;

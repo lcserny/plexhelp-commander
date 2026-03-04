@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.generated.MediaFileType;
 import net.cserny.core.move.MediaGrouper.LangKey;
+import net.cserny.api.dto.MediaInfo;
 import net.cserny.support.TVDataExtractor;
 
 import java.time.LocalDate;
@@ -40,7 +41,7 @@ public class MediaInfoExtractor {
         Integer episode = extractEpisode();
         String fileName = extractFileName(baseName, localDate, season, episode);
 
-        return new MediaInfo.MediaInfoBuilder().baseName(baseName).date(localDate).season(season).episode(episode).fileName(fileName).type(type).build();
+        return MediaInfo.builder().baseName(baseName).date(localDate).season(season).episode(episode).fileName(fileName).type(type).build();
     }
 
     private String extractBaseName(boolean datePresent) {
@@ -122,22 +123,6 @@ public class MediaInfoExtractor {
                 (localDate != null ? " (" + localDate + ")" : "") +
                 extractIndexedLangData() +
                 extractExtension();
-    }
-
-    @Builder
-    public record MediaInfo(String baseName, LocalDate date, Integer season, Integer episode, String fileName, MediaFileType type) {
-
-        // MOVIE [baseName + (date), fileName]
-        // TV [baseName + (date), Season %20d(season), fileName]
-        public String[] destinationPathSegments() {
-            String baseNameAndDate = date == null ? baseName : baseName + " (" + date + ")";
-            return switch (type) {
-                case MOVIE -> new String[]{ baseNameAndDate, fileName };
-                case TV -> season == null
-                        ? new String[]{ baseNameAndDate, fileName }
-                        : new String[]{ baseNameAndDate, "Season " + season, fileName };
-            };
-        }
     }
 
     @Builder

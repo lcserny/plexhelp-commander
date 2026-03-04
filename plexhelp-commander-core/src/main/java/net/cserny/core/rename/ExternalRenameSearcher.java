@@ -3,6 +3,7 @@ package net.cserny.core.rename;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.api.NameNormalizer.NameYear;
+import net.cserny.api.RenameSearcher;
 import net.cserny.config.OnlineProperties;
 import net.cserny.generated.MediaDescriptionData;
 import net.cserny.generated.MediaFileType;
@@ -32,7 +33,7 @@ import static net.cserny.support.UtilityProvider.toLoggableString;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class ExternalSearcher implements Searcher {
+public class ExternalRenameSearcher implements RenameSearcher {
 
     private final OnlineCacheRepository repository;
     private final OnlineProperties onlineConfig;
@@ -47,6 +48,7 @@ public class ExternalSearcher implements Searcher {
             case TV -> searchTvShow(nameYear);
         };
 
+        // TODO dont save duplicates?
         Set<OnlineCacheItem> items = convertAll(nameYear, mediaFound, type);
         log.info("Saving media found to cache {}", toLoggableString(items));
         repository.saveAll(items);

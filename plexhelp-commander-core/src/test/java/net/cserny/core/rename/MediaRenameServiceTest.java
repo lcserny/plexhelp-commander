@@ -18,8 +18,8 @@ class MediaRenameServiceTest extends IntegrationTest {
     @Test
     @DisplayName("Checks that the search providers are ordered correctly")
     public void checkSearcherOrder() {
-        assertEquals(DiskSearcher.class.getSimpleName(), service.getSearchers().get(0).getClass().getSimpleName());
-        assertEquals(OnlineCacheSearcher.class.getSimpleName(), service.getSearchers().get(1).getClass().getSimpleName());
-        assertEquals(ExternalSearcher.class.getSimpleName(), service.getSearchers().get(2).getClass().getSimpleName());
+        assertEquals(DiskRenameSearcher.class.getSimpleName(), service.getRenameSearchers().get(0).getClass().getSimpleName());
+        assertEquals(OnlineCacheRenameSearcher.class.getSimpleName(), service.getRenameSearchers().get(1).getClass().getSimpleName());
+        assertEquals(ExternalRenameSearcher.class.getSimpleName(), service.getRenameSearchers().get(2).getClass().getSimpleName());
     }
 }

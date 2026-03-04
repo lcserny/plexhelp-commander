@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.api.NameNormalizer.NameYear;
 import net.cserny.api.NameOptionsProducer;
+import net.cserny.api.RenameSearcher;
 import net.cserny.generated.MediaDescriptionData;
 import net.cserny.generated.MediaFileType;
 import net.cserny.generated.MediaRenameOrigin;
@@ -30,7 +31,7 @@ public class MediaRenameService implements NameOptionsProducer {
     private final DefaultNameNormalizer normalizer;
 
     @Getter
-    private final List<Searcher> searchers;
+    private final List<RenameSearcher> renameSearchers;
 
     public static List<MediaDescriptionData> generateDescDataFrom(List<String> titles) {
         return titles.stream()
@@ -57,9 +58,9 @@ public class MediaRenameService implements NameOptionsProducer {
         NameYear nameYear = normalizer.normalize(name);
         log.info("Normalized media: {}", nameYear.formatted());
 
-        for (Searcher searcher : searchers) {
-            log.info("Searching options using: {}", searcher.getClass().getSimpleName());
-            RenamedMediaOptions options = searcher.search(nameYear, type);
+        for (RenameSearcher renameSearcher : renameSearchers) {
+            log.info("Searching options using: {}", renameSearcher.getClass().getSimpleName());
+            RenamedMediaOptions options = renameSearcher.search(nameYear, type);
             if (options.getMediaDescriptions() != null && !options.getMediaDescriptions().isEmpty()) {
                 log.info("Found options: {}", toLoggableString(options));
                 return options;

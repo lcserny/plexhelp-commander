@@ -42,7 +42,7 @@ class AutoMoveMediaService {
     private final AutoMoveProperties properties;
     private final ExecutorService executorService;
     private final AutoMoveMediaRepository autoMoveMediaRepository;
-    private final AutomoveSupport automoveSupport;
+    private final AutomoveSupportAggregator automoveSupport;
 
     @SneakyThrows
     @Scheduled(cron = "${automove.cron}")
