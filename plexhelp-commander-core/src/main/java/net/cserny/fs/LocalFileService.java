@@ -12,8 +12,9 @@ import org.togglz.core.manager.FeatureManager;
 
 import java.io.IOException;
 import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.*;
 import java.util.List;
+import java.util.Set;
 
 import static net.cserny.api.WalkOptions.ONLY_FILES;
 
@@ -22,11 +23,20 @@ import static net.cserny.api.WalkOptions.ONLY_FILES;
 @Slf4j
 public class LocalFileService implements LocalPathHandler {
 
+    private static final String posix = "posix";
+    private static final String permsString = "rwxrwxr-x";
+    private static final Set<PosixFilePermission> posixPerms = PosixFilePermissions.fromString(permsString);
+    private static final FileAttribute<Set<PosixFilePermission>> posixAttrs = PosixFilePermissions.asFileAttribute(posixPerms);
+
     private final FeatureManager featureManager;
     private final CachedLocalPathProvider cachedLocalPathProvider;
 
     @Getter
     private final FileSystem fileSystem;
+
+    private boolean isPosixFilesystem() {
+        return fileSystem.supportedFileAttributeViews().contains(posix);
+    }
 
     public LocalPath toLocalPath(BasicFileAttributes attributes, String root, String... segments) {
         Path path = fileSystem.getPath(root, segments);
@@ -91,10 +101,11 @@ public class LocalFileService implements LocalPathHandler {
 
     @Override
     public void createDirectories(LocalPath path) throws IOException {
-        if (path.attributes().isDirectory()) {
-            Files.createDirectories(path.path());
+        Path pathToUse = path.attributes().isDirectory() ? path.path() : path.path().getParent();
+        if (isPosixFilesystem()) {
+            Files.createDirectories(pathToUse, posixAttrs);
         } else {
-            Files.createDirectories(path.path().getParent());
+            Files.createDirectories(pathToUse);
         }
     }
 
@@ -103,6 +114,9 @@ public class LocalFileService implements LocalPathHandler {
 
         if (Files.notExists(dest.path())) {
             Files.move(source.path(), dest.path(), StandardCopyOption.ATOMIC_MOVE);
+            if (isPosixFilesystem()) {
+                Files.setPosixFilePermissions(dest.path(), posixPerms);
+            }
             return true;
         }
 
