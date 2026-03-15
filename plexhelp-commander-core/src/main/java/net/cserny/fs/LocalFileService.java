@@ -114,8 +114,19 @@ public class LocalFileService implements LocalPathHandler {
 
         if (Files.notExists(dest.path())) {
             Files.move(source.path(), dest.path(), StandardCopyOption.ATOMIC_MOVE);
+
             if (isPosixFilesystem()) {
+                // set perms on media file
                 Files.setPosixFilePermissions(dest.path(), posixPerms);
+
+                Path parent = dest.path().getParent();
+                // set perms on media file's folder
+                Files.setPosixFilePermissions(parent, posixPerms);
+
+                if (parent.getFileName().startsWith("Season")) {
+                    // for TV shows with season middle-dir, set perms on media file's folder
+                    Files.setPosixFilePermissions(parent.getParent(), posixPerms);
+                }
             }
             return true;
         }
