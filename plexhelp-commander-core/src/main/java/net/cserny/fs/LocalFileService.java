@@ -124,7 +124,7 @@ public class LocalFileService implements LocalPathHandler {
                 // set perms on media file's folder
                 Files.setPosixFilePermissions(parent, posixPerms);
 
-                if (parent.getFileName().startsWith(SEASON_SUBSTR)) {
+                if (parent.getFileName().toString().contains(SEASON_SUBSTR)) {
                     // for TV shows with season middle-dir, set perms on media file's folder
                     Files.setPosixFilePermissions(parent.getParent(), posixPerms);
                 }
