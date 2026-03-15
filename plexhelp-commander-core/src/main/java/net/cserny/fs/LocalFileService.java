@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Set;
 
 import static net.cserny.api.WalkOptions.ONLY_FILES;
+import static net.cserny.api.dto.MediaInfo.SEASON_SUBSTR;
 
 @RequiredArgsConstructor
 @Component
@@ -123,7 +124,7 @@ public class LocalFileService implements LocalPathHandler {
                 // set perms on media file's folder
                 Files.setPosixFilePermissions(parent, posixPerms);
 
-                if (parent.getFileName().startsWith("Season")) {
+                if (parent.getFileName().startsWith(SEASON_SUBSTR)) {
                     // for TV shows with season middle-dir, set perms on media file's folder
                     Files.setPosixFilePermissions(parent.getParent(), posixPerms);
                 }
