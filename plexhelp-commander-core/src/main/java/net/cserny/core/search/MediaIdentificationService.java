@@ -3,6 +3,7 @@ package net.cserny.core.search;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.api.MediaIdentifier;
+import net.cserny.config.MoveProperties;
 import net.cserny.config.SearchProperties;
 import net.cserny.fs.LocalFileService;
 import net.cserny.api.dto.LocalPath;
@@ -19,6 +20,7 @@ class MediaIdentificationService implements MediaIdentifier {
 
     private final LocalFileService localFileService;
     private final SearchProperties searchConfig;
+    private final MoveProperties moveConfig;
 
     @Override
     public boolean isMedia(LocalPath path) {
@@ -32,6 +34,21 @@ class MediaIdentificationService implements MediaIdentifier {
         }
 
         return excludeNonVideosBySize(path);
+    }
+
+    @Override
+    public boolean isSubtitle(LocalPath path) {
+        String filename = path.path().getFileName().toString();
+        String ext = filename.substring(filename.lastIndexOf("."));
+
+        for (String subsExtension : moveConfig.getSubsExt()) {
+            if (ext.equals(subsExtension)) {
+                return true;
+            }
+        }
+
+        log.debug("Excluded sub based on extension {}", filename);
+        return false;
     }
 
     private boolean excludeNonVideosByContentType(LocalPath path) {

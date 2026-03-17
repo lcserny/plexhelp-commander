@@ -14,4 +14,6 @@ public interface LocalPathHandler {
     void deleteDirectory(LocalPath folder) throws IOException;
 
     List<LocalPath> walk(LocalPath path, int maxDepthFromPath, WalkOptions options) throws IOException;
+
+    void rename(LocalPath source, LocalPath dest) throws IOException;
 }

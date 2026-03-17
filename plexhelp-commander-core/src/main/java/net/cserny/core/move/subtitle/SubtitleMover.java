@@ -2,6 +2,7 @@ package net.cserny.core.move.subtitle;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.cserny.api.MediaIdentifier;
 import net.cserny.api.dto.MediaInfo;
 import net.cserny.config.FilesystemProperties;
 import net.cserny.fs.LocalFileService;
@@ -29,6 +30,7 @@ public class SubtitleMover {
     private final FilesystemProperties filesystemConfig;
     private final MoveProperties moveConfig;
     private final MediaGrouper mediaGrouper;
+    private final MediaIdentifier mediaIdentifier;
 
     public List<MediaMoveError> moveSubs(SubsMoveOperation operation) {
         if (operation.subsSrc().path().toString().equals(filesystemConfig.getDownloadsPath())) {
@@ -42,7 +44,7 @@ public class SubtitleMover {
         try {
             subs = fileService.walk(operation.subsSrc(), moveConfig.getSubsMaxDepth(), ONLY_FILES)
                     .stream().parallel()
-                    .filter(this::filterBySubExtension)
+                    .filter(mediaIdentifier::isSubtitle)
                     .toList();
         } catch (IOException e) {
             log.warn("Could not walk subs path: {}", e.getMessage());
@@ -99,19 +101,5 @@ public class SubtitleMover {
             log.warn("Could not move sub: {}", e.getMessage());
             return new SubtitleMoveResult.Failure(new MediaMoveError().mediaPath(subSrc.path().toString()).error(e.getMessage()));
         }
-    }
-
-    private boolean filterBySubExtension(LocalPath subPath) {
-        String filename = subPath.path().getFileName().toString();
-        String ext = filename.substring(filename.lastIndexOf("."));
-
-        for (String subsExtension : moveConfig.getSubsExt()) {
-            if (ext.equals(subsExtension)) {
-                return true;
-            }
-        }
-
-        log.debug("Excluded sub based on extension {}", filename);
-        return false;
     }
 }

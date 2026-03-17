@@ -3,6 +3,7 @@ package net.cserny.task;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.task.clean.CleanEmptyCommand;
+import net.cserny.task.move.AdjustMediaDateCommand;
 import net.cserny.task.move.UpdateMovedMediaCommand;
 import net.cserny.task.subs.ReduceSubtitlesCommand;
 import org.springframework.stereotype.Component;
@@ -19,7 +20,8 @@ import java.util.concurrent.Callable;
         subcommands = {
                 ReduceSubtitlesCommand.class,
                 CleanEmptyCommand.class,
-                UpdateMovedMediaCommand.class
+                UpdateMovedMediaCommand.class,
+                AdjustMediaDateCommand.class
         }
 )
 @RequiredArgsConstructor
