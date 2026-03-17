@@ -8,6 +8,7 @@ import net.cserny.api.MediaIdentifier;
 import net.cserny.api.WalkOptions;
 import net.cserny.api.dto.LocalPath;
 import net.cserny.config.FilesystemProperties;
+import net.cserny.generated.MediaFileType;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -29,7 +30,6 @@ import static net.cserny.support.UtilityProvider.toLoggableString;
 public class AdjustMediaDateService {
 
     private static final Pattern datePattern = Pattern.compile("(?<year>\\d{4})-(?<month>\\d{2})-(?<day>\\d{2})");
-//    private static final Pattern langDataPattern = Pattern.compile("(\\.[a-zA-Z]{2})?(\\.\\(\\d\\))?");
     private static final String separator = " -> ";
     private final FilesystemProperties filesystemProperties;
     private final LocalPathHandler localPathHandler;
@@ -37,14 +37,12 @@ public class AdjustMediaDateService {
 
     public void adjustDate(String backupFilePath) throws IOException {
         Set<DateAdjustEntry> currentEntries = readCurrentEntries(backupFilePath);
-
-        List.of(filesystemProperties.getTvPath(), filesystemProperties.getMoviesPath())
-                .forEach(path -> adjustDate(path, currentEntries));
-
+        adjustDateInternal(filesystemProperties.getTvPath(), MediaFileType.TV, currentEntries);
+        adjustDateInternal(filesystemProperties.getMoviesPath(), MediaFileType.MOVIE, currentEntries);
         writeCurrentEntries(currentEntries, backupFilePath);
     }
 
-    private void adjustDate(String rootMediaPath, Set<DateAdjustEntry> currentEntries) {
+    private void adjustDateInternal(String rootMediaPath, MediaFileType type, Set<DateAdjustEntry> currentEntries) {
         LocalPath walkPath = localPathHandler.toLocalPath(rootMediaPath);
         List<LocalPath> foldersFound;
         try {
@@ -72,110 +70,67 @@ public class AdjustMediaDateService {
                 }
             }
 
-//            List<LocalPath> subtitleFilesInMediaFolder = new ArrayList<>();
-//            for (LocalPath file : filesInMediaFolder) {
-//                if (mediaIdentifier.isSubtitle(file)) {
-//                    subtitleFilesInMediaFolder.add(file);
-//                }
-//            }
-
-            if (!mediaFilesInMediaFolder.isEmpty()) {
-                String overrideName = processMediaFolder(mediaFolder.path(), currentEntries);
-                processMediaFiles(overrideName, mediaFilesInMediaFolder, currentEntries);
-//                processSubtitleFiles(overrideName, subtitleFilesInMediaFolder, currentEntries);
-            }
-        }
-    }
-
-    @SneakyThrows
-    private String processMediaFolder(Path originalPath, Set<DateAdjustEntry> entries) {
-        String originalName = originalPath.getFileName().toString();
-        Matcher matcher = datePattern.matcher(originalName);
-
-        if (matcher.find()) {
-            String year = matcher.group("year");
-            String newName = originalName.replaceAll(datePattern.pattern(), year);
-            Path newPath = originalPath.getParent().resolve(newName);
-
-            DateAdjustEntry entry = new DateAdjustEntry(originalPath.toString(), newPath.toString());
-            entries.add(entry);
-
-            log.info("Moving from {} to {}", entry.source(), entry.target());
-//            localPathHandler.rename(localPathHandler.toLocalPath(entry.source()), localPathHandler.toLocalPath(entry.target()));
-
-            return newName;
-        }
-
-        return originalName;
-    }
-
-    @SneakyThrows
-    private void processMediaFiles(String mediaFolder, List<LocalPath> mediaFiles, Set<DateAdjustEntry> entries) {
-        for (LocalPath originalMediaFilePath : mediaFiles) {
-            String originalName = originalMediaFilePath.path().getFileName().toString();
-            String extension = originalName.substring(originalName.lastIndexOf('.'));
-
-            // TODO not ok for tv shows...
-            String newName = mediaFolder + extension;
-            Path newPath = originalMediaFilePath.path().getParent().resolve(newName);
-
-            DateAdjustEntry entry = new DateAdjustEntry(originalMediaFilePath.toString(), newPath.toString());
-            entries.add(entry);
-
-            log.info("Moving from {} to {}", entry.source(), entry.target());
-//            localPathHandler.rename(localPathHandler.toLocalPath(entry.source()), localPathHandler.toLocalPath(entry.target()));
-        }
-    }
-
-    @SneakyThrows
-    private void processSubtitleFiles(String mediaFolder, List<LocalPath> subtitleFiles, Set<DateAdjustEntry> entries) {
-        if (subtitleFiles.size() == 1) {
-            LocalPath originalSubtitleFilePath = subtitleFiles.getFirst();
-            String originalName = originalSubtitleFilePath.path().getFileName().toString();
-            String extension = originalName.substring(originalName.lastIndexOf('.'));
-
-//            boolean hasLangData = false;
-//            String langData = originalName.substring(originalName.indexOf("."));
-//            if (!langData.equals(extension)) {
-//                langData = langData.replace(extension, "");
-//                if (langDataPattern.matcher(langData).matches()) {
-//                    hasLangData = true;
-//                }
-//            }
-
-//            String newName = mediaFolder + (hasLangData ? langData : "") + extension;
-            String newName = mediaFolder + extension;
-            Path newPath = originalSubtitleFilePath.path().getParent().resolve(newName);
-
-            DateAdjustEntry entry = new DateAdjustEntry(originalSubtitleFilePath.toString(), newPath.toString());
-            entries.add(entry);
-
-            log.info("Moving from {} to {}", entry.source(), entry.target());
-//            localPathHandler.rename(localPathHandler.toLocalPath(entry.source()), localPathHandler.toLocalPath(entry.target()));
-        }
-
-/*        for (LocalPath originalSubtitleFilePath : subtitleFiles) {
-            String originalName = originalSubtitleFilePath.path().getFileName().toString();
-            String extension = originalName.substring(originalName.lastIndexOf('.'));
-
-            boolean hasLangData = false;
-            String langData = originalName.substring(originalName.indexOf("."));
-            if (!langData.equals(extension)) {
-                langData = langData.replace(extension, "");
-                if (langDataPattern.matcher(langData).matches()) {
-                    hasLangData = true;
+            List<LocalPath> subtitleFilesInMediaFolder = new ArrayList<>();
+            for (LocalPath file : filesInMediaFolder) {
+                if (mediaIdentifier.isSubtitle(file)) {
+                    subtitleFilesInMediaFolder.add(file);
                 }
             }
 
-            String newName = mediaFolder + (hasLangData ? langData : "") + extension;
-            Path newPath = originalSubtitleFilePath.path().getParent().resolve(newName);
+            try {
+                if (!mediaFilesInMediaFolder.isEmpty()) {
+                    if (type == MediaFileType.MOVIE && mediaFilesInMediaFolder.size() == 1) {
+                        processMovieMediaEntry(mediaFilesInMediaFolder.getFirst().path(), currentEntries);
+                    } else {
+                        mediaFilesInMediaFolder.forEach(mediaFile -> processMediaEntry(mediaFile.path(), currentEntries));
+                    }
 
-            DateAdjustEntry entry = new DateAdjustEntry(originalSubtitleFilePath.toString(), newPath.toString());
-            entries.add(entry);
+                    subtitleFilesInMediaFolder.forEach(subtitleFile -> processMediaEntry(subtitleFile.path(), currentEntries));
 
-            log.info("Moving from {} to {}", entry.source(), entry.target());
-            localPathHandler.rename(localPathHandler.toLocalPath(entry.source()), localPathHandler.toLocalPath(entry.target()));
-        }*/
+                    // folder will be renamed after the files
+                    processMediaEntry(mediaFolder.path(), currentEntries);
+                }
+            } catch (Exception e) {
+                log.error("Error while processing media folder {}", mediaFolder, e);
+            }
+        }
+    }
+
+    private String getNewMediaName(String originalMediaName) {
+        Matcher matcher = datePattern.matcher(originalMediaName);
+        if (!matcher.find()) {
+            return originalMediaName;
+        }
+        String year = matcher.group("year");
+        return originalMediaName.replaceAll(datePattern.pattern(), year);
+    }
+
+    private void processMovieMediaEntry(Path originalPath, Set<DateAdjustEntry> entries) {
+        String newMediaName = getNewMediaName(originalPath.getParent().getFileName().toString());
+        String originalName = originalPath.getFileName().toString();
+        String extension = originalName.substring(originalName.lastIndexOf('.'));
+        String newName = newMediaName + extension;
+        Path newPath = originalPath.getParent().resolve(newName);
+        saveAndMoveEntry(originalPath.toString(), newPath.toString(), entries);
+    }
+
+    private void processMediaEntry(Path originalPath, Set<DateAdjustEntry> entries) {
+        String newMediaName = getNewMediaName(originalPath.getFileName().toString());
+        Path newPath = originalPath.getParent().resolve(newMediaName);
+        saveAndMoveEntry(originalPath.toString(), newPath.toString(), entries);
+    }
+
+    @SneakyThrows
+    private void saveAndMoveEntry(String source, String target, Set<DateAdjustEntry> entries) {
+        if (source.equals(target)) {
+            log.debug("Skipping rename of {} since its the same as the target location", source);
+            return;
+        }
+
+        log.info("Renaming from {} to {}", source, target);
+        localPathHandler.rename(localPathHandler.toLocalPath(source), localPathHandler.toLocalPath(target));
+
+        entries.add(new DateAdjustEntry(source, target));
     }
 
     private Set<DateAdjustEntry> readCurrentEntries(String backupFilePathStr) throws IOException {

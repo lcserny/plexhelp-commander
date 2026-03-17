@@ -114,7 +114,6 @@ public class LocalFileService implements LocalPathHandler {
         createDirectories(dest);
 
         if (Files.notExists(dest.path())) {
-            // TODO maybe with COPY_ATTRIBUTES option I wouldn't need to set posix perms?
             Files.move(source.path(), dest.path(), StandardCopyOption.ATOMIC_MOVE);
 
             if (isPosixFilesystem()) {
@@ -145,7 +144,7 @@ public class LocalFileService implements LocalPathHandler {
             return;
         }
 
-        Files.move(source.path(), dest.path(), StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.COPY_ATTRIBUTES);
+        Files.move(source.path(), dest.path(), StandardCopyOption.ATOMIC_MOVE);
     }
 
     public List<LocalPath> walk(LocalPath path, int maxDepthFromPath, List<String> excludePaths) throws IOException {
