@@ -51,12 +51,12 @@ class AutoMoveMediaServiceTest extends IntegrationTest {
 
     @Test
     @DisplayName("if media has year in name, media is moved to movies")
-    void automoveMovie() throws IOException, InterruptedException {
+    void automoveMovie() throws IOException {
         LocalDateTime now = LocalDateTime.now();
         int year = now.getYear();
         String name = "Beetlejuice";
         String video = "video.mp4";
-        String title = format("%s (%s)", name, now.format(ISO_LOCAL_DATE));
+        String title = format("%s (%s)", name, now.getYear());
         DownloadedMedia media = createMedia(name + "." + year, video, 6);
 
         saveToOnlineCache(name, year, name, now.toInstant(UTC), MediaFileType.MOVIE);
@@ -71,7 +71,7 @@ class AutoMoveMediaServiceTest extends IntegrationTest {
 
     @Test
     @DisplayName("if media does not has year in name, media is moved to tv shows")
-    void automoveTvShow() throws IOException, InterruptedException {
+    void automoveTvShow() throws IOException {
         String name = "Beetlejuice";
         String video = "video.mp4";
         DownloadedMedia media = createMedia(name, video, 6);
@@ -87,7 +87,7 @@ class AutoMoveMediaServiceTest extends IntegrationTest {
 
     @Test
     @DisplayName("media dir is cleaned if no other media in it")
-    void automoveCleansDir() throws IOException, InterruptedException {
+    void automoveCleansDir() throws IOException {
         String name = "SupermanZZZ";
         String video = "video.mp4";
         createMedia(name, video, 6);
@@ -101,7 +101,7 @@ class AutoMoveMediaServiceTest extends IntegrationTest {
 
     @Test
     @DisplayName("media dir is not cleaned if other media in it")
-    void automoveDoesNotCleanDir() throws IOException, InterruptedException {
+    void automoveDoesNotCleanDir() throws IOException {
         String name = "Superman";
         String video = "video.mp4";
         String video2 = "video2.mp4";
@@ -115,7 +115,7 @@ class AutoMoveMediaServiceTest extends IntegrationTest {
 
     @Test
     @DisplayName("sorting options found before move should choose by similarity first, then yearBiasedMovie")
-    void sortingIsDoneCorrectly() throws IOException, InterruptedException {
+    void sortingIsDoneCorrectly() throws IOException {
         int searchYear = 2001;
         String searchName = "Lord Of The Rings";
         LocalDateTime ldt = LocalDateTime.of(searchYear, 1, 1, 1, 1);

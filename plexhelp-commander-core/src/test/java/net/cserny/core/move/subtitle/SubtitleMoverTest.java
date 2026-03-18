@@ -183,7 +183,7 @@ class SubtitleMoverTest extends IntegrationTest {
         createFile(showSrc + "/" + subName4);
         createFile(showSrc + "/" + subName5);
 
-        String showDest = filesystemConfig.getTvPath() + "/" + showName;
+        String showDest = filesystemConfig.getTvPath() + "/" + baseName + " (2026)";
         createDirectories(showDest);
 
         MediaFileGroup group = new MediaFileGroup().name(showName);
@@ -192,10 +192,10 @@ class SubtitleMoverTest extends IntegrationTest {
         List<MediaMoveError> errors = mover.moveSubs(operation);
 
         assertEquals(0, errors.size());
-        assertTrue(Files.exists(fileService.toLocalPath(showDest, "Season 1", baseName + " S01E03 " + date + ".en.(1).srt").path()));
-        assertTrue(Files.exists(fileService.toLocalPath(showDest, "Season 1", baseName + " S01E03 " + date + ".en.(2).srt").path()));
-        assertTrue(Files.exists(fileService.toLocalPath(showDest, showName + ".srt").path()));
-        assertTrue(Files.exists(fileService.toLocalPath(showDest, "Season 2", baseName + " S02E02 " + date + ".en.srt").path()));
-        assertTrue(Files.exists(fileService.toLocalPath(showDest, "Season 3", baseName + " S03E01 " + date + ".srt").path()));
+        assertTrue(Files.exists(fileService.toLocalPath(showDest, "Season 1", baseName + " S01E03 (2026).en.(1).srt").path()));
+        assertTrue(Files.exists(fileService.toLocalPath(showDest, "Season 1", baseName + " S01E03 (2026).en.(2).srt").path()));
+        assertTrue(Files.exists(fileService.toLocalPath(showDest, baseName + " (2026).srt").path()));
+        assertTrue(Files.exists(fileService.toLocalPath(showDest, "Season 2", baseName + " S02E02 (2026).en.srt").path()));
+        assertTrue(Files.exists(fileService.toLocalPath(showDest, "Season 3", baseName + " S03E01 (2026).srt").path()));
     }
 }

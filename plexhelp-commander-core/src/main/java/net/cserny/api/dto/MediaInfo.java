@@ -10,10 +10,10 @@ public record MediaInfo(String baseName, LocalDate date, Integer season, Integer
 
     public static final String SEASON_SUBSTR = "Season";
 
-    // MOVIE [baseName + (date), fileName]
-    // TV [baseName + (date), Season %20d(season), fileName]
+    // MOVIE [baseName + (year), fileName]
+    // TV [baseName + (year), Season %20d(season), fileName]
     public String[] destinationPathSegments() {
-        String baseNameAndDate = date == null ? baseName : baseName + " (" + date + ")";
+        String baseNameAndDate = date == null ? baseName : baseName + " (" + date.getYear() + ")";
         return switch (type) {
             case MOVIE -> new String[]{ baseNameAndDate, fileName };
             case TV -> season == null

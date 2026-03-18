@@ -115,12 +115,12 @@ public class MediaInfoExtractor {
         return "." + langData.lang().iso2Code() + ".(" + langData.indexNr() + ")";
     }
 
-    // fileName = baseName + [S0x][E0y] + (date) + [lang data and index] + extension
+    // fileName = baseName + [S0x][E0y] + (year) + [lang data and index] + extension
     private String extractFileName(String baseName, LocalDate localDate,  Integer season, Integer episode) {
         return baseName +
                 (season != null ? " S%02d".formatted(season) : "") +
                 (episode != null ? "E%02d".formatted(episode) : "") +
-                (localDate != null ? " (" + localDate + ")" : "") +
+                (localDate != null ? " (" + localDate.getYear() + ")" : "") +
                 extractIndexedLangData() +
                 extractExtension();
     }
