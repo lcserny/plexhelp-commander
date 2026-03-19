@@ -28,7 +28,7 @@ public class RestartCommand extends AbstractOSCommand<Void> {
     }
 
     @Override
-    protected Void adaptOutput(String output) {
+    protected Void adaptImmediateOutput(String output) {
         return null;
     }
 

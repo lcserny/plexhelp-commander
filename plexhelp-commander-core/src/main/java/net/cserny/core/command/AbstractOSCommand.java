@@ -4,8 +4,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.*;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +29,7 @@ public abstract class AbstractOSCommand<T> implements Command<T> {
 
     protected abstract List<String> produceCommandLinux(String[] params);
 
-    protected abstract T adaptOutput(String output);
+    protected abstract T adaptImmediateOutput(String output);
 
     protected boolean executeNow() {
         return false;
@@ -79,11 +78,13 @@ public abstract class AbstractOSCommand<T> implements Command<T> {
         }
     }
 
-    private Optional<CommandResult<T>> executeInternal(List<String> commands) throws ExecutionException, InterruptedException {
+    private Optional<CommandResult<T>> executeInternal(List<String> commands)
+            throws ExecutionException, InterruptedException, TimeoutException {
         return executeInternal(commands, 0);
     }
 
-    private Optional<CommandResult<T>> executeInternal(List<String> commands, int minutes) throws ExecutionException, InterruptedException {
+    private Optional<CommandResult<T>> executeInternal(List<String> commands, int minutes)
+            throws ExecutionException, InterruptedException, TimeoutException {
         CompletableFuture<CommandOutput> future = new CompletableFuture<>();
         Runnable runnable = () -> {
             try {
@@ -104,9 +105,10 @@ public abstract class AbstractOSCommand<T> implements Command<T> {
             return Optional.of(new CommandResult<T>(true, true, null));
         }
 
-        taskScheduler.schedule(runnable, Instant.now().plusMillis(50));
-        T adapted = adaptOutput(future.get().response());
-        return Optional.of(new CommandResult<>(true, false, adapted));
+        taskScheduler.schedule(runnable, Instant.now());
+        String output = future.get(30, TimeUnit.SECONDS).response();
+        T adaptedOutput = adaptImmediateOutput(output);
+        return Optional.of(new CommandResult<>(true, false, adaptedOutput));
     }
 
     protected String getSystem32Prefix() {

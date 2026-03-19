@@ -97,7 +97,7 @@ public class MediaMoveService implements MediaMover {
                 if (moveInternal(srcPath, destPath)) {
                     persistMovedMedia(srcPath, destPath, mediaInfo, mediaDesc);
                 }
-            } catch (IOException e) {
+            } catch (Exception e) {
                 log.error("Could not move media {} to {}", srcPath, destPath, e);
                 errors.add(new MediaMoveError().mediaPath(srcPath.path().toString()).error(e.getMessage()));
             }
@@ -199,13 +199,17 @@ public class MediaMoveService implements MediaMover {
         return fileService.move(srcPath, destPath);
     }
 
-    private boolean reducedSubtitlesAndMove(LocalPath srcPath, LocalPath destPath, List<Integer> engIndexes) {
+    private boolean reducedSubtitlesAndMove(LocalPath srcPath, LocalPath destPath, List<Integer> engIndexes) throws IOException {
         String subtitleIndexesString = engIndexes.stream().map(String::valueOf).collect(Collectors.joining(","));
 
         Optional<CommandResult<String>> reduceResultOptional =
                 commandService.execute(REDUCE_SUBS, new String[]{srcPath.path().toString(), destPath.path().toString(), subtitleIndexesString});
 
-        return reduceResultOptional.map(CommandResult::success)
-                .orElseThrow(() -> new RuntimeException("Failed to reduce subtitles of " + srcPath));
+        if (reduceResultOptional.isEmpty() || !reduceResultOptional.get().success()) {
+            throw new RuntimeException("Failed to reduce subtitles of " + srcPath);
+        }
+
+        fileService.setMediaPermissions(destPath);
+        return true;
     }
 }

@@ -38,7 +38,7 @@ public class RestartServiceCommand extends AbstractOSCommand<String> {
     }
 
     @Override
-    protected String adaptOutput(String output) {
+    protected String adaptImmediateOutput(String output) {
         return output;
     }
 

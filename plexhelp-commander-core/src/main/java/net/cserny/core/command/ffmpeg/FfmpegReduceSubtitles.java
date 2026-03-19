@@ -53,7 +53,7 @@ public class FfmpegReduceSubtitles extends AbstractOSCommand<String> {
     }
 
     @Override
-    protected String adaptOutput(String output) {
+    protected String adaptImmediateOutput(String output) {
         return output;
     }
 
@@ -88,8 +88,7 @@ public class FfmpegReduceSubtitles extends AbstractOSCommand<String> {
         List<String> commands = new ArrayList<>(List.of("ffmpeg", "-v", "error", "-i", escaped(sourceMediaPath), "-map", "0:v", "-map", "0:a"));
 
         for (Integer i : subtitleStreamIndexes) {
-            commands.add("-map");
-            commands.add("0:" + i);
+            commands.addAll(List.of("-map", "0:" + i));
         }
 
         String extractMediaPath = targetMediaPath;
@@ -97,21 +96,13 @@ public class FfmpegReduceSubtitles extends AbstractOSCommand<String> {
             extractMediaPath = targetMediaPath + suffix;
         }
 
-        commands.add("-c");
-        commands.add("copy");
-        commands.add(escaped(extractMediaPath));
-        commands.add("-y");
+        commands.addAll(List.of("-c", "copy", escaped(extractMediaPath), "-y"));
 
         if (sourceMediaPath.equals(targetMediaPath)) {
-            commands.add("&&");
-            commands.add("mv");
-            commands.add(escaped(extractMediaPath));
-            commands.add(escaped(targetMediaPath));
+            commands.addAll(List.of("&&", "mv", escaped(extractMediaPath), escaped(targetMediaPath)));
         }
 
-        commands.add("&&");
-        commands.add("rm");
-        commands.add(escaped(sourceMediaPath));
+        commands.addAll(List.of("&&", "rm", escaped(sourceMediaPath)));
 
         return commands;
     }

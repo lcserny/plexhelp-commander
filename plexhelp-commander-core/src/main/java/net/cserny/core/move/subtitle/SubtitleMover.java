@@ -94,10 +94,9 @@ public class SubtitleMover {
 
         try {
             log.info("Moving sub {} to {}", subSrc, subDest);
-            fileService.createDirectories(subDest);
             fileService.move(subSrc, subDest);
             return new SubtitleMoveResult.Success();
-        } catch (IOException e) {
+        } catch (Exception e) {
             log.warn("Could not move sub: {}", e.getMessage());
             return new SubtitleMoveResult.Failure(new MediaMoveError().mediaPath(subSrc.path().toString()).error(e.getMessage()));
         }

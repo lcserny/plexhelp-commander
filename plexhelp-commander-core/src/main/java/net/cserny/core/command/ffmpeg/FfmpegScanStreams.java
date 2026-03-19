@@ -66,7 +66,7 @@ public class FfmpegScanStreams extends AbstractOSCommand<SubtitleStreams> {
     }
 
     @Override
-    protected SubtitleStreams adaptOutput(String output) {
+    protected SubtitleStreams adaptImmediateOutput(String output) {
         List<Integer> indexes = new ArrayList<>();
         int totalStreams = 0;
 

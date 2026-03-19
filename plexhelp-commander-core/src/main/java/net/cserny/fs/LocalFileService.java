@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Set;
 
 import static net.cserny.api.WalkOptions.ONLY_FILES;
-import static net.cserny.api.dto.MediaInfo.SEASON_SUBSTR;
 
 @RequiredArgsConstructor
 @Component
@@ -86,12 +85,15 @@ public class LocalFileService implements LocalPathHandler {
     @Override
     public void deleteDirectory(LocalPath folder) throws IOException {
         Files.walkFileTree(folder.path(), new SimpleFileVisitor<>() {
+
+            @SuppressWarnings("NullableProblems")
             @Override
             public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
                 Files.delete(dir);
                 return FileVisitResult.CONTINUE;
             }
 
+            @SuppressWarnings("NullableProblems")
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                 Files.delete(file);
@@ -115,26 +117,29 @@ public class LocalFileService implements LocalPathHandler {
 
         if (Files.notExists(dest.path())) {
             Files.move(source.path(), dest.path(), StandardCopyOption.ATOMIC_MOVE);
-
-            if (isPosixFilesystem()) {
-                // set perms on media file
-                Files.setPosixFilePermissions(dest.path(), posixPerms);
-
-                Path parent = dest.path().getParent();
-                // set perms on media file's folder
-                Files.setPosixFilePermissions(parent, posixPerms);
-
-                if (parent.getFileName().toString().contains(SEASON_SUBSTR)) {
-                    // for TV shows with season middle-dir, set perms on media file's folder
-                    Files.setPosixFilePermissions(parent.getParent(), posixPerms);
-                }
-            }
+            setMediaPermissions(dest);
             return true;
         }
 
         log.warn("Moving skipped, destination file already present {}", dest.path());
 
         return false;
+    }
+
+    public void setMediaPermissions(LocalPath mediaFilePath) throws IOException {
+        if (isPosixFilesystem()) {
+            Path mediaParent = mediaFilePath.getMediaParent();
+            log.info("Setting posix media permissions to {}", mediaParent);
+            try (var stream = Files.walk(mediaParent)) {
+                stream.forEach(p -> {
+                    try {
+                        Files.setPosixFilePermissions(p, posixPerms);
+                    } catch (Exception e) {
+                        log.warn("Could not set posix permissions on {}, skipping", p);
+                    }
+                });
+            }
+        }
     }
 
     @Override
