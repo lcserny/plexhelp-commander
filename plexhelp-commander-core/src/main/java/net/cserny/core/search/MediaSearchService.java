@@ -42,7 +42,7 @@ public class MediaSearchService implements MediaFileGroupGenerator {
 
             return generateMediaFileGroups(allVideos);
         } catch (IOException e) {
-            log.warn("Could not walk path {}: {}", walkPath, e.getMessage());
+            log.error("Could not walk path {}", walkPath, e);
             return Collections.emptyList();
         }
     }
