@@ -30,21 +30,16 @@ public class MediaSearchService implements MediaFileGroupGenerator {
     private final SearchProperties searchConfig;
     private final MediaIdentifier mediaIdentifier;
 
-    public List<MediaFileGroup> findMedia() {
+    public List<MediaFileGroup> findMedia() throws IOException {
         LocalPath walkPath = fileService.toLocalPath(filesystemConfig.getDownloadsPath());
-        try {
-            List<LocalPath> files = fileService.walk(walkPath, searchConfig.getMaxDepth(), searchConfig.getExcludePaths());
+        List<LocalPath> files = fileService.walk(walkPath, searchConfig.getMaxDepth(), searchConfig.getExcludePaths());
 
-            List<LocalPath> allVideos = files.stream()
-                    .filter(mediaIdentifier::isMedia)
-                    .sorted()
-                    .toList();
+        List<LocalPath> allVideos = files.stream()
+                .filter(mediaIdentifier::isMedia)
+                .sorted()
+                .toList();
 
-            return generateMediaFileGroups(allVideos);
-        } catch (IOException e) {
-            log.error("Could not walk path {}", walkPath, e);
-            return Collections.emptyList();
-        }
+        return generateMediaFileGroups(allVideos);
     }
 
     @Override
