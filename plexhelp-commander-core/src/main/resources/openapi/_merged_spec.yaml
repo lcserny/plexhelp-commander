@@ -9,6 +9,8 @@ paths:
     $ref: "./auth-spec.yml#/paths/~1security~1users"
   /api/v1/torrents/:
     $ref: "./spec.yml#/paths/~1api~1v1~1torrents~1"
+  /api/v1/ping/:
+    $ref: "./spec.yml#/paths/~1api~1v1~1ping~1"
   /api/v1/media-moves/all:
     $ref: "./spec.yml#/paths/~1api~1v1~1media-moves~1all"
   /api/v1/magnets:

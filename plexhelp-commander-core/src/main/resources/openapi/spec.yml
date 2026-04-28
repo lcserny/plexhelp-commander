@@ -4,6 +4,20 @@ info:
   title: plexhelp-commander API
   version: 2.1.0
 paths:
+  /api/v1/ping/:
+    get:
+      tags:
+        - Ping Resource
+      operationId: pingServer
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationErrorResponse'
   /api/v1/torrents/:
     post:
       tags:

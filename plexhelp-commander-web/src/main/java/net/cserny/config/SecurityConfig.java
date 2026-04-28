@@ -31,6 +31,7 @@ public class SecurityConfig {
         http.cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.configure(http))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((registry) -> registry
+                        .requestMatchers(HttpMethod.GET, "/api/v1/ping").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/torrents").permitAll()
                         .requestMatchers(HttpMethod.GET)
                             .hasAnyAuthority(UserPerm.READ.toString(), UserRole.ADMIN.toString())
