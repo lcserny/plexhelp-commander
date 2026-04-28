@@ -28,11 +28,6 @@ public class SleepCommand extends AbstractOSCommand<Void> {
     }
 
     @Override
-    protected Void adaptImmediateOutput(String output) {
-        return null;
-    }
-
-    @Override
     protected List<String> produceCommandWindows(String[] params) {
         return List.of(getSystem32Prefix() + "Rundll32.exe", "powrprof.dll,SetSuspendState", "0,1,0");
     }

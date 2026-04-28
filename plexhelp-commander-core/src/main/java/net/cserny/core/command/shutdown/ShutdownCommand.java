@@ -28,11 +28,6 @@ public class ShutdownCommand extends AbstractOSCommand<Void> {
     }
 
     @Override
-    protected Void adaptImmediateOutput(String output) {
-        return null;
-    }
-
-    @Override
     protected List<String> produceCommandWindows(String[] params) {
         return List.of(getSystem32Prefix() + "shutdown.exe", "-s", "-f");
     }

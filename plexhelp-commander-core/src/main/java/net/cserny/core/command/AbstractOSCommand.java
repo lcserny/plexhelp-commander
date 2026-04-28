@@ -29,7 +29,9 @@ public abstract class AbstractOSCommand<T> implements Command<T> {
 
     protected abstract List<String> produceCommandLinux(String[] params);
 
-    protected abstract T adaptImmediateOutput(String output);
+    protected T adaptImmediateOutput(String output) {
+        return null;
+    }
 
     protected boolean executeNow() {
         return false;
@@ -100,15 +102,20 @@ public abstract class AbstractOSCommand<T> implements Command<T> {
             }
         };
 
-        if (!executeNow() && minutes > 0) {
+        if (minutes > 0) {
             taskScheduler.schedule(runnable, Instant.now().plus(Duration.ofMinutes(minutes)));
             return Optional.of(new CommandResult<T>(true, true, null));
         }
 
-        taskScheduler.schedule(runnable, Instant.now());
-        String output = future.get(30, TimeUnit.SECONDS).response();
-        T adaptedOutput = adaptImmediateOutput(output);
-        return Optional.of(new CommandResult<>(true, false, adaptedOutput));
+        if (executeNow()) {
+            taskScheduler.schedule(runnable, Instant.now());
+            String output = future.get(30, TimeUnit.SECONDS).response();
+            T adaptedOutput = adaptImmediateOutput(output);
+            return Optional.of(new CommandResult<>(true, false, adaptedOutput));
+        }
+
+        taskScheduler.schedule(runnable, Instant.now().plusMillis(200));
+        return Optional.of(new CommandResult<>(true, false, null));
     }
 
     protected String getSystem32Prefix() {
