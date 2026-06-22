@@ -5,7 +5,7 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.List;
 
-interface MovedMediaRepository extends MongoRepository<MovedMedia, ObjectId> {
+public interface MovedMediaRepository extends MongoRepository<MovedMedia, ObjectId> {
 
     List<MovedMedia> findAllByMediaName(String mediaName);
 

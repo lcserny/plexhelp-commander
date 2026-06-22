@@ -20,6 +20,7 @@ import static java.lang.String.format;
 import static net.cserny.generated.MediaFileType.MOVIE;
 import static net.cserny.generated.MediaFileType.TV;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 public class MediaMoveServiceTest extends IntegrationTest {
 
@@ -198,5 +199,80 @@ public class MediaMoveServiceTest extends IntegrationTest {
         assertThat(availableMovedMedia)
                 .hasSize(2)
                 .noneMatch(MovedMediaData::getDeleted);
+    }
+
+    @Test
+    @DisplayName("Deleting last TV episode removes the entire show directory")
+    public void deleteLastTvEpisodeRemovesShowDirectory() throws IOException {
+        String showName = "LastEpisodeShow";
+        String seasonDir = format("%s/%s/Season 1", filesystemConfig.getTvPath(), showName);
+        createDirectories(seasonDir);
+        String ep1 = "ep1.mp4";
+        String ep2 = "ep2.mp4";
+        createFile(seasonDir + "/" + ep1);
+        createFile(seasonDir + "/" + ep2);
+
+        MovedMedia rec1 = repository.save(MovedMedia.builder().destination(seasonDir + "/" + ep1).mediaName(showName).mediaType(TV).deleted(false).build());
+        MovedMedia rec2 = repository.save(MovedMedia.builder().destination(seasonDir + "/" + ep2).mediaName(showName).mediaType(TV).deleted(false).build());
+
+        String showPath = format("%s/%s", filesystemConfig.getTvPath(), showName);
+
+        service.removeMovedMedia(rec1.getId().toHexString());
+        assertThat(Files.exists(fileService.toLocalPath(showPath).path())).isTrue();
+
+        service.removeMovedMedia(rec2.getId().toHexString());
+        assertThat(Files.exists(fileService.toLocalPath(showPath).path())).isFalse();
+    }
+
+    @Test
+    @DisplayName("Deleting only one TV episode keeps the show directory")
+    public void deleteOneTvEpisodeKeepsShowDirectory() throws IOException {
+        String showName = "KeepShowDir";
+        String seasonDir = format("%s/%s/Season 1", filesystemConfig.getTvPath(), showName);
+        createDirectories(seasonDir);
+        String ep1 = "ep1.mp4";
+        String ep2 = "ep2.mp4";
+        createFile(seasonDir + "/" + ep1);
+        createFile(seasonDir + "/" + ep2);
+
+        MovedMedia rec1 = repository.save(MovedMedia.builder().destination(seasonDir + "/" + ep1).mediaName(showName).mediaType(TV).deleted(false).build());
+        repository.save(MovedMedia.builder().destination(seasonDir + "/" + ep2).mediaName(showName).mediaType(TV).deleted(false).build());
+
+        String showPath = format("%s/%s", filesystemConfig.getTvPath(), showName);
+
+        service.removeMovedMedia(rec1.getId().toHexString());
+        assertThat(Files.exists(fileService.toLocalPath(showPath).path())).isTrue();
+    }
+
+    @Test
+    @DisplayName("Deleting TV episode in important folder does not delete it")
+    public void deleteTvEpisodeInImportantFolderDoesNotDeleteIt() throws IOException {
+        String tvPath = filesystemConfig.getTvPath();
+        String ep = "ep.mp4";
+        createFile(tvPath + "/" + ep);
+
+        MovedMedia rec = repository.save(MovedMedia.builder().destination(tvPath + "/" + ep).mediaName("ImportantShow").mediaType(TV).deleted(false).build());
+
+        assertDoesNotThrow(() -> service.removeMovedMedia(rec.getId().toHexString()));
+        assertThat(Files.exists(fileService.toLocalPath(tvPath).path())).isTrue();
+    }
+
+    @Test
+    @DisplayName("Deleting movie file also deletes its parent folder")
+    public void deleteMovieFileAlsoDeletesItsParentFolder() throws IOException {
+        String moviePath = filesystemConfig.getMoviesPath();
+        String movieName = "myMovieLLLL (2026)";
+        String movieFile = "moviell.mp4";
+        createDirectories(moviePath + "/" + movieName);
+        createFile(moviePath + "/" + movieName + "/" + movieFile);
+
+        MovedMedia rec = repository.save(MovedMedia.builder()
+                .destination(moviePath + "/" + movieName + "/" + movieFile)
+                .mediaName(movieName).mediaType(MOVIE)
+                .deleted(false)
+                .build());
+
+        service.removeMovedMedia(rec.getId().toHexString());
+        assertThat(Files.exists(fileService.toLocalPath(moviePath + "/" + movieName).path())).isFalse();
     }
 }

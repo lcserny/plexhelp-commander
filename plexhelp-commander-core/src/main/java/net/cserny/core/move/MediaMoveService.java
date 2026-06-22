@@ -136,21 +136,27 @@ public class MediaMoveService implements MediaMover {
         movedMediaRepository.findById(movedMediaObjectId).ifPresent(movedMedia -> {
             LocalPath destFile = fileService.toLocalPath(movedMedia.getDestination());
             fileService.delete(destFile);
-            movedMedia.setDeleted(true);
 
-            switch (movedMedia.getMediaType()) {
-                case MOVIE:
-                    fileService.delete(fileService.toLocalPath(destFile.getMediaParent()));
-                    break;
-                case TV:
-                    List<MovedMedia> all = movedMediaRepository.findAllByMediaName(movedMedia.getMediaName());
-                    boolean allDeleted = all.stream().filter(m -> !m.getId().equals(movedMediaObjectId)).allMatch(MovedMedia::getDeleted);
-                    if (allDeleted) {
-                        fileService.delete(fileService.toLocalPath(destFile.getMediaParent()));
-                    }
-                    break;
-            }
+            movedMedia.setDeleted(true);
+            movedMediaRepository.save(movedMedia);
+
+            tryCleanupMedia(movedMedia, destFile, movedMediaObjectId);
         });
+    }
+
+    private void tryCleanupMedia(MovedMedia movedMedia, LocalPath destFile, ObjectId movedMediaObjectId) {
+        boolean attemptCleanup = switch (movedMedia.getMediaType()) {
+            case MOVIE -> true;
+            case TV -> {
+                List<MovedMedia> all = movedMediaRepository.findAllByMediaName(movedMedia.getMediaName());
+                yield all.stream().filter(m -> !m.getId().equals(movedMediaObjectId)).allMatch(MovedMedia::getDeleted);
+            }
+        };
+
+        if (attemptCleanup && !importantFolders.contains(destFile.getMediaParent().toString())) {
+            LocalPath mediaParent = fileService.toLocalPath(destFile.getMediaParent());
+            fileService.deleteDirectory(mediaParent);
+        }
     }
 
     public void persistMovedMedia(LocalPath srcPath, LocalPath destPath, MediaInfo mediaInfo, MediaDescriptionData mediaDesc) {
