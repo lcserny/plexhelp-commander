@@ -49,4 +49,11 @@ public class MediaMoveController implements ApiApi {
     public ResponseEntity<List<MovedMediaData>> getAvailableMovedMedia() {
         return ResponseEntity.ok(service.getAvailableMovedMedia());
     }
+
+    @DeleteMapping("/{movedMediaId}")
+    @Override
+    public ResponseEntity<Void> removeMedia(@PathVariable String movedMediaId) {
+        service.removeMovedMedia(movedMediaId);
+        return ResponseEntity.ok().build();
+    }
 }

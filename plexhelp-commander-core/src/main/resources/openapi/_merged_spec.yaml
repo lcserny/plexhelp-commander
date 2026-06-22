@@ -17,6 +17,8 @@ paths:
     $ref: "./spec.yml#/paths/~1api~1v1~1magnets"
   /security/users/{id}:
     $ref: "./auth-spec.yml#/paths/~1security~1users~1{id}"
+  /api/v1/media-moves/{movedMediaId}:
+    $ref: "./spec.yml#/paths/~1api~1v1~1media-moves~1{movedMediaId}"
   /security/authenticate/refresh:
     $ref: "./auth-spec.yml#/paths/~1security~1authenticate~1refresh"
   /api/v1/media-searches:

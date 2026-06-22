@@ -19,6 +19,7 @@ import net.cserny.core.move.subtitle.SubsMoveOperation;
 import net.cserny.core.move.subtitle.SubtitleMover;
 import net.cserny.config.SearchProperties;
 import net.cserny.support.DataMapper;
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -128,6 +129,28 @@ public class MediaMoveService implements MediaMover {
     public List<MovedMediaData> getAvailableMovedMedia() {
         List<MovedMedia> foundMedia = movedMediaRepository.findAllByDeleted(false);
         return foundMedia.stream().map(DataMapper.INSTANCE::movedMediaToMovedMediaData).toList();
+    }
+
+    public void removeMovedMedia(String movedMediaId) {
+        ObjectId movedMediaObjectId = new ObjectId(movedMediaId);
+        movedMediaRepository.findById(movedMediaObjectId).ifPresent(movedMedia -> {
+            LocalPath destFile = fileService.toLocalPath(movedMedia.getDestination());
+            fileService.delete(destFile);
+            movedMedia.setDeleted(true);
+
+            switch (movedMedia.getMediaType()) {
+                case MOVIE:
+                    fileService.delete(fileService.toLocalPath(destFile.getMediaParent()));
+                    break;
+                case TV:
+                    List<MovedMedia> all = movedMediaRepository.findAllByMediaName(movedMedia.getMediaName());
+                    boolean allDeleted = all.stream().filter(m -> !m.getId().equals(movedMediaObjectId)).allMatch(MovedMedia::getDeleted);
+                    if (allDeleted) {
+                        fileService.delete(fileService.toLocalPath(destFile.getMediaParent()));
+                    }
+                    break;
+            }
+        });
     }
 
     public void persistMovedMedia(LocalPath srcPath, LocalPath destPath, MediaInfo mediaInfo, MediaDescriptionData mediaDesc) {

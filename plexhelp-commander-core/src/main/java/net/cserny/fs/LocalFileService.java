@@ -2,6 +2,7 @@ package net.cserny.fs;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.api.LocalPathHandler;
 import net.cserny.api.WalkOptions;
@@ -74,16 +75,20 @@ public class LocalFileService implements LocalPathHandler {
         return new NoAttributes();
     }
 
-    public void delete(LocalPath path) throws IOException {
-        Files.delete(path.path());
+    @SneakyThrows
+    public void delete(LocalPath path) {
+        if (exists(path)) {
+            Files.delete(path.path());
+        }
     }
 
     public boolean exists(LocalPath path) {
         return Files.exists(path.path());
     }
 
+    @SneakyThrows
     @Override
-    public void deleteDirectory(LocalPath folder) throws IOException {
+    public void deleteDirectory(LocalPath folder) {
         Files.walkFileTree(folder.path(), new SimpleFileVisitor<>() {
 
             @SuppressWarnings("NullableProblems")

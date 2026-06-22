@@ -207,6 +207,27 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApplicationErrorResponse'
+  /api/v1/media-moves/{movedMediaId}:
+    delete:
+      tags:
+        - Media Remove Resource
+      operationId: removeMedia
+      parameters:
+        - name: movedMediaId
+          in: path
+          required: true
+          description: The unique identifier of the moved media to delete.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Delete succeeded
+        "400":
+          description: Error encountered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationErrorResponse'
   /api/v1/media-renames:
     post:
       tags:
