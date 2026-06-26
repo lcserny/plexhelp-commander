@@ -207,6 +207,28 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApplicationErrorResponse'
+  /api/v1/media-moves/delete-all:
+    post:
+      tags:
+        - Media Remove ALL Resource
+      operationId: removeAllMedia
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: string
+        required: true
+      responses:
+        "200":
+          description: Delete ALL succeeded
+        "400":
+          description: error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationErrorResponse'
   /api/v1/media-moves/{movedMediaId}:
     delete:
       tags:

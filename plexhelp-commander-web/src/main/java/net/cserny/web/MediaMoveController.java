@@ -56,4 +56,11 @@ public class MediaMoveController implements ApiApi {
         service.removeMovedMedia(movedMediaId);
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping(value = "/delete-all", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @Override
+    public ResponseEntity<Void> removeAllMedia(List<String> ids) {
+        ids.forEach(service::removeMovedMedia);
+        return ResponseEntity.ok().build();
+    }
 }
