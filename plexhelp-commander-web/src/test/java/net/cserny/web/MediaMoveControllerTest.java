@@ -18,6 +18,7 @@ import java.util.List;
 import static io.restassured.RestAssured.given;
 import static java.lang.String.format;
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MediaMoveControllerTest extends WebIntegrationTest {
@@ -72,5 +73,45 @@ public class MediaMoveControllerTest extends WebIntegrationTest {
 
         String showPath = format("%s/%s", filesystemConfig.getTvPath(), showName);
         assertTrue(Files.notExists(fileService.toLocalPath(showPath).path()), "Show directory should be deleted");
+    }
+
+    @Test
+    @DisplayName("POST delete-all removes multiple moved media records and their files")
+    public void removeAllMedia_deletesMultipleRecords() throws IOException {
+        String moviesPath = filesystemConfig.getMoviesPath();
+        String movie1Dir = moviesPath + "/Movie1";
+        String movie2Dir = moviesPath + "/Movie2";
+        createDirectories(movie1Dir);
+        createDirectories(movie2Dir);
+        String file1 = "file1.mp4";
+        String file2 = "file2.mp4";
+        createFile(movie1Dir + "/" + file1);
+        createFile(movie2Dir + "/" + file2);
+
+        MovedMedia rec1 = repository.save(MovedMedia.builder()
+                .destination(movie1Dir + "/" + file1)
+                .mediaName("Movie1")
+                .mediaType(MediaFileType.MOVIE)
+                .deleted(false)
+                .build());
+
+        MovedMedia rec2 = repository.save(MovedMedia.builder()
+                .destination(movie2Dir + "/" + file2)
+                .mediaName("Movie2")
+                .mediaType(MediaFileType.MOVIE)
+                .deleted(false)
+                .build());
+
+        given().contentType(ContentType.JSON)
+                .body(List.of(rec1.getId().toHexString(), rec2.getId().toHexString()))
+                .when()
+                .post("/api/v1/media-moves/delete-all")
+                .then()
+                .statusCode(200);
+
+        assertTrue(repository.findById(rec1.getId()).orElseThrow().getDeleted());
+        assertTrue(repository.findById(rec2.getId()).orElseThrow().getDeleted());
+        assertTrue(Files.notExists(fileService.toLocalPath(movie1Dir + "/" + file1).path()));
+        assertTrue(Files.notExists(fileService.toLocalPath(movie2Dir + "/" + file2).path()));
     }
 }
