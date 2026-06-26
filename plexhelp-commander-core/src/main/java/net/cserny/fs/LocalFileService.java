@@ -77,9 +77,12 @@ public class LocalFileService implements LocalPathHandler {
 
     @SneakyThrows
     public void delete(LocalPath path) {
-        if (exists(path)) {
-            Files.delete(path.path());
+        if (!exists(path)) {
+            log.info("Not deleting file cause it doesn't exist: {}", path);
+            return;
         }
+
+        Files.delete(path.path());
     }
 
     public boolean exists(LocalPath path) {
@@ -89,6 +92,11 @@ public class LocalFileService implements LocalPathHandler {
     @SneakyThrows
     @Override
     public void deleteDirectory(LocalPath folder) {
+        if (!exists(folder)) {
+            log.info("Not deleting directory cause it doesn't exist: {}", folder);
+            return;
+        }
+
         Files.walkFileTree(folder.path(), new SimpleFileVisitor<>() {
 
             @SuppressWarnings("NullableProblems")
