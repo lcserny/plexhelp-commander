@@ -134,6 +134,8 @@ public class MediaMoveService implements MediaMover {
     public void removeMovedMedia(String movedMediaId) {
         ObjectId movedMediaObjectId = new ObjectId(movedMediaId);
         movedMediaRepository.findById(movedMediaObjectId).ifPresent(movedMedia -> {
+            log.info("Removing moved media with id {}", movedMediaId);
+
             LocalPath destFile = fileService.toLocalPath(movedMedia.getDestination());
             fileService.delete(destFile);
 

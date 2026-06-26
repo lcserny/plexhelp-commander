@@ -9,7 +9,7 @@ public interface MovedMediaRepository extends MongoRepository<MovedMedia, Object
 
     List<MovedMedia> findAllByMediaName(String mediaName);
 
-    List<MovedMedia> findAllByDeleted(boolean deleted);
+    List<MovedMedia> findAllByDeleted(Boolean deleted);
 
     // TODO existsBy...
 }
