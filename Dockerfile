@@ -1,5 +1,3 @@
-garbage!
-
 FROM docker.io/library/eclipse-temurin:21-jre-noble
 VOLUME /tmp
 RUN mkdir -p /app && chown -R ubuntu:ubuntu /app
