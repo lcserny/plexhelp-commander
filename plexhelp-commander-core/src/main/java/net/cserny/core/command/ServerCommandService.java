@@ -21,7 +21,7 @@ public class ServerCommandService {
     private final ServerCommandProperties config;
     private final List<Command> commands;
 
-    @PostConstruct
+//    @PostConstruct
     public void initServerCommand() {
         log.info("Initializing " + config.getName());
         Optional<ServerCommand> serverCommand = repository.getByServerName(config.getName());
