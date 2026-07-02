@@ -47,7 +47,7 @@ class MagnetServiceTest {
 
         Page<MagnetData> returnedPage = this.service.getAll(mock(Pageable.class), nullable(String.class));
 
-        assertEquals(2, returnedPage.getTotalPages());
+        assertEquals(1, returnedPage.getTotalPages());
         assertEquals(1, returnedPage.getTotalElements());
     }
 
