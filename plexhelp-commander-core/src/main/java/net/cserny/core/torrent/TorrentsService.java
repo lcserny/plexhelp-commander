@@ -3,6 +3,7 @@ package net.cserny.core.torrent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.api.*;
+import net.cserny.api.dto.Sid;
 import net.cserny.api.dto.TorrentFile;
 import net.cserny.config.FilesystemProperties;
 import net.cserny.api.dto.LocalPath;
@@ -41,8 +42,8 @@ public class TorrentsService {
         });
     }
 
-    private void processWithSid(String hash, BiConsumer<String, List<TorrentFile>> consumer) {
-        String sid = this.restClient.generateSid();
+    private void processWithSid(String hash, BiConsumer<Sid, List<TorrentFile>> consumer) {
+        Sid sid = this.restClient.generateSid();
 
         List<TorrentFile> torrentFiles = this.restClient.listTorrents(sid, hash);
         log.info("Received {} torrent files from client", torrentFiles.size());

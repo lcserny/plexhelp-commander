@@ -1,6 +1,7 @@
 package net.cserny.core.torrent.qbittorrent;
 
 import lombok.extern.slf4j.Slf4j;
+import net.cserny.api.dto.Sid;
 import net.cserny.api.dto.TorrentFile;
 import net.cserny.api.TorrentRestClient;
 import net.cserny.config.TorrentProperties;
@@ -42,7 +43,7 @@ public class QBitTorrentRestClient implements TorrentRestClient {
     }
 
     @Override
-    public String generateSid() {
+    public Sid generateSid() {
         var headers = this.createFormHeaders();
 
         var formParams = new LinkedMultiValueMap<>();
@@ -61,14 +62,15 @@ public class QBitTorrentRestClient implements TorrentRestClient {
             throw new RestClientException("No SID found in response cookies");
         }
 
-        var sid = cookies.getFirst().substring(4, cookies.getFirst().indexOf(";"));
-        log.info("SID generated: {}", sid);
+        var fullSid = cookies.getFirst().substring(0, cookies.getFirst().indexOf(";")).trim();
+        log.info("SID generated: {}", fullSid);
 
-        return sid;
+        String[] sidParts = fullSid.split("=");
+        return new Sid(sidParts[0], sidParts[1]);
     }
 
     @Override
-    public void addMagnet(String sid, String magnetUrl) {
+    public void addMagnet(Sid sid, String magnetUrl) {
         var headers = this.createFormHeaders();
         this.addSIDCookie(headers, sid);
 
@@ -84,7 +86,7 @@ public class QBitTorrentRestClient implements TorrentRestClient {
     }
 
     @Override
-    public List<TorrentFile> listTorrents(String sid, String hash) {
+    public List<TorrentFile> listTorrents(Sid sid, String hash) {
         var headers = this.createFormHeaders();
         this.addSIDCookie(headers, sid);
 
@@ -102,7 +104,7 @@ public class QBitTorrentRestClient implements TorrentRestClient {
     }
 
     @Override
-    public void deleteTorrent(String sid, String hash, boolean removeFiles) {
+    public void deleteTorrent(Sid sid, String hash, boolean removeFiles) {
         var headers = this.createFormHeaders();
         this.addSIDCookie(headers, sid);
 
@@ -124,7 +126,7 @@ public class QBitTorrentRestClient implements TorrentRestClient {
         return headers;
     }
 
-    private void addSIDCookie(HttpHeaders headers, String sid) {
-        headers.set("Cookie", "SID=" + sid);
+    private void addSIDCookie(HttpHeaders headers, Sid sid) {
+        headers.set("Cookie", sid.name() + "=" + sid.value());
     }
 }

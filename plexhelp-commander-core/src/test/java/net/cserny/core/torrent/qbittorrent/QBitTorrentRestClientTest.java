@@ -1,5 +1,6 @@
 package net.cserny.core.torrent.qbittorrent;
 
+import net.cserny.api.dto.Sid;
 import net.cserny.config.TorrentProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -43,15 +44,15 @@ class QBitTorrentRestClientTest {
         when(this.restTemplateMock.exchange(anyString(), eq(HttpMethod.POST), any(HttpEntity.class), eq(String.class)))
                 .thenReturn(response);
 
-        String returnedSid = this.restClient.generateSid();
+        Sid returnedSid = this.restClient.generateSid();
 
-        assertEquals(sid, returnedSid);
+        assertEquals(sid, returnedSid.value());
     }
 
     @Test
     @DisplayName("Adding magnet does not throw any exception")
     public void addMagnet() {
-        var sid = "irrelevant";
+        var sid = new Sid("SID", "irrelevant");
         var magnet = "some magnet link";
 
         ResponseEntity<String> response = ResponseEntity.ok().build();
