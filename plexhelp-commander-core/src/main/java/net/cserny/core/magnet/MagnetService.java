@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.api.MagnetUpdater;
 import net.cserny.api.TorrentRestClient;
-import net.cserny.api.dto.Sid;
 import net.cserny.support.DataMapper;
 import net.cserny.generated.MagnetData;
 import org.springframework.data.domain.Page;
@@ -31,8 +30,7 @@ public class MagnetService implements MagnetUpdater {
     public MagnetData addMagnet(String magnetLink) {
         validateMagnetLink(magnetLink);
 
-        Sid sid = this.restClient.generateSid();
-        this.restClient.addMagnet(sid, magnetLink);
+        this.restClient.addMagnet(magnetLink);
 
         log.info("Added magnet to torrent client");
 

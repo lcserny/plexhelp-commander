@@ -102,10 +102,7 @@ public class ApplicationConfig {
 
     @Bean
     public RestClient qBitTorrentRestClient(TorrentProperties torrentProperties) {
-        return RestClient.builder()
-                .baseUrl(torrentProperties.getBaseUrl())
-                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-                .build();
+        return RestClient.builder() .baseUrl(torrentProperties.getBaseUrl()) .build();
     }
 
     @Bean

@@ -3,14 +3,13 @@ package net.cserny.core.torrent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.api.*;
-import net.cserny.api.dto.Sid;
 import net.cserny.api.dto.TorrentFile;
 import net.cserny.config.FilesystemProperties;
 import net.cserny.api.dto.LocalPath;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 @SuppressWarnings("LoggingSimilarMessage")
 @RequiredArgsConstructor
@@ -26,32 +25,26 @@ public class TorrentsService {
     private final MediaIdentifier mediaIdentifier;
 
     public void markTorrentDownloadStarted(String hash) {
-        processWithSid(hash, (sid, torrentFiles) -> {
-            torrentProcessor.addTorrents(torrentFiles);
-        });
+        processTorrent(hash, torrentProcessor::addTorrents);
     }
 
     public void markTorrentDownloadCompleted(String hash) {
-        processWithSid(hash, (sid, torrentFiles) -> {
+        processTorrent(hash, (torrentFiles) -> {
             torrentProcessor.updateDownloaded(torrentFiles);
-
             magnetUpdater.markMagnetsDownloaded(hash);
-
-            this.restClient.deleteTorrent(sid, hash, false);
+            this.restClient.deleteTorrent(hash, false);
             log.info("Removed torrent from torrent client");
         });
     }
 
-    private void processWithSid(String hash, BiConsumer<Sid, List<TorrentFile>> consumer) {
-        Sid sid = this.restClient.generateSid();
-
-        List<TorrentFile> torrentFiles = this.restClient.listTorrents(sid, hash);
+    private void processTorrent(String hash, Consumer<List<TorrentFile>> consumer) {
+        List<TorrentFile> torrentFiles = this.restClient.listTorrents(hash);
         log.info("Received {} torrent files from client", torrentFiles.size());
 
         List<TorrentFile> mediaTorrentFiles = enrichMediaTorrents(torrentFiles);
         log.info("{} torrent files are media files", mediaTorrentFiles.stream().filter(TorrentFile::isMedia).count());
 
-        consumer.accept(sid, mediaTorrentFiles);
+        consumer.accept(mediaTorrentFiles);
     }
 
     private List<TorrentFile> enrichMediaTorrents(List<TorrentFile> torrentFiles) {

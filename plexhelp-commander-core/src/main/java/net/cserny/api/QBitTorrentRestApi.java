@@ -15,19 +15,20 @@ import java.util.List;
 public interface QBitTorrentRestApi {
 
     @PostExchange(Routes.AUTH_LOGIN_URI)
-    ResponseEntity<Void> authLogin(@RequestBody MultiValueMap<String, String> formParams);
+    ResponseEntity<Void> authLogin(@RequestHeader HttpHeaders headers,
+                                   @RequestBody MultiValueMap<String, String> formParams);
 
     @PostExchange(Routes.TORRENT_ADD_URI)
-    ResponseEntity<Void> torrentAdd(@RequestBody MultiValueMap<String, String> formParams,
-                                    @RequestHeader HttpHeaders headers);
+    ResponseEntity<Void> torrentAdd(@RequestHeader HttpHeaders headers,
+                                    @RequestBody MultiValueMap<String, String> formParams);
 
     @PostExchange(Routes.TORRENT_FILES_URI)
-    ResponseEntity<List<TorrentFile>> torrentFiles(@RequestBody MultiValueMap<String, String> formParams,
-                                                   @RequestHeader HttpHeaders headers);
+    ResponseEntity<List<TorrentFile>> torrentFiles(@RequestHeader HttpHeaders headers,
+                                                   @RequestBody MultiValueMap<String, String> formParams);
 
     @PostExchange(Routes.TORRENT_DELETE_URI)
-    ResponseEntity<Void> torrentDelete(@RequestBody MultiValueMap<String, String> formParams,
-                                       @RequestHeader HttpHeaders headers);
+    ResponseEntity<Void> torrentDelete(@RequestHeader HttpHeaders headers,
+                                       @RequestBody MultiValueMap<String, String> formParams);
 
     interface Routes {
 

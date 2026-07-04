@@ -1,18 +1,14 @@
 package net.cserny.api;
 
-import net.cserny.api.dto.Sid;
 import net.cserny.api.dto.TorrentFile;
 
 import java.util.List;
 
 public interface TorrentRestClient {
 
-    // TODO not needed to be exposed, this is internal to the service
-    Sid generateSid();
+    void addMagnet(String magnetUrl);
 
-    void addMagnet(Sid sid, String magnetUrl);
+    List<TorrentFile> listTorrents(String hash);
 
-    List<TorrentFile> listTorrents(Sid sid, String hash);
-
-    void deleteTorrent(Sid sid, String hash, boolean removeFiles);
+    void deleteTorrent(String hash, boolean removeFiles);
 }
