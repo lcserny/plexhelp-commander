@@ -7,6 +7,7 @@ import java.util.List;
 
 public interface TorrentRestClient {
 
+    // TODO not needed to be exposed, this is internal to the service
     Sid generateSid();
 
     void addMagnet(Sid sid, String magnetUrl);

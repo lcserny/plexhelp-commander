@@ -2,6 +2,13 @@ package net.cserny.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.client.MongoClient;
+import net.cserny.api.QBitTorrentRestApi;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.support.RestClientAdapter;
+import org.springframework.web.service.invoker.HttpServiceProxyFactory;
+
 import io.micrometer.context.ContextExecutorService;
 import io.micrometer.context.ContextSnapshotFactory;
 import lombok.extern.slf4j.Slf4j;
@@ -57,7 +64,7 @@ import java.util.concurrent.Executors;
         DataMapperImpl.class,
         TorrentFile.class
 })
-@EnableConfigurationProperties(TogglzProperties.class)
+@EnableConfigurationProperties({TogglzProperties.class, TorrentProperties.class})
 public class ApplicationConfig {
 
     public static final int MAX_SUBS_ALLOWED = 5;
@@ -91,6 +98,21 @@ public class ApplicationConfig {
             return new SshCommandRunner(serverCommandProperties);
         }
         return new NativeCommandRunner(executorService);
+    }
+
+    @Bean
+    public RestClient qBitTorrentRestClient(TorrentProperties torrentProperties) {
+        return RestClient.builder()
+                .baseUrl(torrentProperties.getBaseUrl())
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                .build();
+    }
+
+    @Bean
+    public QBitTorrentRestApi qBitTorrentRestApi(RestClient qBitTorrentRestClient) {
+        RestClientAdapter adapter = RestClientAdapter.create(qBitTorrentRestClient);
+        HttpServiceProxyFactory factory = HttpServiceProxyFactory.builderFor(adapter).build();
+        return factory.createClient(QBitTorrentRestApi.class);
     }
 
     @Bean
