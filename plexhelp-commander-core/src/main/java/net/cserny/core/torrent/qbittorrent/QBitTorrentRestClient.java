@@ -24,7 +24,8 @@ public class QBitTorrentRestClient implements TorrentRestClient {
 
     @Override
     public void addMagnet(String magnetUrl) {
-        var headers = createFormHeaders();
+        var headers = newFormHeaders();
+        addSidCookie(headers);
 
         var formParams = new LinkedMultiValueMap<String, String>();
         formParams.add("urls", magnetUrl);
@@ -37,7 +38,8 @@ public class QBitTorrentRestClient implements TorrentRestClient {
 
     @Override
     public List<TorrentFile> listTorrents(String hash) {
-        var headers = createFormHeaders();
+        var headers = newFormHeaders();
+        addSidCookie(headers);
 
         var formParams = new LinkedMultiValueMap<String, String>();
         formParams.add("hash", hash);
@@ -52,7 +54,8 @@ public class QBitTorrentRestClient implements TorrentRestClient {
 
     @Override
     public void deleteTorrent(String hash, boolean removeFiles) {
-        var headers = createFormHeaders();
+        var headers = newFormHeaders();
+        addSidCookie(headers);
 
         var formParams = new LinkedMultiValueMap<String, String>();
         formParams.add("hashes", hash);
@@ -65,7 +68,7 @@ public class QBitTorrentRestClient implements TorrentRestClient {
     }
 
     private Sid generateSid() {
-        var headers = createFormHeaders();
+        var headers = newFormHeaders();
         var formParams = new LinkedMultiValueMap<String, String>();
         formParams.add("username", properties.getUsername());
         formParams.add("password", properties.getPassword());
@@ -87,12 +90,15 @@ public class QBitTorrentRestClient implements TorrentRestClient {
         return new Sid(sidParts[0], sidParts[1]);
     }
 
-    private HttpHeaders createFormHeaders() {
-        Sid sid = generateSid();
+    private HttpHeaders newFormHeaders() {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        headers.set(HttpHeaders.COOKIE, sid.name() + "=" + sid.value());
         return headers;
+    }
+
+    private void addSidCookie(HttpHeaders headers) {
+        Sid sid = generateSid();
+        headers.set(HttpHeaders.COOKIE, sid.name() + "=" + sid.value());
     }
 
     record Sid(String name, String value) {}
