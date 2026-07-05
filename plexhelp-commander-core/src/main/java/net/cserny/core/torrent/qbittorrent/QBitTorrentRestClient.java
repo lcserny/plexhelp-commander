@@ -2,7 +2,6 @@ package net.cserny.core.torrent.qbittorrent;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.cserny.api.QBitTorrentRestApi;
 import net.cserny.api.dto.TorrentFile;
 import net.cserny.api.TorrentRestClient;
 import net.cserny.config.TorrentProperties;

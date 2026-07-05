@@ -1,4 +1,4 @@
-package net.cserny.api;
+package net.cserny.core.torrent.qbittorrent;
 
 import net.cserny.api.dto.TorrentFile;
 import org.springframework.http.HttpHeaders;

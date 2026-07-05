@@ -1,6 +1,5 @@
 package net.cserny.core.torrent.qbittorrent;
 
-import net.cserny.api.QBitTorrentRestApi;
 import net.cserny.api.dto.TorrentFile;
 import net.cserny.config.TorrentProperties;
 import org.junit.jupiter.api.BeforeEach;

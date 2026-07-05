@@ -5,7 +5,7 @@ import com.mongodb.client.MongoClient;
 import io.micrometer.context.ContextExecutorService;
 import io.micrometer.context.ContextSnapshotFactory;
 import lombok.extern.slf4j.Slf4j;
-import net.cserny.api.QBitTorrentRestApi;
+import net.cserny.core.torrent.qbittorrent.QBitTorrentRestApi;
 import net.cserny.core.command.CommandRunner;
 import net.cserny.core.command.NativeCommandRunner;
 import net.cserny.core.command.SshCommandRunner;

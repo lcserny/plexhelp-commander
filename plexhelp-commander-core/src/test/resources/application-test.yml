@@ -11,15 +11,6 @@ spring:
     mongodb:
       database: videosmover_test
 
-http:
-  client:
-    connection:
-      timeout:
-        ms: 5000
-    read:
-      timeout:
-        ms: 5000
-
 togglz:
   cache:
     enabled: true
@@ -29,6 +20,7 @@ torrent:
   webui:
     username: admin
     password: adminadmin
+    read-timeout: 5000
 
 token:
   security:
@@ -40,11 +32,8 @@ token:
 tmdb:
   client:
     api-key: testApiKey
-    base-url: https://api.themoviedb.org/3/
-    search-movies-url: "{baseUrl}search/movie?api_key={tmdbApiKey}&query={query}&year={year}"
-    movie-credits-url: "{baseUrl}movie/{movieId}/credits?api_key={tmdbApiKey}"
-    search-tv-url: "{baseUrl}search/tv?api_key={tmdbApiKey}&query={query}&year={year}"
-    tv-credits-url: "{baseUrl}tv/{tvId}/credits?api_key={tmdbApiKey}"
+    base-url: https://api.themoviedb.org
+    read-timeout: 5000
 
 online:
   result-limit: 10

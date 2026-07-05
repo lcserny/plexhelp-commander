@@ -51,12 +51,12 @@ public abstract class BaseIntegrationTest {
             return Jimfs.newFileSystem(Configuration.unix());
         }
 
-        @Bean
-        @Primary
-        @Profile(TMDBMOCK)
-        public TmdbRestApi tmdbRestApi() {
-            return mock(TmdbRestApi.class);
-        }
+//        @Bean
+//        @Primary
+//        @Profile(TMDBMOCK)
+//        public TmdbRestApi tmdbRestApi() {
+//            return mock(TmdbRestApi.class);
+//        }
     }
 
     @Autowired
