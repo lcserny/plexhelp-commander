@@ -2,10 +2,6 @@ package net.cserny.core.rename;
 
 import net.cserny.IntegrationTest;
 import net.cserny.api.NameNormalizer.NameYear;
-import net.cserny.core.rename.tmdb.TmdbRestClient;
-import net.cserny.core.rename.tmdb.TmdbRestClient.Credits;
-import net.cserny.core.rename.tmdb.TmdbRestClient.Movie;
-import net.cserny.core.rename.tmdb.TmdbRestClient.Tv;
 import net.cserny.core.rename.internal.OnlineCacheRepository;
 import net.cserny.generated.MediaFileType;
 import net.cserny.generated.MediaRenameOrigin;

@@ -37,6 +37,7 @@ import org.togglz.spring.boot.actuate.autoconfigure.TogglzProperties;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.time.Duration;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -91,8 +92,11 @@ public class ApplicationConfig {
 
     @Bean
     public TmdbRestApi tmdbRestApi(TmdbProperties tmdbProperties) {
+        DefaultUriBuilderFactory urlFactory = new DefaultUriBuilderFactory(tmdbProperties.getBaseUrl());
+        urlFactory.setDefaultUriVariables(Map.of("api_key", tmdbProperties.getApiKey()));
+
         HttpExchangeAdapter adapter = RestTemplateAdapter.create(new RestTemplateBuilder()
-                .uriTemplateHandler(new DefaultUriBuilderFactory(tmdbProperties.getBaseUrl()))
+                .uriTemplateHandler(urlFactory)
                 .connectTimeout(Duration.ofMillis(tmdbProperties.getConnectionTimeout()))
                 .readTimeout(Duration.ofMillis(tmdbProperties.getReadTimeout()))
                 .build());

@@ -3,7 +3,6 @@ package net.cserny;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import net.cserny.config.ApplicationConfig;
-import net.cserny.core.rename.tmdb.TmdbRestClient;
 import net.cserny.fs.LocalFileService;
 import net.cserny.api.dto.LocalPath;
 import net.cserny.fs.NoAttributes;

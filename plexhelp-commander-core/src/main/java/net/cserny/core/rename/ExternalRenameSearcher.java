@@ -5,16 +5,16 @@ import lombok.extern.slf4j.Slf4j;
 import net.cserny.api.NameNormalizer.NameYear;
 import net.cserny.api.RenameSearcher;
 import net.cserny.config.OnlineProperties;
-import net.cserny.core.rename.tmdb.TmdbRestClient;
+import net.cserny.core.rename.internal.OnlineCacheRepository;
+import net.cserny.core.rename.tmdb.TmdbRestApi;
+import net.cserny.core.rename.tmdb.TmdbRestApi.Movie;
+import net.cserny.core.rename.tmdb.TmdbRestApi.MovieResults;
+import net.cserny.core.rename.tmdb.TmdbRestApi.Tv;
+import net.cserny.core.rename.tmdb.TmdbRestApi.TvResults;
 import net.cserny.generated.MediaDescriptionData;
 import net.cserny.generated.MediaFileType;
 import net.cserny.generated.MediaRenameOrigin;
 import net.cserny.generated.RenamedMediaOptions;
-import net.cserny.core.rename.tmdb.TmdbRestClient.Credits;
-import net.cserny.core.rename.tmdb.TmdbRestClient.Movie;
-import net.cserny.core.rename.tmdb.TmdbRestClient.Person;
-import net.cserny.core.rename.tmdb.TmdbRestClient.Tv;
-import net.cserny.core.rename.internal.OnlineCacheRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -38,7 +38,7 @@ public class ExternalRenameSearcher implements RenameSearcher {
 
     private final OnlineCacheRepository repository;
     private final OnlineProperties onlineConfig;
-    private final TmdbRestClient tmdbRestClient;
+    private final TmdbRestApi tmdbRestApi;
 
     private final Pattern specialCharsRegex = Pattern.compile("[^a-zA-Z0-9-\s]");
 
@@ -77,7 +77,13 @@ public class ExternalRenameSearcher implements RenameSearcher {
     }
 
     private List<MediaDescriptionData> searchTvShow(NameYear nameYear) {
-        List<Tv> results = tmdbRestClient.searchTvShows(nameYear.name(), nameYear.year());
+        TvResults tvResults = tmdbRestApi.searchTvShows(nameYear.name(), nameYear.year());
+        if (tvResults == null || tvResults.getResults() == null) {
+            log.info("No TV Shows found");
+            return Collections.emptyList();
+        }
+
+        List<Tv> results = tvResults.getResults();
         if (results.isEmpty()) {
             log.info("No TV show results found");
             return Collections.emptyList();
@@ -92,7 +98,7 @@ public class ExternalRenameSearcher implements RenameSearcher {
             String title = processTitle(tvSeries.getName());
             String date = tvSeries.getFirstAirDate();
             String description = nullIfBlank(tvSeries.getOverview());
-            List<String> cast = produceCast(tmdbRestClient.tvShowCredits(tvSeries.getId()));
+            List<String> cast = produceCast(tmdbRestApi.tvShowCredits(tvSeries.getId()));
 
             descriptions.add(new MediaDescriptionData().posterUrl(posterUrl).title(title)
                     .date(date).description(description).cast(cast));
@@ -102,7 +108,13 @@ public class ExternalRenameSearcher implements RenameSearcher {
     }
 
     private List<MediaDescriptionData> searchMovie(NameYear nameYear) {
-        List<Movie> results = tmdbRestClient.searchMovies(nameYear.name(), nameYear.year());
+        MovieResults movieResults = tmdbRestApi.searchMovies(nameYear.name(), nameYear.year());
+        if (movieResults == null || movieResults.getResults() == null) {
+            log.info("No movies found");
+            return Collections.emptyList();
+        }
+
+        List<Movie> results = movieResults.getResults();
         if (results.isEmpty()) {
             log.info("No movie results found");
             return Collections.emptyList();
@@ -117,7 +129,7 @@ public class ExternalRenameSearcher implements RenameSearcher {
             String title = processTitle(movieDb.getTitle());
             String date = movieDb.getReleaseDate();
             String description = nullIfBlank(movieDb.getOverview());
-            List<String> cast = produceCast(tmdbRestClient.movieCredits(movieDb.getId()));
+            List<String> cast = produceCast(tmdbRestApi.movieCredits(movieDb.getId()));
 
             descriptions.add(new MediaDescriptionData().posterUrl(posterUrl).title(title)
                     .date(date).description(description).cast(cast));
@@ -139,13 +151,13 @@ public class ExternalRenameSearcher implements RenameSearcher {
         return StringUtils.isBlank(text) ? null : text;
     }
 
-    private List<String> produceCast(Credits credits) {
+    private List<String> produceCast(TmdbRestApi.Credits credits) {
         if (credits == null) {
             return Collections.emptyList();
         }
 
         return credits.getCast().stream()
-                .map(Person::getName)
+                .map(TmdbRestApi.Person::getName)
                 .limit(onlineConfig.getResultLimit())
                 .toList();
     }

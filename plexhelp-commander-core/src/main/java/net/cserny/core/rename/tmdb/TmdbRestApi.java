@@ -3,12 +3,7 @@ package net.cserny.core.rename.tmdb;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
-import net.cserny.api.QBitTorrentRestApi;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.service.annotation.HttpExchange;
 import org.springframework.web.service.annotation.PostExchange;
 
@@ -17,11 +12,17 @@ import java.util.List;
 @HttpExchange(TmdbRestApi.Routes.BASE_URI)
 public interface TmdbRestApi {
 
-    // TODO
     @PostExchange(TmdbRestApi.Routes.SEARCH_MOVIES_URI)
-    ResponseEntity<Void> searchMovies(@RequestHeader HttpHeaders headers,
-                                      @RequestBody MultiValueMap<String, String> formParams);
+    MovieResults searchMovies(@PathVariable String query, @PathVariable Integer year);
 
+    @PostExchange(Routes.SEARCH_TV_URI)
+    TvResults searchTvShows(@PathVariable String query, @PathVariable Integer year);
+
+    @PostExchange(Routes.MOVIE_CREDITS_URI)
+    Credits movieCredits(@PathVariable Integer movieId);
+
+    @PostExchange(Routes.TV_CREDITS_URI)
+    Credits tvShowCredits(@PathVariable Integer tvId);
 
     interface Routes {
 
@@ -31,7 +32,6 @@ public interface TmdbRestApi {
         String MOVIE_CREDITS_URI = "/movie/{movieId}/credits?api_key={tmdbApiKey}";
         String TV_CREDITS_URI = "/tv/{tvId}/credits?api_key={tmdbApiKey}";
     }
-
 
     @Data
     @JsonIgnoreProperties(ignoreUnknown = true)
