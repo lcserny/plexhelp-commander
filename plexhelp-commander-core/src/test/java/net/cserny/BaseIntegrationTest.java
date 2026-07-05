@@ -3,6 +3,7 @@ package net.cserny;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import net.cserny.config.ApplicationConfig;
+import net.cserny.core.rename.tmdb.TmdbRestApi;
 import net.cserny.fs.LocalFileService;
 import net.cserny.api.dto.LocalPath;
 import net.cserny.fs.NoAttributes;
@@ -53,8 +54,8 @@ public abstract class BaseIntegrationTest {
         @Bean
         @Primary
         @Profile(TMDBMOCK)
-        public TmdbRestClient tmdbWrapper() {
-            return mock(TmdbRestClient.class);
+        public TmdbRestApi tmdbRestApi() {
+            return mock(TmdbRestApi.class);
         }
     }
 

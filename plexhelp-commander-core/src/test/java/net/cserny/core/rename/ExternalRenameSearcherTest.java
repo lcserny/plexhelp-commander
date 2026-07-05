@@ -3,6 +3,8 @@ package net.cserny.core.rename;
 import net.cserny.IntegrationTest;
 import net.cserny.api.NameNormalizer.NameYear;
 import net.cserny.core.rename.internal.OnlineCacheRepository;
+import net.cserny.core.rename.tmdb.TmdbRestApi;
+import net.cserny.core.rename.tmdb.TmdbRestApi.*;
 import net.cserny.generated.MediaFileType;
 import net.cserny.generated.MediaRenameOrigin;
 import net.cserny.generated.RenamedMediaOptions;
@@ -30,7 +32,7 @@ class ExternalRenameSearcherTest extends IntegrationTest {
     OnlineCacheRepository repository;
 
     @Autowired
-    TmdbRestClient tmdbRestClient;
+    TmdbRestApi tmdbRestClient;
 
     @Test
     @DisplayName("Check movie searched in third party API is retrieved and cached")
@@ -41,12 +43,14 @@ class ExternalRenameSearcherTest extends IntegrationTest {
         Movie movieDb = createMovie(movieId, title);
         List<Movie> results = new ArrayList<>();
         results.add(movieDb);
+        MovieResults movies = new MovieResults();
+        movies.setResults(results);
         Credits credits = new Credits();
         credits.setCast(Collections.emptyList());
 
         NameYear movie = new NameYear(title, 2000);
         when(tmdbRestClient.searchMovies(eq(movie.name()), eq(movie.year())))
-                .thenReturn(results);
+                .thenReturn(movies);
         when(tmdbRestClient.movieCredits(eq(movieId)))
                 .thenReturn(credits);
 
@@ -70,12 +74,14 @@ class ExternalRenameSearcherTest extends IntegrationTest {
         Tv tvSeries = createTvShow(tvId, title);
         List<Tv> results = new ArrayList<>();
         results.add(tvSeries);
+        TvResults tvShows = new TvResults();
+        tvShows.setResults(results);
         Credits credits = new Credits();
         credits.setCast(Collections.emptyList());
 
         NameYear tvShow = new NameYear(title, 2011);
         when(tmdbRestClient.searchTvShows(eq(tvShow.name()), eq(tvShow.year())))
-                .thenReturn(results);
+                .thenReturn(tvShows);
         when(tmdbRestClient.tvShowCredits(eq(tvId)))
                 .thenReturn(credits);
 

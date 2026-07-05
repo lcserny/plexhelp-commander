@@ -93,7 +93,7 @@ public class ApplicationConfig {
     @Bean
     public TmdbRestApi tmdbRestApi(TmdbProperties tmdbProperties) {
         DefaultUriBuilderFactory urlFactory = new DefaultUriBuilderFactory(tmdbProperties.getBaseUrl());
-        urlFactory.setDefaultUriVariables(Map.of("api_key", tmdbProperties.getApiKey()));
+        urlFactory.setDefaultUriVariables(Map.of("tmdbApiKey", tmdbProperties.getApiKey()));
 
         HttpExchangeAdapter adapter = RestTemplateAdapter.create(new RestTemplateBuilder()
                 .uriTemplateHandler(urlFactory)
