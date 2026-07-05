@@ -11,6 +11,5 @@ public class TmdbProperties {
 
     private String apiKey;
     private String baseUrl;
-    private int connectionTimeout;
     private int readTimeout;
 }

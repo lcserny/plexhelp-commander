@@ -14,6 +14,5 @@ public class TorrentProperties {
     private String baseUrl;
     private String username;
     private String password;
-    private int connectionTimeout;
     private int readTimeout;
 }

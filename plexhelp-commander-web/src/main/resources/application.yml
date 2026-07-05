@@ -27,7 +27,6 @@ torrent:
     baseUrl: <QTorrent Base URL>
     username: <webUI username>
     password: <webUI password>
-    connection-timeout: 5000
     read-timeout: 5000
 
 token:
@@ -41,7 +40,6 @@ tmdb:
   client:
     api-key: myApiKey
     base-url: https://api.themoviedb.org
-    connection-timeout: 5000
     read-timeout: 5000
 
 online:

@@ -15,15 +15,16 @@ import net.cserny.support.UtilityProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.mongo.MongoProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.config.EnableMongoAuditing;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
+import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.web.client.support.RestTemplateAdapter;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.support.RestClientAdapter;
 import org.springframework.web.service.invoker.HttpExchangeAdapter;
 import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 import org.springframework.web.util.DefaultUriBuilderFactory;
@@ -80,14 +81,15 @@ public class ApplicationConfig {
 
     @Bean
     public QBitTorrentRestApi qBitTorrentRestApi(TorrentProperties torrentProperties) {
-        HttpExchangeAdapter adapter = RestTemplateAdapter.create(new RestTemplateBuilder()
-                .uriTemplateHandler(new DefaultUriBuilderFactory(torrentProperties.getBaseUrl()))
-                .connectTimeout(Duration.ofMillis(torrentProperties.getConnectionTimeout()))
-                .readTimeout(Duration.ofMillis(torrentProperties.getReadTimeout()))
+        JdkClientHttpRequestFactory requestFactory = new JdkClientHttpRequestFactory();
+        requestFactory.setReadTimeout(Duration.ofMillis(torrentProperties.getReadTimeout()));
+
+        HttpExchangeAdapter adapter = RestClientAdapter.create(RestClient.builder()
+                .baseUrl(torrentProperties.getBaseUrl())
+                .requestFactory(requestFactory)
                 .build());
 
-        HttpServiceProxyFactory factory = HttpServiceProxyFactory.builderFor(adapter).build();
-        return factory.createClient(QBitTorrentRestApi.class);
+        return HttpServiceProxyFactory.builderFor(adapter).build().createClient(QBitTorrentRestApi.class);
     }
 
     @Bean
@@ -95,14 +97,15 @@ public class ApplicationConfig {
         DefaultUriBuilderFactory urlFactory = new DefaultUriBuilderFactory(tmdbProperties.getBaseUrl());
         urlFactory.setDefaultUriVariables(Map.of("tmdbApiKey", tmdbProperties.getApiKey()));
 
-        HttpExchangeAdapter adapter = RestTemplateAdapter.create(new RestTemplateBuilder()
-                .uriTemplateHandler(urlFactory)
-                .connectTimeout(Duration.ofMillis(tmdbProperties.getConnectionTimeout()))
-                .readTimeout(Duration.ofMillis(tmdbProperties.getReadTimeout()))
+        JdkClientHttpRequestFactory requestFactory = new JdkClientHttpRequestFactory();
+        requestFactory.setReadTimeout(Duration.ofMillis(tmdbProperties.getReadTimeout()));
+
+        HttpExchangeAdapter adapter = RestClientAdapter.create(RestClient.builder()
+                .uriBuilderFactory(urlFactory)
+                .requestFactory(requestFactory)
                 .build());
 
-        HttpServiceProxyFactory factory = HttpServiceProxyFactory.builderFor(adapter).build();
-        return factory.createClient(TmdbRestApi.class);
+        return HttpServiceProxyFactory.builderFor(adapter).build().createClient(TmdbRestApi.class);
     }
 
 
