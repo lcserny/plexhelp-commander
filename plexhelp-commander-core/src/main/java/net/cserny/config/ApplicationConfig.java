@@ -49,7 +49,18 @@ import java.util.concurrent.Executors;
 @EnableMongoRepositories(basePackages = "net.cserny")
 @EnableScheduling
 @EnableMongoAuditing
-@EnableConfigurationProperties({TogglzProperties.class, TorrentProperties.class})
+@EnableConfigurationProperties({
+        TogglzProperties.class,
+        TorrentProperties.class,
+        AutoMoveProperties.class,
+        FilesystemProperties.class,
+        MoveProperties.class,
+        OnlineProperties.class,
+        RenameProperties.class,
+        SearchProperties.class,
+        ServerCommandProperties.class,
+        TmdbProperties.class
+})
 public class ApplicationConfig {
 
     public static final int MAX_SUBS_ALLOWED = 5;
