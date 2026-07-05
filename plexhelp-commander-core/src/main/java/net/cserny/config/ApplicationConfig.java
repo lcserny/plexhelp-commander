@@ -42,6 +42,8 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static net.cserny.core.rename.tmdb.TmdbRestApi.Routes.API_KEY_PARAM;
+
 @Slf4j
 @Configuration
 @ComponentScan(basePackages = {"net.cserny"})
@@ -106,7 +108,7 @@ public class ApplicationConfig {
     @Bean
     public TmdbRestApi tmdbRestApi(TmdbProperties tmdbProperties) {
         DefaultUriBuilderFactory urlFactory = new DefaultUriBuilderFactory(tmdbProperties.getBaseUrl());
-        urlFactory.setDefaultUriVariables(Map.of("tmdbApiKey", tmdbProperties.getApiKey()));
+        urlFactory.setDefaultUriVariables(Map.of(API_KEY_PARAM, tmdbProperties.getApiKey()));
 
         JdkClientHttpRequestFactory requestFactory = new JdkClientHttpRequestFactory();
         requestFactory.setReadTimeout(Duration.ofMillis(tmdbProperties.getReadTimeout()));

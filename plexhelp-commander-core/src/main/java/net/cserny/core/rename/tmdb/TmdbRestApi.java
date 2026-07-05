@@ -15,10 +15,10 @@ import java.util.List;
 public interface TmdbRestApi {
 
     @GetExchange(Routes.SEARCH_MOVIES_URI)
-    MovieResults searchMovies(@PathVariable String query, @RequestParam(required = false) Integer year);
+    MovieResults searchMovies(@RequestParam String query, @RequestParam(required = false) Integer year);
 
     @GetExchange(Routes.SEARCH_TV_URI)
-    TvResults searchTvShows(@PathVariable String query, @RequestParam(required = false) Integer year);
+    TvResults searchTvShows(@RequestParam String query, @RequestParam(required = false) Integer year);
 
     @GetExchange(Routes.MOVIE_CREDITS_URI)
     Credits movieCredits(@PathVariable Integer movieId);
@@ -29,11 +29,12 @@ public interface TmdbRestApi {
     interface Routes {
 
         String BASE_URI = "/3";
-        // Note: year query param is optional so its not hardcoded in URI template
-        String SEARCH_MOVIES_URI = "/search/movie?api_key={tmdbApiKey}&query={query}";
-        String SEARCH_TV_URI = "/search/tv?api_key={tmdbApiKey}&query={query}";
-        String MOVIE_CREDITS_URI = "/movie/{movieId}/credits?api_key={tmdbApiKey}";
-        String TV_CREDITS_URI = "/tv/{tvId}/credits?api_key={tmdbApiKey}";
+        String API_KEY_PARAM = "tmdbApiKey";
+
+        String SEARCH_MOVIES_URI = "/search/movie?api_key={" + API_KEY_PARAM + "}";
+        String SEARCH_TV_URI = "/search/tv?api_key={" + API_KEY_PARAM + "}";
+        String MOVIE_CREDITS_URI = "/movie/{movieId}/credits?api_key={" + API_KEY_PARAM + "}";
+        String TV_CREDITS_URI = "/tv/{tvId}/credits?api_key={" + API_KEY_PARAM + "}";
     }
 
     @Data
