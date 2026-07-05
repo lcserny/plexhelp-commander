@@ -11,8 +11,6 @@ public class TmdbProperties {
 
     private String apiKey;
     private String baseUrl;
-    private String searchMoviesUrl;
-    private String movieCreditsUrl;
-    private String searchTvUrl;
-    private String tvCreditsUrl;
+    private int connectionTimeout;
+    private int readTimeout;
 }

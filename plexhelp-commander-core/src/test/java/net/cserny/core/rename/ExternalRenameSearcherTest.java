@@ -2,9 +2,10 @@ package net.cserny.core.rename;
 
 import net.cserny.IntegrationTest;
 import net.cserny.api.NameNormalizer.NameYear;
-import net.cserny.core.rename.TmdbWrapper.Credits;
-import net.cserny.core.rename.TmdbWrapper.Movie;
-import net.cserny.core.rename.TmdbWrapper.Tv;
+import net.cserny.core.rename.tmdb.TmdbRestClient;
+import net.cserny.core.rename.tmdb.TmdbRestClient.Credits;
+import net.cserny.core.rename.tmdb.TmdbRestClient.Movie;
+import net.cserny.core.rename.tmdb.TmdbRestClient.Tv;
 import net.cserny.core.rename.internal.OnlineCacheRepository;
 import net.cserny.generated.MediaFileType;
 import net.cserny.generated.MediaRenameOrigin;
@@ -33,7 +34,7 @@ class ExternalRenameSearcherTest extends IntegrationTest {
     OnlineCacheRepository repository;
 
     @Autowired
-    TmdbWrapper tmdbWrapper;
+    TmdbRestClient tmdbRestClient;
 
     @Test
     @DisplayName("Check movie searched in third party API is retrieved and cached")
@@ -48,9 +49,9 @@ class ExternalRenameSearcherTest extends IntegrationTest {
         credits.setCast(Collections.emptyList());
 
         NameYear movie = new NameYear(title, 2000);
-        when(tmdbWrapper.searchMovies(eq(movie.name()), eq(movie.year())))
+        when(tmdbRestClient.searchMovies(eq(movie.name()), eq(movie.year())))
                 .thenReturn(results);
-        when(tmdbWrapper.movieCredits(eq(movieId)))
+        when(tmdbRestClient.movieCredits(eq(movieId)))
                 .thenReturn(credits);
 
         RenamedMediaOptions options = searcher.search(movie, MediaFileType.MOVIE);
@@ -77,9 +78,9 @@ class ExternalRenameSearcherTest extends IntegrationTest {
         credits.setCast(Collections.emptyList());
 
         NameYear tvShow = new NameYear(title, 2011);
-        when(tmdbWrapper.searchTvShows(eq(tvShow.name()), eq(tvShow.year())))
+        when(tmdbRestClient.searchTvShows(eq(tvShow.name()), eq(tvShow.year())))
                 .thenReturn(results);
-        when(tmdbWrapper.tvShowCredits(eq(tvId)))
+        when(tmdbRestClient.tvShowCredits(eq(tvId)))
                 .thenReturn(credits);
 
         RenamedMediaOptions options = searcher.search(tvShow, MediaFileType.TV);

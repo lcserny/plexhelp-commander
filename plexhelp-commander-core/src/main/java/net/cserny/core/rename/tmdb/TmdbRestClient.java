@@ -1,25 +1,37 @@
-package net.cserny.core.rename;
+package net.cserny.core.rename.tmdb;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.annotation.PostConstruct;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import net.cserny.config.TmdbProperties;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 
 @RequiredArgsConstructor
 @Component
-public class TmdbWrapper {
+public class TmdbRestClient {
 
     private final TmdbProperties tmdbConfig;
-    private final RestTemplate restTemplate;
+    // FIXME use restClient
+    private RestTemplate restTemplate;
+
+    @PostConstruct
+    public void init() {
+        this.restTemplate = new RestTemplateBuilder()
+                .connectTimeout(Duration.ofMillis(this.tmdbConfig.getConnectionTimeout()))
+                .readTimeout(Duration.ofMillis(this.tmdbConfig.getReadTimeout()))
+                .build();
+    }
 
     public List<Tv> searchTvShows(String query, Integer year) {
         UriComponents uriComponents =
@@ -69,95 +81,6 @@ public class TmdbWrapper {
                         .encode();
 
         URI uri = uriComponents.toUri();
-        return restTemplate.getForObject(uri, Credits.class);    }
-
-    @Data
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class MovieResults {
-
-        @JsonProperty("page")
-        Integer page;
-
-        @JsonProperty("total_results")
-        Long total_results;
-
-        @JsonProperty("total_pages")
-        Long total_pages;
-
-        @JsonProperty("results")
-        List<Movie> results;
-    }
-
-    @Data
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class Movie {
-
-        @JsonProperty("title")
-        private String title;
-
-        @JsonProperty("poster_path")
-        private String posterPath;
-
-        @JsonProperty("release_date")
-        private String releaseDate;
-
-        @JsonProperty("overview")
-        private String overview;
-
-        @JsonProperty("id")
-        private Integer id;
-    }
-
-    @Data
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class TvResults {
-
-        @JsonProperty("page")
-        Integer page;
-
-        @JsonProperty("total_results")
-        Long total_results;
-
-        @JsonProperty("total_pages")
-        Long total_pages;
-
-        @JsonProperty("results")
-        List<Tv> results;
-    }
-
-    @Data
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class Tv {
-
-        @JsonProperty("name")
-        private String name;
-
-        @JsonProperty("poster_path")
-        private String posterPath;
-
-        @JsonProperty("first_air_date")
-        private String firstAirDate;
-
-        @JsonProperty("overview")
-        private String overview;
-
-        @JsonProperty("id")
-        private Integer id;
-    }
-
-    @Data
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class Credits {
-
-        @JsonProperty("cast")
-        private List<Person> cast;
-    }
-
-    @Data
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class Person {
-
-        @JsonProperty("name")
-        private String name;
+        return restTemplate.getForObject(uri, Credits.class);
     }
 }
