@@ -1,19 +1,21 @@
 package net.cserny.core.rename;
 
 import net.cserny.IntegrationTest;
+import net.cserny.core.rename.tmdb.TmdbRestApi;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
-import static net.cserny.BaseIntegrationTest.TestConfig.TMDBMOCK;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@ActiveProfiles(TMDBMOCK)
 class MediaRenameServiceTest extends IntegrationTest {
 
     @Autowired
     MediaRenameService service;
+
+    @MockitoBean
+    TmdbRestApi tmdbRestApi;
 
     @Test
     @DisplayName("Checks that the search providers are ordered correctly")

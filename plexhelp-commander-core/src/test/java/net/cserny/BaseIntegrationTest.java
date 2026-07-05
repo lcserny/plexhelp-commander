@@ -3,7 +3,6 @@ package net.cserny;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import net.cserny.config.ApplicationConfig;
-import net.cserny.core.rename.tmdb.TmdbRestApi;
 import net.cserny.fs.LocalFileService;
 import net.cserny.api.dto.LocalPath;
 import net.cserny.fs.NoAttributes;
@@ -23,8 +22,6 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 
-import static org.mockito.Mockito.mock;
-
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @EnableAutoConfiguration
 @ContextConfiguration(classes = {
@@ -42,7 +39,6 @@ public abstract class BaseIntegrationTest {
     public static class TestConfig {
 
         public static final String JIMFS = "jimfs";
-        public static final String TMDBMOCK = "tmdbmock";
 
         @Bean
         @Primary
@@ -50,13 +46,6 @@ public abstract class BaseIntegrationTest {
         public FileSystem jimFileSystem() {
             return Jimfs.newFileSystem(Configuration.unix());
         }
-
-//        @Bean
-//        @Primary
-//        @Profile(TMDBMOCK)
-//        public TmdbRestApi tmdbRestApi() {
-//            return mock(TmdbRestApi.class);
-//        }
     }
 
     @Autowired

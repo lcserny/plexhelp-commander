@@ -11,18 +11,16 @@ import net.cserny.generated.RenamedMediaOptions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static net.cserny.BaseIntegrationTest.TestConfig.TMDBMOCK;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
-@ActiveProfiles(TMDBMOCK)
 class ExternalRenameSearcherTest extends IntegrationTest {
 
     @Autowired
@@ -31,7 +29,7 @@ class ExternalRenameSearcherTest extends IntegrationTest {
     @Autowired
     OnlineCacheRepository repository;
 
-    @Autowired
+    @MockitoBean
     TmdbRestApi tmdbRestClient;
 
     @Test

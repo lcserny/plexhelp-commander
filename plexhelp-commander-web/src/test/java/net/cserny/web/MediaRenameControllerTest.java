@@ -2,6 +2,7 @@ package net.cserny.web;
 
 import io.restassured.http.ContentType;
 import net.cserny.config.FilesystemProperties;
+import net.cserny.core.rename.tmdb.TmdbRestApi;
 import net.cserny.generated.MediaFileType;
 import net.cserny.generated.MediaRenameOrigin;
 import net.cserny.generated.MediaRenameRequest;
@@ -9,16 +10,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.io.IOException;
 
 import static io.restassured.RestAssured.given;
-import static net.cserny.BaseIntegrationTest.TestConfig.TMDBMOCK;
 import static org.hamcrest.CoreMatchers.is;
 
-@ActiveProfiles(TMDBMOCK)
 class MediaRenameControllerTest extends WebIntegrationTest {
+
+    @MockitoBean
+    TmdbRestApi tmdbRestApi;
 
     @Autowired
     FilesystemProperties filesystemConfig;

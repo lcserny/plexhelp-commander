@@ -2,6 +2,7 @@ package net.cserny.core.torrent;
 
 import net.cserny.IntegrationTest;
 import net.cserny.api.MediaIdentifier;
+import net.cserny.api.TorrentRestClient;
 import net.cserny.api.dto.TorrentFile;
 import net.cserny.core.download.DownloadedMedia;
 import net.cserny.core.download.internal.DownloadedMediaRepository;
@@ -13,12 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.time.Clock;
@@ -44,7 +40,7 @@ class TorrentsServiceTest extends IntegrationTest {
     FilesystemProperties filesystemConfig;
 
     @MockitoBean
-    private RestTemplate restTemplate;
+    private TorrentRestClient restClient;
 
     @MockitoBean
     private MediaIdentifier mediaIdentifier;
@@ -59,12 +55,9 @@ class TorrentsServiceTest extends IntegrationTest {
     @Test
     @DisplayName("adding new torrent, adds them the download cache")
     public void addingTorrentSavesToRepository() {
-        setupSIDMock();
-
         var torrent1Name = "torrent1";
         var torrents = List.of(new TorrentFile(torrent1Name, 6, true));
-        ResponseEntity<List<TorrentFile>> response = ResponseEntity.ok().body(torrents);
-        when(this.restTemplate.exchange(contains("files"), eq(HttpMethod.POST), any(HttpEntity.class), any(ParameterizedTypeReference.class))).thenReturn(response);
+        when(restClient.listTorrents(anyString())).thenReturn(torrents);
         when(mediaIdentifier.isMedia(any(LocalPath.class))).thenReturn(true);
 
         service.markTorrentDownloadStarted("someHash");
@@ -87,13 +80,9 @@ class TorrentsServiceTest extends IntegrationTest {
         media1.setDownloadComplete(false);
         mediaRepository.save(media1);
 
-        setupSIDMock();
-
         var torrents = List.of(new TorrentFile(torrentName, 6, true));
-        ResponseEntity<List<TorrentFile>> response = ResponseEntity.ok().body(torrents);
-        when(this.restTemplate.exchange(contains("files"), eq(HttpMethod.POST), any(HttpEntity.class), any(ParameterizedTypeReference.class))).thenReturn(response);
-        ResponseEntity<String> delResponse = ResponseEntity.ok().build();
-        when(this.restTemplate.exchange(contains("delete"), eq(HttpMethod.POST), any(HttpEntity.class), eq(String.class))).thenReturn(delResponse);
+        when(restClient.listTorrents(anyString())).thenReturn(torrents);
+        doNothing().when(restClient).deleteTorrent(anyString(), anyBoolean());
         when(mediaIdentifier.isMedia(any(LocalPath.class))).thenReturn(true);
 
         service.markTorrentDownloadCompleted("someHash2");
@@ -116,18 +105,14 @@ class TorrentsServiceTest extends IntegrationTest {
         media1.setDownloadComplete(false);
         mediaRepository.save(media1);
 
-        setupSIDMock();
-
         var torrents = List.of(new TorrentFile(torrentName, 6, true));
-        ResponseEntity<List<TorrentFile>> response = ResponseEntity.ok().body(torrents);
-        when(this.restTemplate.exchange(contains("files"), eq(HttpMethod.POST), any(HttpEntity.class), any(ParameterizedTypeReference.class))).thenReturn(response);
-        ResponseEntity<String> delResponse = ResponseEntity.ok().build();
-        when(this.restTemplate.exchange(contains("delete"), eq(HttpMethod.POST), any(HttpEntity.class), eq(String.class))).thenReturn(delResponse);
+        when(restClient.listTorrents(anyString())).thenReturn(torrents);
+        doNothing().when(restClient).deleteTorrent(anyString(), anyBoolean());
         when(mediaIdentifier.isMedia(any(LocalPath.class))).thenReturn(true);
 
         service.markTorrentDownloadCompleted("someHash2");
 
-        verify(this.restTemplate, times(1)).exchange(contains("delete"), eq(HttpMethod.POST), any(HttpEntity.class), eq(String.class));
+        verify(restClient, times(1)).deleteTorrent(anyString(), anyBoolean());
     }
 
     @Test
@@ -141,12 +126,8 @@ class TorrentsServiceTest extends IntegrationTest {
         magnet.setDownloaded(false);
         magnetRepository.save(magnet);
 
-        setupSIDMock();
-
-        ResponseEntity<List<TorrentFile>> response = ResponseEntity.ok().body(List.of());
-        when(this.restTemplate.exchange(contains("files"), eq(HttpMethod.POST), any(HttpEntity.class), any(ParameterizedTypeReference.class))).thenReturn(response);
-        ResponseEntity<String> delResponse = ResponseEntity.ok().build();
-        when(this.restTemplate.exchange(contains("delete"), eq(HttpMethod.POST), any(HttpEntity.class), eq(String.class))).thenReturn(delResponse);
+        when(restClient.listTorrents(anyString())).thenReturn(List.of());
+        doNothing().when(restClient).deleteTorrent(anyString(), anyBoolean());
         when(mediaIdentifier.isMedia(any(LocalPath.class))).thenReturn(true);
 
         service.markTorrentDownloadCompleted(hash);
@@ -154,12 +135,5 @@ class TorrentsServiceTest extends IntegrationTest {
         Magnet results = magnetRepository.findByHash(hash);
         assertNotNull(results);
         assertTrue(results.isDownloaded());
-    }
-
-    private void setupSIDMock() {
-        var sid = "something";
-        ResponseEntity<String> response = ResponseEntity.ok().header("Set-Cookie", "SID=" + sid + ";").build();
-        when(this.restTemplate.exchange(contains("login"), eq(HttpMethod.POST), any(HttpEntity.class), eq(String.class)))
-                .thenReturn(response);
     }
 }
