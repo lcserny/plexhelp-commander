@@ -3,7 +3,7 @@ package net.cserny.core.magnet;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.cserny.api.MagnetUpdater;
-import net.cserny.api.TorrentRestClient;
+import net.cserny.core.torrent.qbittorrent.QBitTorrentRestApi;
 import net.cserny.support.DataMapper;
 import net.cserny.generated.MagnetData;
 import org.springframework.data.domain.Page;
@@ -25,12 +25,12 @@ public class MagnetService implements MagnetUpdater {
     private static final String HASH_KEY = "xt";
 
     private final MagnetRepository repository;
-    private final TorrentRestClient restClient;
+    private final QBitTorrentRestApi restClient;
 
     public MagnetData addMagnet(String magnetLink) {
         validateMagnetLink(magnetLink);
 
-        this.restClient.addMagnet(magnetLink);
+        this.restClient.torrentAdd(magnetLink);
 
         log.info("Added magnet to torrent client");
 

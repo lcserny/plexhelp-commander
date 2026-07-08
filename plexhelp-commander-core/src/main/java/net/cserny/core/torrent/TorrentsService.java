@@ -6,6 +6,7 @@ import net.cserny.api.*;
 import net.cserny.api.dto.TorrentFile;
 import net.cserny.config.FilesystemProperties;
 import net.cserny.api.dto.LocalPath;
+import net.cserny.core.torrent.qbittorrent.QBitTorrentRestApi;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,7 +21,7 @@ public class TorrentsService {
     private final FilesystemProperties filesystemProperties;
     private final DownloadedTorrentProcessor torrentProcessor;
     private final MagnetUpdater magnetUpdater;
-    private final TorrentRestClient restClient;
+    private final QBitTorrentRestApi restClient;
     private final LocalPathHandler localPathHandler;
     private final MediaIdentifier mediaIdentifier;
 
@@ -32,13 +33,13 @@ public class TorrentsService {
         processTorrent(hash, (torrentFiles) -> {
             torrentProcessor.updateDownloaded(torrentFiles);
             magnetUpdater.markMagnetsDownloaded(hash);
-            this.restClient.deleteTorrent(hash, false);
+            this.restClient.torrentDelete(hash, false);
             log.info("Removed torrent from torrent client");
         });
     }
 
     private void processTorrent(String hash, Consumer<List<TorrentFile>> consumer) {
-        List<TorrentFile> torrentFiles = this.restClient.listTorrents(hash);
+        List<TorrentFile> torrentFiles = this.restClient.torrentFiles(hash);
         log.info("Received {} torrent files from client", torrentFiles.size());
 
         List<TorrentFile> mediaTorrentFiles = enrichMediaTorrents(torrentFiles);

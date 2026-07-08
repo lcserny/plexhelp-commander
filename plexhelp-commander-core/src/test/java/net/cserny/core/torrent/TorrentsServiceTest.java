@@ -2,7 +2,6 @@ package net.cserny.core.torrent;
 
 import net.cserny.IntegrationTest;
 import net.cserny.api.MediaIdentifier;
-import net.cserny.api.TorrentRestClient;
 import net.cserny.api.dto.TorrentFile;
 import net.cserny.core.download.DownloadedMedia;
 import net.cserny.core.download.internal.DownloadedMediaRepository;
@@ -10,6 +9,7 @@ import net.cserny.core.magnet.Magnet;
 import net.cserny.core.magnet.MagnetRepository;
 import net.cserny.config.FilesystemProperties;
 import net.cserny.api.dto.LocalPath;
+import net.cserny.core.torrent.qbittorrent.QBitTorrentRestApi;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -40,7 +40,7 @@ class TorrentsServiceTest extends IntegrationTest {
     FilesystemProperties filesystemConfig;
 
     @MockitoBean
-    private TorrentRestClient restClient;
+    private QBitTorrentRestApi restClient;
 
     @MockitoBean
     private MediaIdentifier mediaIdentifier;
@@ -57,7 +57,7 @@ class TorrentsServiceTest extends IntegrationTest {
     public void addingTorrentSavesToRepository() {
         var torrent1Name = "torrent1";
         var torrents = List.of(new TorrentFile(torrent1Name, 6, true));
-        when(restClient.listTorrents(anyString())).thenReturn(torrents);
+        when(restClient.torrentFiles(anyString())).thenReturn(torrents);
         when(mediaIdentifier.isMedia(any(LocalPath.class))).thenReturn(true);
 
         service.markTorrentDownloadStarted("someHash");
@@ -81,8 +81,8 @@ class TorrentsServiceTest extends IntegrationTest {
         mediaRepository.save(media1);
 
         var torrents = List.of(new TorrentFile(torrentName, 6, true));
-        when(restClient.listTorrents(anyString())).thenReturn(torrents);
-        doNothing().when(restClient).deleteTorrent(anyString(), anyBoolean());
+        when(restClient.torrentFiles(anyString())).thenReturn(torrents);
+        doNothing().when(restClient).torrentDelete(anyString(), anyBoolean());
         when(mediaIdentifier.isMedia(any(LocalPath.class))).thenReturn(true);
 
         service.markTorrentDownloadCompleted("someHash2");
@@ -106,13 +106,13 @@ class TorrentsServiceTest extends IntegrationTest {
         mediaRepository.save(media1);
 
         var torrents = List.of(new TorrentFile(torrentName, 6, true));
-        when(restClient.listTorrents(anyString())).thenReturn(torrents);
-        doNothing().when(restClient).deleteTorrent(anyString(), anyBoolean());
+        when(restClient.torrentFiles(anyString())).thenReturn(torrents);
+        doNothing().when(restClient).torrentDelete(anyString(), anyBoolean());
         when(mediaIdentifier.isMedia(any(LocalPath.class))).thenReturn(true);
 
         service.markTorrentDownloadCompleted("someHash2");
 
-        verify(restClient, times(1)).deleteTorrent(anyString(), anyBoolean());
+        verify(restClient, times(1)).torrentDelete(anyString(), anyBoolean());
     }
 
     @Test
@@ -126,8 +126,8 @@ class TorrentsServiceTest extends IntegrationTest {
         magnet.setDownloaded(false);
         magnetRepository.save(magnet);
 
-        when(restClient.listTorrents(anyString())).thenReturn(List.of());
-        doNothing().when(restClient).deleteTorrent(anyString(), anyBoolean());
+        when(restClient.torrentFiles(anyString())).thenReturn(List.of());
+        doNothing().when(restClient).torrentDelete(anyString(), anyBoolean());
         when(mediaIdentifier.isMedia(any(LocalPath.class))).thenReturn(true);
 
         service.markTorrentDownloadCompleted(hash);

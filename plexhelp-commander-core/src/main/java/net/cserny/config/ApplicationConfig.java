@@ -5,11 +5,12 @@ import com.mongodb.client.MongoClient;
 import io.micrometer.context.ContextExecutorService;
 import io.micrometer.context.ContextSnapshotFactory;
 import lombok.extern.slf4j.Slf4j;
-import net.cserny.core.torrent.qbittorrent.QBitTorrentRestApi;
 import net.cserny.core.command.CommandRunner;
 import net.cserny.core.command.NativeCommandRunner;
 import net.cserny.core.command.SshCommandRunner;
 import net.cserny.core.rename.tmdb.TmdbRestApi;
+import net.cserny.core.torrent.qbittorrent.QBitTorrentRestApi;
+import net.cserny.core.torrent.qbittorrent.QBitTorrentSidInterceptor;
 import net.cserny.support.Features;
 import net.cserny.support.UtilityProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -20,6 +21,8 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.config.EnableMongoAuditing;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
+import org.springframework.http.client.BufferingClientHttpRequestFactory;
+import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -43,6 +46,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static net.cserny.core.rename.tmdb.TmdbRestApi.Routes.API_KEY_PARAM;
+import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
+import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
 
 @Slf4j
 @Configuration
@@ -97,9 +102,15 @@ public class ApplicationConfig {
         JdkClientHttpRequestFactory requestFactory = new JdkClientHttpRequestFactory();
         requestFactory.setReadTimeout(Duration.ofMillis(torrentProperties.getReadTimeout()));
 
-        HttpExchangeAdapter adapter = RestClientAdapter.create(RestClient.builder()
+        RestClient.Builder restClientBuilder = RestClient.builder()
                 .baseUrl(torrentProperties.getBaseUrl())
-                .requestFactory(requestFactory)
+                .requestFactory(new BufferingClientHttpRequestFactory(requestFactory))
+                .defaultHeader(CONTENT_TYPE, APPLICATION_FORM_URLENCODED_VALUE);
+
+        ClientHttpRequestInterceptor sidInterceptor = new QBitTorrentSidInterceptor(torrentProperties, restClientBuilder.clone().build());
+
+        HttpExchangeAdapter adapter = RestClientAdapter.create(restClientBuilder
+                .requestInterceptor(sidInterceptor)
                 .build());
 
         return HttpServiceProxyFactory.builderFor(adapter).build().createClient(QBitTorrentRestApi.class);

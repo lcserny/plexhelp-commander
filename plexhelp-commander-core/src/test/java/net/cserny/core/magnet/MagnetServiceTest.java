@@ -1,9 +1,6 @@
 package net.cserny.core.magnet;
 
-import net.cserny.api.TorrentRestClient;
-import net.cserny.core.magnet.Magnet;
-import net.cserny.core.magnet.MagnetRepository;
-import net.cserny.core.magnet.MagnetService;
+import net.cserny.core.torrent.qbittorrent.QBitTorrentRestApi;
 import net.cserny.generated.MagnetData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -25,14 +22,14 @@ import static org.mockito.Mockito.when;
 class MagnetServiceTest {
 
     private MagnetRepository repositoryMock;
-    private TorrentRestClient clientMock;
+    private QBitTorrentRestApi clientMock;
 
     private MagnetService service;
 
     @BeforeEach
     public void setup() {
         this.repositoryMock = mock(MagnetRepository.class);
-        this.clientMock = mock(TorrentRestClient.class);
+        this.clientMock = mock(QBitTorrentRestApi.class);
         this.service = new MagnetService(this.repositoryMock, this.clientMock);
     }
 
