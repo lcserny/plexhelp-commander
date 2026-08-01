@@ -116,14 +116,25 @@ public class MediaInfoExtractor {
     }
 
     // fileName = baseName + [S0x][E0y] + (year) + [lang data and index] + extension
-    private String extractFileName(String baseName, LocalDate localDate,  Integer season, Integer episode) {
-        String spaceBefore = season == null ? " " : "";
-        return baseName +
-                (season != null ? " S%02d".formatted(season) : "") +
-                (episode != null ? "%sE%02d".formatted(spaceBefore, episode) : "") +
-                (localDate != null ? " (" + localDate.getYear() + ")" : "") +
-                extractIndexedLangData() +
-                extractExtension();
+    private String extractFileName(String baseName, LocalDate localDate, Integer season, Integer episode) {
+        return baseName
+                + buildSeasonEpisode(season, episode)
+                + (localDate != null ? " (" + localDate.getYear() + ")" : "")
+                + extractIndexedLangData()
+                + extractExtension();
+    }
+
+    private String buildSeasonEpisode(Integer season, Integer episode) {
+        if (season != null && episode != null) {
+            return " S%02dE%02d".formatted(season, episode);
+        }
+        if (season != null) {
+            return " S%02d".formatted(season);
+        }
+        if (episode != null) {
+            return " E%02d".formatted(episode);
+        }
+        return "";
     }
 
     @Builder
