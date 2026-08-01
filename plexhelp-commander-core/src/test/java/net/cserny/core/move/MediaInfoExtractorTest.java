@@ -1,6 +1,5 @@
 package net.cserny.core.move;
 
-import net.cserny.core.move.MediaInfoExtractor;
 import org.junit.jupiter.api.Test;
 
 import static net.cserny.generated.MediaFileType.MOVIE;
@@ -47,5 +46,15 @@ class MediaInfoExtractorTest {
         MediaInfoExtractor extractor = new MediaInfoExtractor(name, 4, TV, videoName);
 
         assertThat(extractor.extractMediaInfo().destinationPathSegments()).containsExactly(name, "Season 1",  name + " S01E09.mp4");
+    }
+
+    @Test
+    public void baselineExtractor_noSeasonInGroupAndInVideoName_tvSegments() {
+        String name = "Yojouhan Shinwa Taikei";
+        String videoName = "[Cleo]Yojouhan_Shinwa_Taikei_-_01_(10bit_BD1080p_x265).mkv";
+
+        MediaInfoExtractor extractor = new MediaInfoExtractor(name, null, TV, videoName);
+
+        assertThat(extractor.extractMediaInfo().destinationPathSegments()).containsExactly("Yojouhan Shinwa Taikei",  "Yojouhan Shinwa Taikei E01.mkv");
     }
 }

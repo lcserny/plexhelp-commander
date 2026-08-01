@@ -117,9 +117,10 @@ public class MediaInfoExtractor {
 
     // fileName = baseName + [S0x][E0y] + (year) + [lang data and index] + extension
     private String extractFileName(String baseName, LocalDate localDate,  Integer season, Integer episode) {
+        String spaceBefore = season == null ? " " : "";
         return baseName +
                 (season != null ? " S%02d".formatted(season) : "") +
-                (episode != null ? "E%02d".formatted(episode) : "") +
+                (episode != null ? "%sE%02d".formatted(spaceBefore, episode) : "") +
                 (localDate != null ? " (" + localDate.getYear() + ")" : "") +
                 extractIndexedLangData() +
                 extractExtension();
