@@ -49,12 +49,22 @@ class MediaInfoExtractorTest {
     }
 
     @Test
+    public void baselineExtractor_noSeasonInGroupAndInVideoName_movieSegments() {
+        String name = "Yojouhan Shinwa Taikei";
+        String videoName = "[Cleo]Yojouhan_Shinwa_Taikei_-_01_(10bit_BD1080p_x265).mkv";
+
+        MediaInfoExtractor extractor = new MediaInfoExtractor(name, null, MOVIE, videoName);
+
+        assertThat(extractor.extractMediaInfo().destinationPathSegments()).containsExactly("Yojouhan Shinwa Taikei",  "Yojouhan Shinwa Taikei.mkv");
+    }
+
+    @Test
     public void baselineExtractor_noSeasonInGroupAndInVideoName_tvSegments() {
         String name = "Yojouhan Shinwa Taikei";
         String videoName = "[Cleo]Yojouhan_Shinwa_Taikei_-_01_(10bit_BD1080p_x265).mkv";
 
         MediaInfoExtractor extractor = new MediaInfoExtractor(name, null, TV, videoName);
 
-        assertThat(extractor.extractMediaInfo().destinationPathSegments()).containsExactly("Yojouhan Shinwa Taikei",  "Yojouhan Shinwa Taikei E01.mkv");
+        assertThat(extractor.extractMediaInfo().destinationPathSegments()).containsExactly("Yojouhan Shinwa Taikei", "Season 1",  "Yojouhan Shinwa Taikei S01E01.mkv");
     }
 }

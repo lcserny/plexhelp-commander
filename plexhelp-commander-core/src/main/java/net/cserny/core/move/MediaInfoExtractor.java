@@ -79,6 +79,10 @@ public class MediaInfoExtractor {
             return videoSeason;
         }
 
+        if (this.season == null) {
+            return 1;
+        }
+
         return this.season;
     }
 

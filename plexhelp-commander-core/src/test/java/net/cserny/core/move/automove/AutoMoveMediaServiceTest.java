@@ -80,7 +80,7 @@ class AutoMoveMediaServiceTest extends IntegrationTest {
 
         service.autoMoveMedia();
 
-        assertTrue(Files.exists(fileService.toLocalPath(filesystemConfig.getTvPath(), name, name + ".mp4").path()));
+        assertTrue(Files.exists(fileService.toLocalPath(filesystemConfig.getTvPath(), name, "Season 1", name + " S01.mp4").path()));
         DownloadedMedia savedMedia = verifyDownloadedMedia(media);
         verifyAutoMovedMedia(savedMedia);
     }
@@ -131,7 +131,7 @@ class AutoMoveMediaServiceTest extends IntegrationTest {
 
         service.autoMoveMedia();
 
-        assertTrue(Files.exists(fileService.toLocalPath(filesystemConfig.getTvPath(), searchName, searchName + ".mp4").path()));
+        assertTrue(Files.exists(fileService.toLocalPath(filesystemConfig.getTvPath(), searchName, "Season 1", searchName + " S01.mp4").path()));
         assertFalse(Files.exists(fileService.toLocalPath(filesystemConfig.getMoviesPath(), format("%s (%s)", unsimilarName, ldt.format(ISO_LOCAL_DATE)), video).path()));
     }
 
