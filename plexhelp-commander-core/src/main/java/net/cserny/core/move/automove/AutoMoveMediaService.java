@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.togglz.core.manager.FeatureManager;
 
 import java.io.File;
+import java.io.IOException;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.*;
@@ -150,7 +151,10 @@ class AutoMoveMediaService {
                 .name(movedName)
                 .noParent(group.getNoParent())
                 .videos(group.getVideos());
-        automoveSupport.moveMedia(resultGroup, option.type(), option.desc);
+        List<MediaMoveError> mediaMoveErrors = automoveSupport.moveMedia(resultGroup, option.type(), option.desc);
+        if (!mediaMoveErrors.isEmpty()) {
+            throw new RuntimeException(String.format("Auto move media failed for %s: %s", resultGroup, toLoggableString(mediaMoveErrors)));
+        }
         return movedName;
     }
 

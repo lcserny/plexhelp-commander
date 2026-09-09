@@ -49,6 +49,10 @@ class TVDataExtractorTest {
     static Stream<Arguments> episodeProvider() {
         return Stream.of(
                 Arguments.of("Cinderella.S05E07.1080p.tgx", 7),
+                Arguments.of("Episode 01 - First Blood.mkv", 1),
+                Arguments.of("Episode 07 - Seventh Killing Spirit.mkv", 7),
+                Arguments.of("Episode 11 - Eleventh Slaughter .mkv", 11),
+                Arguments.of("S01E01-Episode 1 [59596368].mkv", 1),
                 Arguments.of("Cinderella.S05E9.1080p.tgx", 9),
                 Arguments.of("Cinderella.S05e12.1080p.tgx", 12),
                 Arguments.of("Cinderella.S05.1080p.tgx", null),
