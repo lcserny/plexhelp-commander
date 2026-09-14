@@ -85,10 +85,7 @@ public class DownloadedMediaRepository {
         Query query = new Query();
 
         Criteria criteria = new Criteria().andOperator(
-                new Criteria().orOperator(
-                        Criteria.where("downloadComplete").is(true),
-                        Criteria.where("downloadComplete").exists(false)
-                ),
+                Criteria.where("downloadComplete").is(true),
                 new Criteria().orOperator(
                         Criteria.where("triedAutoMove").is(false),
                         Criteria.where("triedAutoMove").exists(false)
