@@ -2,20 +2,21 @@ package net.cserny;
 
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.DynamicPropertyRegistrar;
 import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
-import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.utility.DockerImageName;
 
-import java.nio.file.Paths;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 
 import static java.lang.String.format;
 
-// TODO improve this, I don't like it
 @TestConfiguration(proxyBeanMethods = false)
 public class QTorrentTestConfiguration {
 
@@ -23,32 +24,40 @@ public class QTorrentTestConfiguration {
 
     private static final String WEBUI_BASE_KEY = "torrent.webui.baseUrl";
 
-    @Container
-    public static GenericContainer container = new GenericContainer("linuxserver/qbittorrent:4.5.2")
-            .withExposedPorts(MAPPED_PORT)
-            .withFileSystemBind(
-                    Paths.get("src", "test", "resources", "qBittorrent.conf").toString(),
-                    "/config/qBittorrent/qBittorrent.conf",
-                    BindMode.READ_WRITE)
-            .withStartupTimeout(Duration.of(10, ChronoUnit.SECONDS))
-            .waitingFor(Wait.forLogMessage(".*\\[ls\\.io\\-init\\] done\\..*\\n", 1));
-
-    static {
-        container.start();
-        System.setProperty(WEBUI_BASE_KEY, buildUrl(container));
+    @Bean
+    GenericContainer<?> qtorrentContainer() {
+        return new GenericContainer<>(DockerImageName.parse("linuxserver/qbittorrent:4.5.2"))
+                .withExposedPorts(MAPPED_PORT)
+                .withFileSystemBind(
+                        qBittorrentConfPath(),
+                        "/config/qBittorrent/qBittorrent.conf",
+                        BindMode.READ_WRITE)
+                .withStartupTimeout(Duration.of(10, ChronoUnit.SECONDS))
+                .waitingFor(Wait.forLogMessage(".*\\[ls\\.io\\-init\\] done\\..*\\n", 1));
     }
 
     @Bean
-    public GenericContainer qtorrentContainer() {
-        return container;
+    DynamicPropertyRegistrar qtorrentProperties(GenericContainer<?> qtorrentContainer) {
+        return registry -> registry.add(WEBUI_BASE_KEY, () -> buildUrl(qtorrentContainer));
     }
 
-    @DynamicPropertySource
-    static void setQTorrentProperties(DynamicPropertyRegistry registry) {
-        registry.add(WEBUI_BASE_KEY, () -> buildUrl(container));
+    private static String qBittorrentConfPath() {
+        Path moduleLocal = Path.of("src", "test", "resources", "qBittorrent.conf");
+        if (Files.exists(moduleLocal)) {
+            return moduleLocal.toAbsolutePath().toString();
+        }
+        URL resource = QTorrentTestConfiguration.class.getResource("/qBittorrent.conf");
+        if (resource != null && "file".equalsIgnoreCase(resource.getProtocol())) {
+            try {
+                return Path.of(resource.toURI()).toString();
+            } catch (URISyntaxException | IllegalArgumentException ignored) {
+                // fall through to module-local path
+            }
+        }
+        return moduleLocal.toAbsolutePath().toString();
     }
 
-    private static String buildUrl(GenericContainer container) {
+    private static String buildUrl(GenericContainer<?> container) {
         return format("http://%s:%d", container.getHost(), container.getMappedPort(MAPPED_PORT));
     }
 }

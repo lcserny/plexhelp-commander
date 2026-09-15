@@ -9,9 +9,11 @@ spring:
 
   data:
     mongodb:
-      uri: mongodb://mongoConnectionString
-      database: videosmover_dev
       auto-index-creation: true
+
+  mongodb:
+    database: videosmover_dev
+    uri: mongodb://mongoConnectionString
 
 logging:
   file:

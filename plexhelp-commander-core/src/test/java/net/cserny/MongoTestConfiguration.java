@@ -1,33 +1,17 @@
 package net.cserny;
 
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.annotation.Bean;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
-import org.testcontainers.containers.MongoDBContainer;
-import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.mongodb.MongoDBContainer;
+import org.testcontainers.utility.DockerImageName;
 
-// TODO improve this, I don't like it
 @TestConfiguration(proxyBeanMethods = false)
 public class MongoTestConfiguration {
 
-    private static final String MONGO_URI_KEY = "spring.data.mongodb.uri";
-
-    @Container
-    public static MongoDBContainer container = new MongoDBContainer("mongo:7.0");
-
-    static {
-        container.start();
-        System.setProperty(MONGO_URI_KEY, container.getConnectionString());
-    }
-
     @Bean
+    @ServiceConnection
     public MongoDBContainer mongoDbContainer() {
-        return container;
-    }
-
-    @DynamicPropertySource
-    static void setMongoDbProperties(DynamicPropertyRegistry registry) {
-        registry.add(MONGO_URI_KEY, container::getReplicaSetUrl);
+        return new MongoDBContainer(DockerImageName.parse("mongo:7.0"));
     }
 }

@@ -3,7 +3,6 @@ package net.cserny.core.search;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -11,9 +10,9 @@ public class PathManipulationTest {
 
     @Test
     public void substring1() {
-        Path downloadsPath = Paths.get("/downloads");
+        Path downloadsPath = Path.of("/downloads");
         int downloadsPathSegments = downloadsPath.getNameCount();
-        Path videoPath = Paths.get("/downloads/some nested folder/another one/video5.mp4");
+        Path videoPath = Path.of("/downloads/some nested folder/another one/video5.mp4");
         int videoPathSegments = videoPath.getNameCount();
 
         Path name = videoPath.subpath(downloadsPathSegments, downloadsPathSegments + 1);
@@ -24,7 +23,7 @@ public class PathManipulationTest {
             remainingFile = videoPath.subpath(downloadsPathSegments + 1, videoPathSegments);
         } else {
             String nameString = name.toString();
-            name = Paths.get(nameString.substring(0, nameString.lastIndexOf(".")));
+            name = Path.of(nameString.substring(0, nameString.lastIndexOf(".")));
         }
 
         assertEquals("/downloads/some nested folder", pth.toString());
@@ -34,9 +33,9 @@ public class PathManipulationTest {
 
     @Test
     public void substring2() {
-        Path downloadsPath = Paths.get("/downloads");
+        Path downloadsPath = Path.of("/downloads");
         int downloadsPathSegments = downloadsPath.getNameCount();
-        Path videoPath = Paths.get("/downloads/video5.mp4");
+        Path videoPath = Path.of("/downloads/video5.mp4");
         int videoPathSegments = videoPath.getNameCount();
 
         Path name = videoPath.subpath(downloadsPathSegments, downloadsPathSegments + 1);
@@ -47,7 +46,7 @@ public class PathManipulationTest {
             remainingFile = videoPath.subpath(downloadsPathSegments + 1, videoPathSegments);
         } else {
             String nameString = name.toString();
-            name = Paths.get(nameString.substring(0, nameString.lastIndexOf(".")));
+            name = Path.of(nameString.substring(0, nameString.lastIndexOf(".")));
         }
 
         assertEquals("/downloads", pth.toString());

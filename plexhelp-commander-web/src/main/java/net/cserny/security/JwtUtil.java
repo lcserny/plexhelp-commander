@@ -9,7 +9,6 @@ import net.cserny.generated.UserPerm;
 import net.cserny.generated.UserRole;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -43,7 +42,6 @@ public class JwtUtil {
     private final String issuer;
     private final JWTVerifier verifier;
 
-    @Autowired
     public JwtUtil(SecurityProperties properties) throws IOException {
         this.issuer = properties.getIssuer();
         this.verifier = JWT.require(this.initAlgorithm(properties)).build();

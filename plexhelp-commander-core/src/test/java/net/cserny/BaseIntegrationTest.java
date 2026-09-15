@@ -8,7 +8,6 @@ import net.cserny.api.dto.LocalPath;
 import net.cserny.fs.NoAttributes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.test.autoconfigure.data.mongo.AutoConfigureDataMongo;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -16,7 +15,6 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.io.IOException;
 import java.nio.file.*;
@@ -31,8 +29,6 @@ import java.nio.file.attribute.BasicFileAttributes;
         MongoTestConfiguration.class
 })
 @ActiveProfiles("test")
-@AutoConfigureDataMongo
-@Testcontainers
 public abstract class BaseIntegrationTest {
 
     @TestConfiguration(proxyBeanMethods = false)

@@ -7,9 +7,8 @@ spring:
   thymeleaf:
     check-template: false
 
-  data:
-    mongodb:
-      database: videosmover_test
+  mongodb:
+    database: videosmover_test
 
 togglz:
   cache:

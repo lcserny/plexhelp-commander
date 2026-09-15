@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
@@ -134,7 +133,7 @@ public class AdjustMediaDateService {
     }
 
     private Set<DateAdjustEntry> readCurrentEntries(String backupFilePathStr) throws IOException {
-        Path backupFilePath = Paths.get(backupFilePathStr);
+        Path backupFilePath = Path.of(backupFilePathStr);
         if (!Files.exists(backupFilePath)) {
             return new HashSet<>();
         }
@@ -157,7 +156,7 @@ public class AdjustMediaDateService {
         List<String> lines = currentEntries.stream()
                 .map(e -> String.format("%s%s%s", e.source(), separator, e.target()))
                 .toList();
-        Files.write(Paths.get(backupFilePath), lines);
+        Files.write(Path.of(backupFilePath), lines);
     }
 
     record DateAdjustEntry(String source, String target) {}

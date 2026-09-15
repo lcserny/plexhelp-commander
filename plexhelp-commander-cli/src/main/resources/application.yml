@@ -5,7 +5,7 @@ spring:
     web-application-type: none
     banner-mode: off
   autoconfigure:
-    exclude: org.springframework.boot.autoconfigure.web.servlet.ServletWebServerFactoryAutoConfiguration
+    exclude: org.springframework.boot.webmvc.autoconfigure.ServletWebServerFactoryAutoConfiguration
   threads:
     virtual:
       enabled: true
@@ -14,9 +14,11 @@ spring:
 
   data:
     mongodb:
-      uri: mongodb://mongoConnectionString
-      database: videosmover_dev
       auto-index-creation: true
+
+  mongodb:
+    database: videosmover_dev
+    uri: mongodb://mongoConnectionString
 
 logging:
   level:

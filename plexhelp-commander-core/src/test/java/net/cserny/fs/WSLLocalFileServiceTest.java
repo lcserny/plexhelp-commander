@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.*;
@@ -26,7 +25,7 @@ import java.util.stream.IntStream;
 @ExtendWith(MockitoExtension.class)
 public class WSLLocalFileServiceTest extends IntegrationTestWithRealFS {
 
-    private static final Path wslHostPublicDir = Paths.get("/mnt/c/Users/Public");
+    private static final Path wslHostPublicDir = Path.of("/mnt/c/Users/Public");
 
     static boolean inWslWithMountedHostDrive() {
         return Files.exists(wslHostPublicDir);

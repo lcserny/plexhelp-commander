@@ -16,8 +16,6 @@ import java.time.ZoneOffset;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.closeTo;
-import static org.hamcrest.Matchers.equalTo;
 
 public class MediaDownloadControllerTest extends WebIntegrationTest {
 
@@ -55,7 +53,7 @@ public class MediaDownloadControllerTest extends WebIntegrationTest {
                 .body("$.size()", is(1))
                 .body("[0].fileName", is(name))
                 .body("[0].fileSize", is((int) size))
-                .body("[0].dateDownloaded", equalTo((float) date.getEpochSecond()));
+                .body("[0].dateDownloaded", is(date.toString()));
     }
 
     @Test
