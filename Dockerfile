@@ -1,4 +1,4 @@
-FROM docker.io/library/eclipse-temurin:21-jre-noble
+FROM docker.io/library/eclipse-temurin:25-jre-noble
 VOLUME /tmp
 RUN mkdir -p /app && chown -R ubuntu:ubuntu /app
 COPY --chown=ubuntu:ubuntu plexhelp-commander-web/target/plexhelp-commander-*.jar /app/commander.jar
