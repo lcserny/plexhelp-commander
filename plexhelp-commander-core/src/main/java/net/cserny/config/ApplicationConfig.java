@@ -1,6 +1,5 @@
 package net.cserny.config;
 
-import tools.jackson.databind.ObjectMapper;
 import com.mongodb.client.MongoClient;
 import io.micrometer.context.ContextExecutorService;
 import io.micrometer.context.ContextSnapshotFactory;
@@ -37,6 +36,7 @@ import org.togglz.core.repository.cache.CachingStateRepository;
 import org.togglz.core.spi.FeatureProvider;
 import org.togglz.mongodb.MongoStateRepository;
 import org.togglz.spring.boot.actuate.autoconfigure.TogglzProperties;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -79,7 +79,7 @@ public class ApplicationConfig {
     }
 
     @Bean
-    ObjectMapper objectMapper() {
+    JsonMapper jsonMapper() {
         return UtilityProvider.MAPPER;
     }
 
