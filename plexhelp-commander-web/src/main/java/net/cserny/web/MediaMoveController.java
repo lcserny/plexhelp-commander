@@ -29,7 +29,7 @@ public class MediaMoveController implements ApiApi {
 
     @PostMapping(value = "/all", consumes = MediaType.APPLICATION_JSON_VALUE)
     @Override
-    public ResponseEntity<List<MediaMoveError>> moveAllMedia(@RequestBody List<@Valid MediaMoveRequest> moveRequests) {
+    public ResponseEntity<List<MediaMoveError>> moveAllMedia(@RequestBody @Valid List<@Valid MediaMoveRequest> moveRequests) {
         return ResponseEntity.ok(moveRequests.stream()
                 .flatMap(req -> service.moveMedia(req.getFileGroup(), req.getType(), req.getMediaDesc()).stream())
                 .toList()
@@ -59,7 +59,7 @@ public class MediaMoveController implements ApiApi {
 
     @PostMapping(value = "/delete-all", consumes = MediaType.APPLICATION_JSON_VALUE)
     @Override
-    public ResponseEntity<Void> removeAllMedia(@RequestBody List<String> ids) {
+    public ResponseEntity<Void> removeAllMedia(List<String> ids) {
         ids.forEach(service::removeMovedMedia);
         return ResponseEntity.ok().build();
     }
