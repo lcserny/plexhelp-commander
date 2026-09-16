@@ -15,6 +15,9 @@ spring:
     database: videosmover_dev
     uri: mongodb://mongoConnectionString
 
+  jackson:
+    use-jackson2-defaults: true
+
 springdoc:
   api-docs:
     enabled: false
