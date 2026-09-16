@@ -11,8 +11,8 @@ import net.cserny.core.rename.tmdb.TmdbRestApi;
 import net.cserny.core.torrent.qbittorrent.QBitTorrentRestApi;
 import net.cserny.core.torrent.qbittorrent.QBitTorrentSidInterceptor;
 import net.cserny.support.Features;
-import net.cserny.support.UtilityProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.jackson.autoconfigure.JsonMapperBuilderCustomizer;
 import org.springframework.boot.mongodb.autoconfigure.MongoProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -36,7 +36,8 @@ import org.togglz.core.repository.cache.CachingStateRepository;
 import org.togglz.core.spi.FeatureProvider;
 import org.togglz.mongodb.MongoStateRepository;
 import org.togglz.spring.boot.actuate.autoconfigure.TogglzProperties;
-import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.cfg.DateTimeFeature;
+import tools.jackson.module.blackbird.BlackbirdModule;
 
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -79,8 +80,10 @@ public class ApplicationConfig {
     }
 
     @Bean
-    JsonMapper jsonMapper() {
-        return UtilityProvider.MAPPER;
+    JsonMapperBuilderCustomizer jsonMapperBuilderCustomizer() {
+        return builder -> builder
+                .enable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .addModule(new BlackbirdModule());
     }
 
     @Bean
