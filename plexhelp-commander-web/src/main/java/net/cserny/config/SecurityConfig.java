@@ -5,6 +5,9 @@ import net.cserny.generated.UserPerm;
 import net.cserny.generated.UserRole;
 import net.cserny.security.JwtAuthenticationFilter;
 import net.cserny.security.JwtUtil;
+import org.springframework.boot.health.actuate.endpoint.HealthEndpoint;
+import org.springframework.boot.micrometer.metrics.actuate.endpoint.MetricsEndpoint;
+import org.springframework.boot.security.autoconfigure.actuate.web.servlet.EndpointRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -31,6 +34,7 @@ public class SecurityConfig {
         http.cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.configure(http))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((registry) -> registry
+                        .requestMatchers(EndpointRequest.toAnyEndpoint()).permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/ping").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/torrents").permitAll()
                         .requestMatchers(HttpMethod.GET)
