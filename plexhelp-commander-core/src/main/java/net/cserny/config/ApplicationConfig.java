@@ -36,6 +36,7 @@ import org.togglz.core.repository.cache.CachingStateRepository;
 import org.togglz.core.spi.FeatureProvider;
 import org.togglz.mongodb.MongoStateRepository;
 import org.togglz.spring.boot.actuate.autoconfigure.TogglzProperties;
+import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.module.blackbird.BlackbirdModule;
 
@@ -83,6 +84,7 @@ public class ApplicationConfig {
     JsonMapperBuilderCustomizer jsonMapperBuilderCustomizer() {
         return builder -> builder
                 .enable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
                 .addModule(new BlackbirdModule());
     }
 
