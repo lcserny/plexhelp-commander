@@ -103,11 +103,11 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public QBitTorrentRestApi qBitTorrentRestApi(TorrentProperties torrentProperties) {
+    public QBitTorrentRestApi qBitTorrentRestApi(TorrentProperties torrentProperties, RestClient.Builder builder) {
         JdkClientHttpRequestFactory requestFactory = new JdkClientHttpRequestFactory();
         requestFactory.setReadTimeout(Duration.ofMillis(torrentProperties.getReadTimeout()));
 
-        RestClient.Builder restClientBuilder = RestClient.builder()
+        RestClient.Builder restClientBuilder = builder
                 .baseUrl(torrentProperties.getBaseUrl())
                 .requestFactory(new BufferingClientHttpRequestFactory(requestFactory))
                 .defaultHeader(CONTENT_TYPE, APPLICATION_FORM_URLENCODED_VALUE);
